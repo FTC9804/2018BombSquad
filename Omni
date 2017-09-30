@@ -1,0 +1,110 @@
+//Version 1.0 coded Sep. 23, 2017 by Marcus.
+//Designed to test the functionality of OmniDrive
+
+//package declaration
+package org.firstinspires.ftc.teamcode;
+
+//import statements
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.DigitalChannelController;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoController;
+import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.Range;
+
+
+@TeleOp(name = "OmniDrive", group = "LA Championships")
+//@Disabled
+public class Omni extends OpMode {
+
+    //Variable declarations
+
+    //Motors
+    DcMotor rightMotor;   //right drive motor front
+    DcMotor leftMotor;    //left drive motor front
+    DcMotor topMotor;   //right drive motor back
+    DcMotor bottomMotor;    //left drive motor back
+
+    double gamepadlefty;
+    double gamepadrightx;
+    double leftpower;
+    double rightpower;
+    double sidepower;
+
+    /* Initialize standard Hardware interfaces */
+    public void init() { //use hardwaremap here instead of hwmap or ahwmap provided in sample code
+
+        //motor configurations in the hardware map
+        rightMotor = hardwareMap.dcMotor.get("m1");
+        leftMotor = hardwareMap.dcMotor.get("m2");
+        topMotor = hardwareMap.dcMotor.get("m3");
+        bottomMotor = hardwareMap.dcMotor.get("m4");
+
+        //Motor directions: set forward/reverse
+        rightMotor.setDirection(DcMotor.Direction.REVERSE);
+        leftMotor.setDirection(DcMotor.Direction.FORWARD);
+        topMotor.setDirection(DcMotor.Direction.REVERSE);
+        bottomMotor.setDirection(DcMotor.Direction.FORWARD);
+    }
+
+    public void loop () {
+
+        gamepadlefty = gamepad1.left_stick_y;
+        gamepadrightx = gamepad1.right_stick_x;
+
+        if (gamepadlefty < 0) {
+            if (gamepadrightx > 0) {
+                leftpower = gamepadlefty / 2;
+                rightpower = gamepadlefty / 2 - gamepadrightx;
+            } else {
+                leftpower = gamepadlefty;
+                rightpower = (-1 - gamepadrightx) * (-1 * leftpower);
+            }
+        }
+
+        if (gamepadlefty == 0) {
+            leftpower = 2 * gamepadrightx;
+            rightpower = -2 * gamepadrightx;
+        }
+
+        if (gamepadlefty > 0) {
+            if (gamepadrightx > 0) {
+                rightpower = gamepadlefty / 2;
+                leftpower = gamepadlefty / 2 + gamepadrightx;
+            } else {
+                rightpower = gamepadlefty;
+                leftpower = (-1 - gamepadrightx) * (-1 * rightpower);
+            }
+        }
+
+        leftpower = Range.clip (leftpower, -1, 1);
+        rightpower = Range.clip (rightpower, -1, 1);
+
+        if (gamepad1.left_trigger < .1 && gamepad1.right_trigger <   .1) {
+            sidepower = 0;
+        }
+        if (gamepad1.left_trigger > .1 && gamepad1.right_trigger < .1) {
+            sidepower = -gamepad1.left_trigger;
+        }
+        if (gamepad1.left_trigger < .1 && gamepad1.right_trigger > .1) {
+            sidepower = gamepad1.right_trigger;
+        }
+        if (gamepad1.left_trigger > .1 && gamepad1.right_trigger > .1) {
+            sidepower = 0;
+        }
+
+        sidepower = Range.clip (sidepower, -1, 1);
+
+        leftMotor.setPower(leftpower);
+        rightMotor.setPower(rightpower);
+        topMotor.setPower(sidepower);
+        bottomMotor.setPower(sidepower);
+
+    }
+
+}
+
