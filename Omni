@@ -16,6 +16,11 @@ import com.qualcomm.robotcore.hardware.ServoController;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
+import static com.qualcomm.robotcore.util.Range.clip;
+
 
 @TeleOp(name = "OmniDrive", group = "LA Championships")
 //@Disabled
@@ -29,11 +34,15 @@ public class Omni extends OpMode {
     DcMotor topMotor;   //right drive motor back
     DcMotor bottomMotor;    //left drive motor back
 
-    double gamepadlefty;
+    double gamepadrighty;
+    double gamepadleftx;
     double gamepadrightx;
     double leftpower;
     double rightpower;
-    double sidepower;
+    double toppower;
+    double bottompower;
+    double sidePower;
+    double spinPower;
 
     /* Initialize standard Hardware interfaces */
     public void init() { //use hardwaremap here instead of hwmap or ahwmap provided in sample code
@@ -45,66 +54,47 @@ public class Omni extends OpMode {
         bottomMotor = hardwareMap.dcMotor.get("m4");
 
         //Motor directions: set forward/reverse
-        rightMotor.setDirection(DcMotor.Direction.REVERSE);
-        leftMotor.setDirection(DcMotor.Direction.FORWARD);
-        topMotor.setDirection(DcMotor.Direction.REVERSE);
-        bottomMotor.setDirection(DcMotor.Direction.FORWARD);
+        rightMotor.setDirection(REVERSE);
+        leftMotor.setDirection(FORWARD);
+        topMotor.setDirection(REVERSE);
+        bottomMotor.setDirection(FORWARD);
     }
 
-    public void loop () {
+    public void loop() {
+        //TODO Strafe!!  rotation  forward
 
-        gamepadlefty = gamepad1.left_stick_y;
+        gamepadrighty = gamepad1.right_stick_y;
         gamepadrightx = gamepad1.right_stick_x;
+        gamepadleftx = -(gamepad1.left_stick_x);
 
-        if (gamepadlefty < 0) {
-            if (gamepadrightx > 0) {
-                leftpower = gamepadlefty / 2;
-                rightpower = gamepadlefty / 2 - gamepadrightx;
-            } else {
-                leftpower = gamepadlefty;
-                rightpower = (-1 - gamepadrightx) * (-1 * leftpower);
-            }
+        //if we are rotating
+        if(gamepadleftx > .05 || gamepadleftx < -.05) {
+
+            leftpower = gamepadleftx;
+            rightpower = -(gamepadleftx);
+            toppower = gamepadleftx;
+            bottompower = -(gamepadleftx);
         }
-
-        if (gamepadlefty == 0) {
-            leftpower = 2 * gamepadrightx;
-            rightpower = -2 * gamepadrightx;
-        }
-
-        if (gamepadlefty > 0) {
-            if (gamepadrightx > 0) {
-                rightpower = gamepadlefty / 2;
-                leftpower = gamepadlefty / 2 + gamepadrightx;
-            } else {
-                rightpower = gamepadlefty;
-                leftpower = (-1 - gamepadrightx) * (-1 * rightpower);
-            }
+        // if we are not turning
+        else {
+            //forward backwards
+            leftpower = gamepadrighty;
+            rightpower = gamepadrighty;
+            //strafe
+            toppower = gamepadrightx;
+            bottompower = gamepadrightx;
         }
 
-        leftpower = Range.clip (leftpower, -1, 1);
-        rightpower = Range.clip (rightpower, -1, 1);
-
-        if (gamepad1.left_trigger < .1 && gamepad1.right_trigger <   .1) {
-            sidepower = 0;
-        }
-        if (gamepad1.left_trigger > .1 && gamepad1.right_trigger < .1) {
-            sidepower = -gamepad1.left_trigger;
-        }
-        if (gamepad1.left_trigger < .1 && gamepad1.right_trigger > .1) {
-            sidepower = gamepad1.right_trigger;
-        }
-        if (gamepad1.left_trigger > .1 && gamepad1.right_trigger > .1) {
-            sidepower = 0;
-        }
-
-        sidepower = Range.clip (sidepower, -1, 1);
+        toppower = clip(toppower, -1, 1);
+        bottompower = clip(bottompower, -1, 1);
+        leftpower = clip(leftpower, -1, 1);
+        rightpower = clip(rightpower, -1, 1);
 
         leftMotor.setPower(leftpower);
         rightMotor.setPower(rightpower);
-        topMotor.setPower(sidepower);
-        bottomMotor.setPower(sidepower);
+        topMotor.setPower(toppower);
+        bottomMotor.setPower(bottompower);
 
     }
 
 }
-
