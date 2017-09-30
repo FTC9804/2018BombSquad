@@ -24,7 +24,7 @@ import static com.qualcomm.robotcore.util.Range.clip;
 
 @TeleOp(name = "OmniDrive", group = "OmniDriveBot")
 //@Disabled
-public class OmniTest extends OpMode {
+public class Omni extends OpMode {
 
     // Declarations
 
@@ -73,8 +73,8 @@ public class OmniTest extends OpMode {
 
             leftpower = gamepadleftx;
             rightpower = -(gamepadleftx);
-            toppower = gamepadleftx;
-            bottompower = -(gamepadleftx);
+            toppower = -gamepadleftx;
+            bottompower = gamepadleftx;
 
         }   // end if statement
 
