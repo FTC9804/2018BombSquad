@@ -1,5 +1,6 @@
-//Version 1.0 coded Oct. 6, 2017 by Marcus.
+//Version 2.0 coded Oct. 7, 2017 by Marcus and Isaac.
 //Designed to test the functionality of block grabber prototype
+//So far so good!
 
 //package declaration
 package org.firstinspires.ftc.teamcode;
@@ -26,6 +27,8 @@ import static com.qualcomm.robotcore.util.Range.clip;
  * Created by MarcusLeher on 06/10/2017.
  */
 
+@TeleOp(name = "Grabbers", group = "Grabbers")
+//@Disabled
 public class Grabbers extends OpMode {
 
     //Variable declarations
@@ -52,7 +55,7 @@ public class Grabbers extends OpMode {
     double adjustedRightX;
     double adjustedLeftTrigger;
 
-    boolean touch1press;
+    boolean touch1press = false;
 
     public void init() {
         //Servo configurations
@@ -112,7 +115,7 @@ public class Grabbers extends OpMode {
 
         //As the Servo horizontal is continuous, its interval of values is (0,1), while
         //the interval of values for gamepadrightx is (-1,1).  Thus, we need to convert this value.
-        adjustedRightX = .5 + gamepadrightx / 2;
+        adjustedRightX = .486 - gamepadrightx / 2;
 
         //The rawLeftTrigger value is in the interval (0,1).  However, for our purposes prssing the
         //left trigger means the grabbers are intaking, which represents values in the interval (0,.5), given
@@ -122,17 +125,17 @@ public class Grabbers extends OpMode {
         //Adjust openCloseValue as necesarry
 
         if (dpadUp && !dpadDown) {
-            openCloseValue += .0005;
+            openCloseValue += .012;
         }
         if (dpadDown && !dpadUp) {
-            openCloseValue -= .0005;
+            openCloseValue -= .012;
         }
 
         openCloseValue = Range.clip(openCloseValue, .157, .745);
 
-        if (leftTrigger > .05 && !leftBumper && !touch1press) {
+        if (leftTrigger > .05 && !leftBumper) {
             conveyorValue = adjustedLeftTrigger;
-        } else if (leftTrigger < .05 && leftBumper && !touch1press) {
+        } else if (leftTrigger < .05 && leftBumper) {
             conveyorValue = 0;
         }
         else if (leftTrigger< .05 && !leftBumper) {
@@ -147,6 +150,10 @@ public class Grabbers extends OpMode {
 
         //Set powers
         horizontal.setPosition(adjustedRightX);
+        if (touch1press && conveyorValue > .5)
+        {
+            conveyorValue = .5;
+        }
         rightGrabber.setPosition(conveyorValue);
         leftGrabber.setPosition(conveyorValue);
         if (!touch1press)
@@ -157,9 +164,18 @@ public class Grabbers extends OpMode {
         {
             openClose.setPosition(stillOpenCloseValue);
         }
-        
+
+        telemetry.addData("open close value", openCloseValue);
+        telemetry.addData("adj right x", adjustedRightX);
+        telemetry.update();
+
     }
 }
+
+
+
+
+
 
 
 
