@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
+import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -36,6 +37,8 @@ public class Grabbers extends OpMode {
     Servo leftGrabber; //Servo that controls the grabber on the left, with a reference point looking
     //at the openClose servo
 
+    TouchSensor touchSensor1;
+
     boolean dpadUp = false; //boolean that is initially set to false, and becomes true if the dpad up is pressed
     boolean dpadDown = false; //boolean that is initially set to false, and becomes true if the dpad down is pressed
     double gamepadrightx; //double that represents the raw value of the x axis of the right stick of the gamepad being used
@@ -47,12 +50,16 @@ public class Grabbers extends OpMode {
     double adjustedRightX;
     double adjustedLeftTrigger;
 
+    boolean touch1press;
+
     public void init() {
         //Servo configurations
         horizontal = hardwareMap.servo.get("s1");
         openClose = hardwareMap.servo.get("s2");
         rightGrabber = hardwareMap.servo.get("s3");
         leftGrabber = hardwareMap.servo.get("s4");
+
+        touchSensor1 = hardwareMap.touchSensor.get("touch1");
 
         //Servo directions
         horizontal.setDirection(Servo.Direction.FORWARD);
@@ -68,6 +75,15 @@ public class Grabbers extends OpMode {
     }
 
     public void loop() {
+        
+        if (touchSensor1.isPressed())
+        {
+            touch1press = true;
+        }
+        else
+        {
+            touch1press = false;
+        }
 
         //Set values of booleans
         if (gamepad1.dpad_up) {
@@ -112,10 +128,19 @@ public class Grabbers extends OpMode {
 
         openCloseValue = Range.clip(openCloseValue, 0, 1);
 
-        if (leftTrigger > .05 && !leftBumper) {
+        if (leftTrigger > .05 && !leftBumper && !touch1press) {
             conveyorValue = adjustedLeftTrigger;
-        } else if (leftTrigger < .05 && leftBumper) {
+        } else if (leftTrigger < .05 && leftBumper && !touch1press) {
             conveyorValue = 1;
+        }
+        else if (leftTrigger< .05 && !leftBumper) {
+            conveyorValue = 0;
+        }
+        else if (leftTrigger>.05 && leftBumper) {
+            conveyorValue = 0;
+        }
+        else {
+            conveyorValue = 0;
         }
 
         //Set powers
