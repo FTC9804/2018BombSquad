@@ -46,6 +46,8 @@ public class Grabbers extends OpMode {
     double leftTrigger; //double that represents the raw value of the left trigger of the gamepad being used
     double openCloseValue = .5; //double that represents the position value to be applied to the openClose servo
     double conveyorValue = .5; //double that represents the postion value to be applied to the left and right grabbers
+    double stillOpenCloseValue = .745;
+
 
     double adjustedRightX;
     double adjustedLeftTrigger;
@@ -68,14 +70,14 @@ public class Grabbers extends OpMode {
         leftGrabber.setDirection(Servo.Direction.FORWARD);
 
         //Initial powers
-        horizontal.setPosition(.5);
+        horizontal.setPosition(.486);
         openClose.setPosition(.5);
         rightGrabber.setPosition(.5);
         leftGrabber.setPosition(.5);
     }
 
     public void loop() {
-        
+
         if (touchSensor1.isPressed())
         {
             touch1press = true;
@@ -115,7 +117,7 @@ public class Grabbers extends OpMode {
         //The rawLeftTrigger value is in the interval (0,1).  However, for our purposes prssing the
         //left trigger means the grabbers are intaking, which represents values in the interval (0,.5), given
         //the right and left grabbers are continuous
-        adjustedLeftTrigger = leftTrigger / 2;
+        adjustedLeftTrigger = leftTrigger / 2 + .5;
 
         //Adjust openCloseValue as necesarry
 
@@ -126,30 +128,52 @@ public class Grabbers extends OpMode {
             openCloseValue -= .0005;
         }
 
-        openCloseValue = Range.clip(openCloseValue, 0, 1);
+        openCloseValue = Range.clip(openCloseValue, .157, .745);
 
         if (leftTrigger > .05 && !leftBumper && !touch1press) {
             conveyorValue = adjustedLeftTrigger;
         } else if (leftTrigger < .05 && leftBumper && !touch1press) {
-            conveyorValue = 1;
+            conveyorValue = 0;
         }
         else if (leftTrigger< .05 && !leftBumper) {
-            conveyorValue = 0;
+            conveyorValue = .5;
         }
         else if (leftTrigger>.05 && leftBumper) {
-            conveyorValue = 0;
+            conveyorValue = .5;
         }
         else {
-            conveyorValue = 0;
+            conveyorValue = .5;
         }
 
         //Set powers
         horizontal.setPosition(adjustedRightX);
         rightGrabber.setPosition(conveyorValue);
         leftGrabber.setPosition(conveyorValue);
-        openClose.setPosition(openCloseValue);
+        if (!touch1press)
+        {
+            openClose.setPosition(openCloseValue);
+        }
+        else
+        {
+            openClose.setPosition(stillOpenCloseValue);
+        }
+        
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
