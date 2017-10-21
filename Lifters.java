@@ -36,6 +36,15 @@ public class Lifters extends OpMode {
     DcMotor rightLift;     //right lift motor front
     DcMotor leftLift;      //left lift motor front
 
+    TouchSensor touchBottomLeft;
+    TouchSensor touchBottomRight;
+    //when one is pressed, don't allow that one to run down
+    //when both are pressed, set encoder to 0
+    TouchSensor touchTop;
+    
+    double rawRight;
+    double rawLeft;
+
     //double timeOne = 0;
     double rightEncoderCounts;
     double leftEncoderCounts;
@@ -50,6 +59,8 @@ public class Lifters extends OpMode {
 
     double percentDifference;
 
+    double adjust;
+
 
     public void init() { // use hardwaremap here instead of hwmap or ahwmap provided in sample code
 
@@ -60,6 +71,10 @@ public class Lifters extends OpMode {
         // Motor directions: set forward/reverse
         rightLift.setDirection(REVERSE);
         leftLift.setDirection(FORWARD);
+
+        touchBottomLeft=hardwareMap.touchSensor.get("touchBottomLeft");
+        touchBottomRight=hardwareMap.touchSensor.get("touchBottomLeft");
+        touchTop=hardwareMap.touchSensor.get("touchTop");
 
         rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -72,7 +87,10 @@ public class Lifters extends OpMode {
     public void loop() {
         baseMotorPower = gamepad1.right_stick_y;
 
-        rightEncoderCounts = rightLift.getCurrentPosition();
+        rawRight = rightLift.getCurrentPosition();
+        rawLeft = leftLift.getCurrentPosition();
+        
+        rightEncoderCounts = rightLift.getCurrentPosition() + adjust;
         leftEncoderCounts = leftLift.getCurrentPosition();
 
         percentDifference = (rightEncoderCounts - leftEncoderCounts)/(rightEncoderCounts + leftEncoderCounts);
@@ -84,7 +102,7 @@ public class Lifters extends OpMode {
             rightLiftPower = Range.clip(rightLiftPower, .05, .95);
             leftLiftPower = Range.clip(leftLiftPower, .05, .95);
         }
-        else if (baseMotorPower < .05)
+        else if (baseMotorPower < -.05)
         {
             rightLiftPower = baseMotorPower + percentDifference/2;
             leftLiftPower = baseMotorPower;
@@ -97,8 +115,54 @@ public class Lifters extends OpMode {
             leftLiftPower = 0;
         }
 
-        rightLift.setPower(rightLiftPower);
-        leftLift.setPower(leftLiftPower);
+        if (touchTop.isPressed())
+        {
+            if (rightLiftPower>.05)
+            {
+                rightLift.setPower(0);
+                leftLift.setPower(0);
+            }
+            else
+            {
+                rightLift.setPower(rightLiftPower);
+                leftLift.setPower(leftLiftPower);
+            }
+        }
+
+        else if (touchBottomLeft.isPressed() && !touchBottomRight.isPressed())
+        {
+            leftLift.setPower(0);
+            rightLift.setPower(rightLiftPower);
+        }
+
+        else if (touchBottomRight.isPressed() && !touchBottomLeft.isPressed())
+        {
+            rightLift.setPower(0);
+            leftLift.setPower(leftLiftPower);
+        }
+
+        else if (touchBottomLeft.isPressed() && touchBottomRight.isPressed())
+        {
+            if (rightLiftPower>0 && leftLiftPower>0)
+            {
+                rightLift.setPower(rightLiftPower);
+                leftLift.setPower(leftLiftPower);
+            }
+            else
+            {
+                rightLift.setPower(0);
+                leftLift.setPower(0);
+            }
+            
+            adjust = leftEncoderCounts - rightEncoderCounts;
+
+
+        }
+        else
+        {
+            rightLift.setPower(rightLiftPower);
+            leftLift.setPower(leftLiftPower);
+        }
     }
 }
 
