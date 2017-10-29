@@ -1,4 +1,4 @@
-//Version 3.0 coded Oct. 21, 2017 by Marcus, Isaac, and Mathew.
+//Version 2.0 coded Oct. 7, 2017 by Marcus and Isaac.
 //Designed to test the functionality of block grabber prototype
 //So far so good!
 
@@ -36,9 +36,8 @@ public class Lifters extends OpMode {
     DcMotor rightLift;     //right lift motor front
     DcMotor leftLift;      //left lift motor front
 
-    TouchSensor touchBottomL;
-    TouchSensor touchBottomR;
-
+    TouchSensor touchBottomLeft;
+    TouchSensor touchBottomRight;
     //when one is pressed, don't allow that one to run down
     //when both are pressed, set encoder to 0
     TouchSensor touchTop;
@@ -62,17 +61,6 @@ public class Lifters extends OpMode {
 
     double adjust;
 
-    double encoderR;
-    double encoderL;
-
-    double mathval = 0;
-
-
-
-    double codeValueL = encoderL;
-    double codeValueR = encoderR + mathval;
-
-
 
     public void init() { // use hardwaremap here instead of hwmap or ahwmap provided in sample code
 
@@ -84,8 +72,8 @@ public class Lifters extends OpMode {
         rightLift.setDirection(REVERSE);
         leftLift.setDirection(FORWARD);
 
-        touchBottomL = hardwareMap.touchSensor.get("touchBottomL");
-        touchBottomR = hardwareMap.touchSensor.get("touchBottomR");
+        touchBottomLeft=hardwareMap.touchSensor.get("touchBottomLeft");
+        touchBottomRight=hardwareMap.touchSensor.get("touchBottomLeft");
         touchTop=hardwareMap.touchSensor.get("touchTop");
 
         rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -106,14 +94,6 @@ public class Lifters extends OpMode {
         leftEncoderCounts = leftLift.getCurrentPosition();
 
         percentDifference = (rightEncoderCounts - leftEncoderCounts)/(rightEncoderCounts + leftEncoderCounts);
-
-
-        //reset mathval if both sensors are pressed
-        if(touchBottomL.isPressed() && touchBottomR.isPressed())
-        {
-
-            mathval = encoderL - encoderR;
-        }
 
         if (baseMotorPower > .05)
         {
@@ -149,19 +129,19 @@ public class Lifters extends OpMode {
             }
         }
 
-        else if (touchBottomL.isPressed() && !touchBottomR.isPressed())
+        else if (touchBottomLeft.isPressed() && !touchBottomRight.isPressed())
         {
             leftLift.setPower(0);
             rightLift.setPower(rightLiftPower);
         }
 
-        else if (touchBottomR.isPressed() && !touchBottomL.isPressed())
+        else if (touchBottomRight.isPressed() && !touchBottomLeft.isPressed())
         {
             rightLift.setPower(0);
             leftLift.setPower(leftLiftPower);
         }
 
-        else if (touchBottomL.isPressed() && touchBottomR.isPressed())
+        else if (touchBottomLeft.isPressed() && touchBottomRight.isPressed())
         {
             if (rightLiftPower>0 && leftLiftPower>0)
             {
@@ -185,3 +165,5 @@ public class Lifters extends OpMode {
         }
     }
 }
+
+
