@@ -93,10 +93,10 @@ public class Omni extends OpMode {
 
 
         // clip power to ensure we are not giving too high a value
-        toppower = clip(toppower, -1, 1);
-        bottompower = clip(bottompower, -1, 1);
-        leftpower = clip(leftpower, -1, 1);
-        rightpower = clip(rightpower, -1, 1);
+        toppower = Range.clip(toppower, -1, 1);
+        bottompower = Range.clip(bottompower, -1, 1);
+        leftpower = Range.clip(leftpower, -1, 1);
+        rightpower = Range.clip(rightpower, -1, 1);
 
 
         //set motor powers
