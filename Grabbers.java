@@ -1,4 +1,4 @@
-//Version 3.0 coded Oct. 21, 2017 by Marcus, Isaac, and Mathew.
+//Version 2.0 coded Oct. 7, 2017 by Marcus and Isaac.
 //Designed to test the functionality of block grabber prototype
 //So far so good!
 
@@ -41,9 +41,8 @@ public class Grabbers extends OpMode {
     //at the openClose servo
 
     TouchSensor touchSensor1;
-    TouchSensor touchSensor2;
-    TouchSensor touchSensor3;
 
+    
     boolean dpadUp = false; //boolean that is initially set to false, and becomes true if the dpad up is pressed
     boolean dpadDown = false; //boolean that is initially set to false, and becomes true if the dpad down is pressed
     double gamepadrightx; //double that represents the raw value of the x axis of the right stick of the gamepad being used
@@ -58,20 +57,15 @@ public class Grabbers extends OpMode {
     double adjustedLeftTrigger;
 
     boolean touch1press = false;
-    boolean touch2press = false;
-    boolean touch3press = false;
-
 
     public void init() {
         //Servo configurations
         horizontal = hardwareMap.servo.get("s1");
         openClose = hardwareMap.servo.get("s2");
-        rightGrabber = hardwareMap.servo.get("s3");
-        leftGrabber = hardwareMap.servo.get("s4");
+        rightGrabber = hardwareMap.servo.get("s4");
+        leftGrabber = hardwareMap.servo.get("s3");
 
         touchSensor1 = hardwareMap.touchSensor.get("touch1");
-        touchSensor2 = hardwareMap.touchSensor.get("touch2");
-        touchSensor3 = hardwareMap.touchSensor.get("touch3");
 
         //Servo directions
         horizontal.setDirection(Servo.Direction.FORWARD);
@@ -88,29 +82,14 @@ public class Grabbers extends OpMode {
 
     public void loop() {
 
-        //Turns touch sensors to booleans
         if (touchSensor1.isPressed())
         {
             touch1press = true;
         }
-        else {
+        else
+        {
             touch1press = false;
         }
-
-        if(touchSensor2.isPressed()) {
-            touch2press = true;
-        }
-        else {
-            touch2press = false;
-        }
-
-        if(touchSensor3.isPressed()) {
-            touch3press = true;
-        }
-        else {
-            touch3press = false;
-        }
-
 
         //Set values of booleans
         if (gamepad1.dpad_up) {
@@ -176,6 +155,7 @@ public class Grabbers extends OpMode {
         {
             conveyorValue = .5;
         }
+
         rightGrabber.setPosition(conveyorValue);
         leftGrabber.setPosition(conveyorValue);
         if (!touch1press)
@@ -186,30 +166,21 @@ public class Grabbers extends OpMode {
         {
             openClose.setPosition(stillOpenCloseValue);
         }
-        //If fully extended one direction, not allowed to move further
-        if(touch2press && adjustedRightX > .486)
-        {
-            horizontal.setPosition(.486);
-        }
-        else
-        {
-           horizontal.setPosition(adjustedRightX);
-        }
-
-        if(touch3press && adjustedRightX < .486)
-        {
-            horizontal.setPosition(.486);
-        }
-        else
-        {
-            horizontal.setPosition(adjustedRightX);
-        }
-
-
 
         telemetry.addData("open close value", openCloseValue);
         telemetry.addData("adj right x", adjustedRightX);
+        telemetry.addData("Conveyor", conveyorValue);
         telemetry.update();
 
     }
 }
+
+
+
+
+
+
+
+
+
+
