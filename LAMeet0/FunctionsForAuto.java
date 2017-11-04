@@ -30,7 +30,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
 public abstract class FunctionsForAuto extends LinearOpMode {
 
-    /******************* T I M E   &   C O U N T E R S *******************/
+    /******************* MISC *******************/
 
     int loopCounter = 0; // Variable to count how many times a given loop has been entered
 
@@ -39,7 +39,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     double timeTwo;
     double timeRunningLoop;
 
-
+    String allianceColor;
+    String robotStartingPosition;
 
 
 
@@ -189,7 +190,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     // Drives straight and backwards for a provided distance, in inches
     // and at a given speed and a given gyro heading
-    public void driveBack(double distance, double speed, double targetHeading) {
+    public void driveBack( double distance, double speed, double targetHeading ) {
         // Set variable initialHeading to gyro's integrated z value
         initialHeading = gyro.getIntegratedZValue();
         // math to calculate total counts robot should travel
@@ -298,9 +299,16 @@ public abstract class FunctionsForAuto extends LinearOpMode {
            stopDriving();
     }
 
-
     // Configures all hardware devices, and sets them to their initial values, if necessary
-    public void Configure() {
+    public void configure( String initialAllianceColor, String initialRobotStartingPosition ) {
+
+        /******************* A L L I A N C E *******************/
+        allianceColor = initialAllianceColor; // Options: "red" or "blue"
+        robotStartingPosition = initialRobotStartingPosition; // Options: "relicSide" or "triangleSide"
+
+
+
+
 
         /******************* V U F O R I A *******************/
 
@@ -407,387 +415,63 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         leftGrabberBottom.setPosition(.5);
     }
 
-    // Calibrate the gyro sensor
-    public void calibrateGyro() throws InterruptedException {
-        // Run calibrate method on gyro
-        gyro.calibrate();
+    public void dropFeeler(){
 
-        // While gyro is calibrating
-        while (gyro.isCalibrating()) {
-            // Sleep for 500 miliseconds
-            sleep(500);
-            // telemetry
-            telemetry.addLine("Gyro is not calibrated");
-            telemetry.update();
+        // MOVE SERVO FEELER
 
-        }
-
-    }
-
-    // drive forward at a given distance, speed and gyro heading
-    public void drive(double distance, double speed, double targetHeading, boolean isStopAtEnd) {
-        // Set initial heading to gyro's integrated Z value
-        initialHeading = gyro.getIntegratedZValue();
-        // math to calculate total counts robot should travel
-        inches = distance;
-        rotations = distance / (Math.PI * WHEEL_DIAMETER);
-        counts = ENCODER_CPR * rotations * GEAR_RATIO;
-
-        // Set RunMode of leftMotor1 to STOP_AND_RESET_ENCODER
-        // then RUN_WITHOUT_ENCODER
-        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        // Set timeOne and timeTwo to this.getRuntime()
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        // execute while loop for four seconds, or until leftMotor1.getCurrentPosition()
-        // is less than counts
-        while (leftMotor1.getCurrentPosition() < counts && (timeTwo - timeOne < 4)) {
-            // Set current heading to gyro's integrated Z value
-            currentHeading = gyro.getIntegratedZValue();
-            // Math to calculate adjustment factor for motor powers
-            straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
-            // Set all drivetrain motor powers
-            leftMotor1.setPower(speed + straightDriveAdjust);
-            leftMotor2.setPower(speed + straightDriveAdjust);
-            rightMotor1.setPower(speed - straightDriveAdjust);
-            rightMotor2.setPower(speed - straightDriveAdjust);
-            // telemetry for leftMotor1's current position
-            telemetry.addData("Current", leftMotor1.getCurrentPosition());
-            telemetry.update();
-            // Set timeTwo to this.getRuntime
-            timeTwo = this.getRuntime();
-        }
-
-        // Safety timeout
-        if (timeTwo - timeOne > 4) {
-            stopDriving();
-            while (this.opModeIsActive()) {
-                timeTwo = this.getRuntime();
-                // Telemetry alerting drive team of safety timeout
-                telemetry.addLine("Timed out");
-                telemetry.update();
+        if ( allianceColor.equals("red") && robotStartingPosition.equals("relicSide") ){
+            if ( colorSensorFeeler.blue() >= 2 && colorSensorFeeler.red() < 2 ){
+                // DRIVE RIGHT TO KNOCK OFF BLUE
+                //RETRACT SERVO
+                //DRIVE LARGER FORWARD LEFT DISTANCE
+            }
+            else if ( colorSensorFeeler.red() >= 2 && colorSensorFeeler.blue() < 2 ){
+                // DRIVE LEFT TO KNOCK OFF BLUE
+                //RETRACT SERVO
+                //DRIVE SMALLER FORWARD LEFT DISTANCE
             }
         }
-        // if parameter isStopAtEnd is true,
-        // execute stopDriving method
-        if (isStopAtEnd) {
-            stopDriving();
-        }
-
-    }
-
-    // drive forward at a given distance, speed, but without considering gyro heading
-    public void driveNoGyro(double distance, double speed) {
-        // math to calculate total counts robot should travel
-        inches = distance;
-        rotations = distance / (Math.PI * WHEEL_DIAMETER);
-        counts = ENCODER_CPR * rotations * GEAR_RATIO;
-
-        // Set RunMode of leftMotor1 to STOP_AND_RESET_ENCODER
-        // then RUN_WITHOUT_ENCODER
-        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        // Set timeOne and timeTwo to this.getRuntime()
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        // execute while loop for three seconds, or until leftMotor1.getCurrentPosition()
-        // is less than counts
-        while (leftMotor1.getCurrentPosition() < counts && (timeTwo - timeOne < 3)) {
-            // set all drivetrain motor powers to parameter speed
-            leftMotor1.setPower(speed);
-            leftMotor2.setPower(speed);
-            rightMotor1.setPower(speed);
-            rightMotor2.setPower(speed);
-            // telemetry for leftMotor1's current position
-            telemetry.addData("Current", leftMotor1.getCurrentPosition());
-            telemetry.update();
-            // Set timeTwo to this.getRuntime
-            timeTwo = this.getRuntime();
-        }
-
-        // Safety timeout
-        if (timeTwo - timeOne > 3) {
-            stopDriving();
-            while (this.opModeIsActive()) {
-                timeTwo = this.getRuntime();
-                // Telemetry alerting drive team of safety timeout
-                telemetry.addLine("Timed out");
-                telemetry.update();
+        else if ( allianceColor.equals("red") && robotStartingPosition.equals("triangleSide") ){
+            if ( colorSensorFeeler.blue() >= 2 && colorSensorFeeler.red() < 2 ){
+                // DRIVE RIGHT TO KNOCK OFF BLUE
+                //RETRACT SERVO
+                //DRIVE LARGER FORWARD LEFT DISTANCE
+            }
+            else if ( colorSensorFeeler.red() >= 2 && colorSensorFeeler.blue() < 2 ){
+                // DRIVE LEFT TO KNOCK OFF BLUE
+                //RETRACT SERVO
+                //DRIVE LARGER FORWARD LEFT DISTANCE
             }
         }
-
-        // Execute stopDriving() method
-        stopDriving();
-    }
-
-    // Drive at a given speed until both ods sensors see adequate white light
-    public void driveToWhiteLine(double speed, double targetHeading) {
-        // Set whitesCountLeft and whitesCountRight to 0
-        whiteCountLeft = 0;
-        whiteCountRight = 0;
-
-        // Set wlsRightlight and wlsLeftlight to false
-        wlsRightlight = false;
-        wlsLeftlight = false;
-
-        // Set initial heading to gyro's integrated Z value
-        initialHeading = gyro.getIntegratedZValue();
-
-        // Set RunMode of leftMotor1 to RUN_WITHOUT_ENCODER
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        // set all drivetrain motor powers to parameter speed
-        leftMotor1.setPower(speed);
-        rightMotor1.setPower(speed);
-        leftMotor2.setPower(speed);
-        rightMotor2.setPower(speed);
-
-        // Set timeOne and timeTwo to this.getRuntime()
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        // Keep the drivetrain motors running while op mode is
-        // active and not enough white light
-        // has been detected on both ods sensors
-        do {
-            // Set current heading to gyro's integrated Z Value
-            currentHeading = gyro.getIntegratedZValue();
-            straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
-
-            // Telemetry for left and rightods' getRawLightDetected
-            telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
-            telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
-            telemetry.update();
-            // updating time2 to prevent infinite running of this loop if game conditions are not met
-            timeTwo = this.getRuntime();
-
-            // If enough white light has been detected, set the left ods boolean to true,
-            // increment whiteCounterLeft by 1, and set wlsLeftlight to true
-            if (whiteLineSensorLeft.getRawLightDetected() >= WHITE_THRESHOLD) {
-                wlsLeftlight = true;
-                whiteCountLeft++;
+        else if ( allianceColor.equals("blue") && robotStartingPosition.equals("relicSide") ){
+            if ( colorSensorFeeler.blue() >= 2 && colorSensorFeeler.red() < 2 ){
+                // DRIVE RIGHT TO KNOCK OFF BLUE
+                //RETRACT SERVO
+                //DRIVE LARGER FORWARD LEFT DISTANCE
             }
-
-            // If enough white light has been detected, set the right ods boolean to true,
-            // increment whiteCounterRight by 1, and set wlsRightlight to true
-            if (whiteLineSensorRight.getRawLightDetected() >= WHITE_THRESHOLD) {
-                wlsRightlight = true;
-                whiteCountRight++;
-            }
-
-            // If enough white light has not been detected, set right motor powers
-            // according to parameter speed and straightDriveAdjust,
-            // to maintain an appropriate heading.  If enough white light has
-            // been detected, set the right motor powers to 0
-            if (wlsRightlight == false) {
-                rightMotor1.setPower(speed - straightDriveAdjust);
-                rightMotor2.setPower(speed - straightDriveAdjust);
-            } else {
-                rightMotor1.setPower(0);
-                rightMotor2.setPower(0);
-            }
-
-            // If enough white light has not been detected, set left motor powers
-            // according to parameter speed and straightDriveAdjust,
-            // to maintain an appropriate heading.  If enough white light has
-            // been detected, set the left motor powers to 0
-            if (wlsLeftlight == false) {
-                leftMotor1.setPower(speed + straightDriveAdjust);
-                leftMotor2.setPower(speed + straightDriveAdjust);
-            } else {
-                leftMotor1.setPower(0);
-                leftMotor2.setPower(0);
+            else if ( colorSensorFeeler.red() >= 2 && colorSensorFeeler.blue() < 2 ){
+                // DRIVE LEFT TO KNOCK OFF BLUE
+                //RETRACT SERVO
+                //DRIVE LARGER FORWARD RIGHT DISTANCE
             }
         }
-
-        // execute do loop while either wlsRightlight or wlsLeftlight, and while op mode is active,
-        // and the loop has been executing for less than eight seconds
-        while ((wlsRightlight == false
-        || wlsLeftlight == false)
-        && this.opModeIsActive()
-        && (timeTwo - timeOne < 8));  // Repeat do loop until both odss have detected enough white light
-
-        // Safety timeout
-        if (timeTwo - timeOne > 8) {
-            stopDriving();
-            while (this.opModeIsActive()) {
-                // Telemetry alerting drive team of safety timeout
-                telemetry.addLine("Timed out");
-                telemetry.update();
-                timeTwo = this.getRuntime();
+        else if ( allianceColor.equals("blue") && robotStartingPosition.equals("triangleSide") ){
+            if ( colorSensorFeeler.blue() >= 2 && colorSensorFeeler.red() < 2 ){
+                // DRIVE RIGHT TO KNOCK OFF RED
+                //RETRACT SERVO
+                //DRIVE LARGER FORWARD RIGHT DISTANCE
             }
-        }
-
-        // Execute stopDriving() method
-        stopDriving();
-    }
-
-    // Drive at a given speed until the left ods sees adequate white light
-    public void driveToWhiteLineLeft(double speed, double targetHeading, boolean isStopAtEnd) {
-        // Set whitesCount to 0
-        whitesCount = 0;
-
-        // Set whiteLineNotDetected to false
-        whiteLineNotDetected = true;
-
-        // Set initial heading to gyro's integrated Z value
-        initialHeading = gyro.getIntegratedZValue();
-
-        // Set RunMode of leftMotor1 to RUN_WITHOUT_ENCODER
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        // set all drivetrain motor powers to parameter speed
-        leftMotor1.setPower(speed);
-        rightMotor1.setPower(speed);
-        leftMotor2.setPower(speed);
-        rightMotor2.setPower(speed);
-
-        // Set timeOne and timeTwo to this.getRuntime()
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        // Keep the drivetrain motors running while op mode is
-        // active and not enough white light
-        // has been detected on the left ods
-        do {
-            // Set current heading to gyro's integrated Z Value
-            currentHeading = gyro.getIntegratedZValue();
-
-            // Calculate straightDriveAdjust using the robot's heading error
-            // And straightGyroGain
-            straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
-
-            // Increment loopCounter by 1
-            loopCounter++;
-
-            // Telemetry for left ods' getRawLightDetected
-            telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
-            telemetry.update();
-            // Set timeTwo to this.getRuntime()
-            timeTwo = this.getRuntime();
-
-            // If enough white light has been detected, set the ods boolean whiteLineNotDetected to true
-            // and increment variable whitesCount by 1
-            if (whiteLineSensorLeft.getRawLightDetected() >= WHITE_THRESHOLD) {
-                whiteLineNotDetected = false;
-                whitesCount++;
+            else if ( colorSensorFeeler.red() >= 2 && colorSensorFeeler.blue() < 2 ){
+                // DRIVE LEFT TO KNOCK OFF RED
+                //RETRACT SERVO
+                //DRIVE LARGER FORWARD LEFT DISTANCE
             }
-
-            // Set all motor powers using parameter speed and straightDriveAdjust
-            // to maintain appropriate heading
-            leftMotor1.setPower(speed + straightDriveAdjust);
-            rightMotor1.setPower(speed - straightDriveAdjust);
-            leftMotor2.setPower(speed + straightDriveAdjust);
-            rightMotor2.setPower(speed - straightDriveAdjust);
-        }
-
-        // Repeat do loop until left ods has detected enough white light, and while op mode is active
-        // whiteCount is under 3, and the loop has been running for less than three seconds
-        while (whiteLineNotDetected && this.opModeIsActive() && (timeTwo - timeOne < 3) && whitesCount < 3);
-
-        // Safety timeout
-        if (timeTwo - timeOne > 3) {
-            stopDriving();
-            while (this.opModeIsActive()) {
-                // Telemetry alerting drive team of safety timeout
-                telemetry.addLine("Timed out");
-                telemetry.update();
-                timeTwo = this.getRuntime();
-            }
-        }
-
-        // If parameter isStopAtEnd is true, execute stopDriving() method
-        if (isStopAtEnd) {
-            stopDriving();
         }
     }
-
-    // Drive at a given speed until the right ods sees adequate white light
-    public void driveToWhiteLineRight(double speed, double targetHeading, boolean isStopAtEnd) {
-        // Set whitesCount to 0
-        whitesCount = 0;
-
-        // Set whiteLineNotDetected to false
-        whiteLineNotDetected = true;
-
-        // Set initial heading to gyro's integrated Z value
-        initialHeading = gyro.getIntegratedZValue();
-
-        // Set RunMode of leftMotor1 to RUN_WITHOUT_ENCODER
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        // set all drivetrain motor powers to parameter speed
-        leftMotor1.setPower(speed);
-        rightMotor1.setPower(speed);
-        leftMotor2.setPower(speed);
-        rightMotor2.setPower(speed);
-
-        // Set timeOne and timeTwo to this.getRuntime()
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        // Keep the drivetrain motors running while op mode is
-        // active and not enough white light
-        // has been detected on the left ods
-        do {
-            // Set current heading to gyro's integrated Z Value
-            currentHeading = gyro.getIntegratedZValue();
-
-            // Calculate straightDriveAdjust using the robot's heading error
-            // And straightGyroGain
-            straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
-
-            // Telemetry for right ods' getRawLightDetected
-            telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
-            telemetry.update();
-            // Set timeTwo to this.getRuntime()
-            timeTwo = this.getRuntime();
-
-            // If enough white light has been detected, set the ods boolean whiteLineNotDetected to true
-            // and increment variable whitesCount by 1
-            if (whiteLineSensorRight.getRawLightDetected() >= WHITE_THRESHOLD) {
-                whiteLineNotDetected = false;
-                whitesCount++;
-            }
-
-            // Set all motor powers using parameter speed and straightDriveAdjust
-            // to maintain appropriate heading
-            leftMotor1.setPower(speed + straightDriveAdjust);
-            rightMotor1.setPower(speed - straightDriveAdjust);
-            leftMotor2.setPower(speed + straightDriveAdjust);
-            rightMotor2.setPower(speed - straightDriveAdjust);
-        }
-
-        // Repeat do loop until right ods has detected enough white light, and while op mode is active
-        // whiteCount is under 3, and the loop has been running for less than three seconds
-        while (whiteLineNotDetected && this.opModeIsActive() && (timeTwo - timeOne < 3) && whitesCount < 3);  // Repeat do loop until both odss have detected enough white light
-
-        // Safety timeout
-        if (timeTwo - timeOne > 3) {
-            stopDriving();
-            while (this.opModeIsActive()) {
-                // Telemetry alerting drive team of safety timeout
-                telemetry.addLine("Timed out");
-                telemetry.update();
-                timeTwo = this.getRuntime();
-            }
-        }
-
-        // If parameter isStopAtEnd is true, execute stopDriving() method
-        if (isStopAtEnd) {
-            stopDriving();
-        }
-    }
-
     // Run method to drive at a given speed until adequate blue light is detected
     // at which time the appropriate beacon pusher extends and retracts to push
     // the beacon
-    public void pressBeaconSideBlue(double speed, double targetHeading) {
+    public void pressBeaconSideBlue( double speed, double targetHeading ) {
         // Set initial heading to gyro's integrated Z value
         initialHeading = gyro.getIntegratedZValue();
 
@@ -877,7 +561,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     // Run method to drive at a given speed until adequate red light is detected
     // at which time the appropriate beacon pusher extends and retracts to push
     // the beacon
-    public void pressBeaconSideRed(double speed, double targetHeading) {
+    public void pressBeaconSideRed( double speed, double targetHeading ) {
         // Set initial heading to gyro's integrated Z value
         initialHeading = gyro.getIntegratedZValue();
 

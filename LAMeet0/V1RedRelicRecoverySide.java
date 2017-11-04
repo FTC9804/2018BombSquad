@@ -16,7 +16,7 @@ public class V1RedRelicRecoverySide extends FunctionsForAuto {
     public void runOpMode() throws InterruptedException {
 
         //Configure motors, servos and sensors
-        Configure();
+        configure();
 
         //Wait until play button is pressed
         waitForStart();
@@ -31,11 +31,7 @@ public class V1RedRelicRecoverySide extends FunctionsForAuto {
             timeTwo = this.getRuntime();
         }
 
-        //public void calibrateGyro()
-        calibrateGyro();
 
 
-
-    }
-
-}
+    } // end run op mode
+} // end V1RedRelicRecoverySide
