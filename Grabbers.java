@@ -1,4 +1,4 @@
-//Version 2.0 coded Oct. 7, 2017 by Marcus and Isaac.
+//Version 2.0 coded Oct. 7, 2017 by Marcus, Steve, and Isaac
 //Designed to test the functionality of block grabber prototype
 //So far so good!
 
@@ -23,9 +23,6 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import static com.qualcomm.robotcore.util.Range.clip;
 
-/**
- * Created by MarcusLeher on 06/10/2017.
- */
 
 @TeleOp(name = "Grabbers", group = "Grabbers")
 //@Disabled
@@ -42,7 +39,7 @@ public class Grabbers extends OpMode {
 
     TouchSensor touchSensor1;
 
-    
+
     boolean dpadUp = false; //boolean that is initially set to false, and becomes true if the dpad up is pressed
     boolean dpadDown = false; //boolean that is initially set to false, and becomes true if the dpad down is pressed
     double gamepadrightx; //double that represents the raw value of the x axis of the right stick of the gamepad being used
@@ -174,13 +171,3 @@ public class Grabbers extends OpMode {
 
     }
 }
-
-
-
-
-
-
-
-
-
-

@@ -1,11 +1,11 @@
-//Version 2.0 coded Oct. 7, 2017 by Marcus and Isaac.
-//Designed to test the functionality of block grabber prototype
-//So far so good!
+// Version 2.0 coded Oct. 7, 2017 by Marcus,Steve, and Isaac.
+// Designed to test the functionality of block grabber prototype
+// So far so good!
 
-//package declaration
+// package declaration
 package org.firstinspires.ftc.teamcode;
 
-//import statements
+// import statements
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -24,70 +24,72 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import static com.qualcomm.robotcore.util.Range.clip;
 
 /**
- * Created by MarcusLeher on 06/10/2017.
- */
+* Created by MarcusLeher on 06/10/2017.
+*/
 
 @TeleOp(name = "GrabbersCombo", group = "GrabbersCombo")
-//@Disabled
+// @Disabled
 public class GrabbersCombo extends OpMode {
 
-    Servo horizontalTop; //Servo that rotate's the grabber horizontally
-    Servo openCloseTop; //Sevo that opens and closes the two grabbers
-    Servo rightGrabberTop; //Servo that controls the grabber on the right, with a reference point looking
-    //at the openClose servo
-    Servo leftGrabberTop; //Servo that controls the grabber on the left, with a reference point looking
-    //at the openClose servo
+    Servo horizontalTop; // Servo that rotate's the grabber horizontally
+    Servo openCloseTop; // Sevo that opens and closes the two grabbers
+    Servo rightGrabberTop; // Servo that controls the grabber on the right, with a reference point looking
+    // at the openClose servo
+    Servo leftGrabberTop; // Servo that controls the grabber on the left, with a reference point looking
+    // at the openClose servo
 
-    Servo horizontalBottom; //Servo that rotate's the grabber horizontally
-    Servo openCloseBottom; //Sevo that opens and closes the two grabbers
-    Servo rightGrabberBottom; //Servo that controls the grabber on the right, with a reference point looking
-    //at the openClose servo
-    Servo leftGrabberBottom; //Servo that controls the grabber on the left, with a reference point looking
-    //at the openClose servo
-
-    TouchSensor touchSensorTop;
-    TouchSensor touchSensorBottom;
-
-    //Top
-    boolean dpadUp = false; //boolean that is initially set to false, and becomes true if the dpad top is pressed
-    boolean dpadDown = false; //boolean that is initially set to false, and becomes true if the dpad bottom is pressed
-    double gamepadrightx; //double that represents the raw value of the x axis of the left stick of the gamepad being used
-    boolean leftBumper = false; //boolean that is initially set to false, and becomes true if the left bumper is pressed
-    double leftTrigger; //double that represents the raw value of the left trigger of the gamepad being used
-    double openCloseValueTop = .5; //double that represents the position value to be applied to the openClose top servo
-    double conveyorValueTop = .5; //double that represents the postion value to be applied to the left and right grabbers on top
-    double stillOpenCloseValueTop = .745;  //double that represents the value of the top open close servo when it is still
-
-    //Variable declarations
-
+    Servo horizontalBottom; // Servo that rotate's the grabber horizontally
+    Servo openCloseBottom; // Sevo that opens and closes the two grabbers
+    Servo rightGrabberBottom; // Servo that controls the grabber on the right, with a reference point looking
+    // at the openClose servo
+    Servo leftGrabberBottom; // Servo that controls the grabber on the left, with a reference point looking
+    // at the openClose servo
 
     TouchSensor touchSensorTop;
     TouchSensor touchSensorBottom;
 
-    //Bottom
-    boolean dpadRight = false; //boolean that is initially set to false, and becomes true if the dpad right is pressed
-    boolean dpadLeft = false; //boolean that is initially set to false, and becomes true if the dpad left is pressed
-    double gamepadrighty; //double that represents the raw value of the y axis of the right stick of the gamepad being used
-    boolean rightBumper = false; //boolean that is initially set to false, and becomes true if the right bumper is pressed
-    double rightTrigger; //double that represents the raw value of the right trigger of the gamepad being used
-    double openCloseValueBottom = .5; //double that represents the position value to be applied to the openClose bottom servo
-    double conveyorValueBottom = .5; //double that represents the postion value to be applied to the left and right grabbers on bottom
-    double stillOpenCloseValue = .745;   //double that represents the value of the bottom open close servo when it is still
+    // Top
+    boolean dpadUp = false; // boolean that is initially set to false, and becomes true if the dpad top is pressed
+    boolean dpadDown = false; // boolean that is initially set to false, and becomes true if the dpad bottom is pressed
+    double gamepadrightx; // double that represents the raw value of the x axis of the left stick of the gamepad being used
+    boolean leftBumper = false; // boolean that is initially set to false, and becomes true if the left bumper is pressed
+    double leftTrigger; // double that represents the raw value of the left trigger of the gamepad being used
+    double openCloseValueTop = .5; // double that represents the position value to be applied to the openClose top servo
+    double conveyorValueTop = .5; // double that represents the postion value to be applied to the left and right grabbers on top
+    double stillOpenCloseValueTop = .745;  // double that represents the value of the top open close servo when it is still
 
+    // Variable declarations
+
+    //  declare touch seniors
+    TouchSensor touchSensorTop;
+    TouchSensor touchSensorBottom;
+
+    // Bottom
+    boolean dpadRight = false; // boolean that is initially set to false, and becomes true if the dpad right is pressed
+    boolean dpadLeft = false; // boolean that is initially set to false, and becomes true if the dpad left is pressed
+    double gamepadrighty; // double that represents the raw value of the y axis of the right stick of the gamepad being used
+    boolean rightBumper = false; // boolean that is initially set to false, and becomes true if the right bumper is pressed
+    double rightTrigger; // double that represents the raw value of the right trigger of the gamepad being used
+    double openCloseValueBottom = .5; // double that represents the position value to be applied to the openClose bottom servo
+    double conveyorValueBottom = .5; // double that represents the postion value to be applied to the left and right grabbers on bottom
+    double stillOpenCloseValue = .745;   // double that represents the value of the bottom open close servo when it is still
+
+    // booleans for limit switch state
     boolean touchTopPress = false;
     boolean touchBottomPress = false;
 
+    //doubles for adjustment constants
     double adjustedRightX;
     double adjustedLeftTrigger;
 
-    public void init () {
-        //Servo configurations
+    public void init ()
+    {
+
+        // harware map configurations
         horizontalTop = hardwareMap.servo.get("s1");
         openCloseTop = hardwareMap.servo.get("s2");
         rightGrabberTop = hardwareMap.servo.get("s4");
         leftGrabberTop = hardwareMap.servo.get("s3");
-
-        //Servo configurations
         horizontalBottom = hardwareMap.servo.get("s5");
         openCloseBottom = hardwareMap.servo.get("s6");
         rightGrabberBottom = hardwareMap.servo.get("s8");
@@ -97,7 +99,7 @@ public class GrabbersCombo extends OpMode {
         touchSensorBottom = hardwareMap.touchSensor.get("touch2");
 
 
-        //Servo directions
+        // Set servo direction orientations forward or reverse
         horizontalTop.setDirection(Servo.Direction.FORWARD);
         openCloseTop.setDirection(Servo.Direction.FORWARD);
         rightGrabberTop.setDirection(Servo.Direction.REVERSE);
@@ -108,7 +110,7 @@ public class GrabbersCombo extends OpMode {
         rightGrabberBottom.setDirection(Servo.Direction.REVERSE);
         leftGrabberBottom.setDirection(Servo.Direction.FORWARD);
 
-        //Initial powers
+        // Initial positions for servos
         horizontalTop.setPosition(.486);
         openCloseTop.setPosition(.5);
         rightGrabberTop.setPosition(.5);
@@ -118,71 +120,71 @@ public class GrabbersCombo extends OpMode {
         openCloseBottom.setPosition(.5);
         rightGrabberBottom.setPosition(.5);
         leftGrabberBottom.setPosition(.5);
-        }
+    } // end init
 
     public void loop() {
-        if (touchSensorTop.isPressed())
-        {
+
+        // T O U C H   S E N S O R S
+        // top touch sensor logic
+        if (touchSensorTop.isPressed()) {
             touchTopPress = true;
-        }
-        else
-        {
+        } else {
             touchTopPress = false;
         }
 
-        if (touchSensorBottom.isPressed())
-        {
+        // bottom touch senor logic
+        if (touchSensorBottom.isPressed()) {
             touchBottomPress = true;
-        }
-        else
-        {
+        } else {
             touchBottomPress = false;
         }
 
 
-
+        // D P A D
+        // dpad up logic
         if (gamepad1.dpad_up) {
             dpadUp = true;
         } else {
             dpadUp = false;
         }
 
+        // dpad down logic
         if (gamepad1.dpad_down) {
             dpadDown = true;
         } else {
             dpadDown = false;
         }
 
-        if (gamepad1.left_bumper) {
-            leftBumper = true;
-        } else {
-            leftBumper = false;
-        }
-
+        // dpad right logic
         if (gamepad1.dpad_right) {
             dpadRight = true;
         } else {
             dpadRight = false;
         }
 
+        // dpad down logic
         if (gamepad1.dpad_down) {
             dpadLeft = true;
         } else {
             dpadLeft = false;
         }
 
+
+        // B U M P E R S
+        // right bumper logic
         if (gamepad1.right_bumper) {
             rightBumper = true;
         } else {
             rightBumper = false;
         }
 
+        // left bumper logic
+        if (gamepad1.left_bumper) {
+            leftBumper = true;
+        } else {
+            leftBumper = false;
+        }
 
+    } // end loop
 
-
-
-
-    }
-
-
-}
+} // end class

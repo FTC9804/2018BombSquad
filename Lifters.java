@@ -1,4 +1,4 @@
-//Version 2.0 coded Oct. 7, 2017 by Marcus and Isaac.
+//Version 2.0 coded Oct. 7, 2017 by Marcus, Steve, and Isaac.
 //Designed to test the functionality of block grabber prototype
 //So far so good!
 
@@ -165,5 +165,3 @@ public class Lifters extends OpMode {
         }
     }
 }
-
-
