@@ -45,20 +45,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     /******************* S E N S O R S *******************/
 
-    ModernRoboticsI2cGyro gyro; // Gyro sensor declaration
-
     TouchSensor touchSensorTop; //  declare touch sensors for grabbers
     TouchSensor touchSensorBottom;
 
     ColorSensor colorSensorFeeler; // Right color feeler for balls autonomous
-
-    // Gyro variables
-    double currentHeading;          // measure gyro heading/position
-    double headingError;            // measure difference between current and desired gyro heading
-    double initialHeading;          // variable to measure the gyro heading at the beginning of a method
-    final double GYRO_GAIN = 0;     // Gain for the gyro when executing a spin move
-    double straightGyroGain = .025; // Gain for the gyro when driving straight
-    double straightDriveAdjust = 0; // Adjustment factor for motor powers when driving straight based on straightGyroGain
 
     // Touch Sensor variables
     boolean touchTopPress = false;
@@ -87,6 +77,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     DcMotor topMotor;       // right drive motor back
     DcMotor bottomMotor;    // left drive motor back
 
+    // driving powers
+    double rightPower;
+    double leftPower;
+    double topPower;
+    double bottomPower;
+
     // encoder variables to adequately sense the lines
     final static double ENCODER_CPR = 1120;    // encoder counts per rotation (CPR)
     final static double GEAR_RATIO = 0.727;     // Gear ratio used in Harvey in 22/16, so in code we multiply by 16/22
@@ -96,13 +92,13 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     double inches;  // Desired number of inches to drive
     double rotations;       // Wheel rotations necessary to drive the above amount of inches
     double counts;// Encoder counts necessary to drive the above amount of inches/rotations
-    double turnSpeed = 0; // Turn speed outputted from gyro gain during spinMove method
 
 
 
 
 
-    /******************* G R A B B E R S *******************/
+
+    /******************* G R A B B E R   S E R V O S *******************/
 
     // Servos
     Servo horizontalTop; // Servo that rotate's the grabber horizontally
@@ -122,6 +118,72 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
 
     /******************* F U N C T I O N S   F O R   A U T O *******************/
+
+    public void drive( String direction, double distance, double power, double time ) {
+
+        // math to calculate total counts robot should travel
+        inches = distance;
+        rotations = inches / (Math.PI * WHEEL_DIAMETER);
+        counts = ENCODER_CPR * rotations * GEAR_RATIO;
+
+        if ( direction.equals("left") || direction.equals("right") ) {
+            leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
+            leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+        else {
+            topMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
+            topMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+
+        // Set timeOne and timeTwo to this.getRuntime();
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        if ( direction.equals("left") || direction.equals("right") ) {
+            while ( Math.abs(leftMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) ) {
+                // Set motor powers based on paramater power
+                leftMotor.setPower( power );
+                rightMotor.setPower( power );
+                topMotor.setPower( 0 );
+                bottomPower.setPower( 0 );
+
+                // Telemetry for encoder position
+                telemetry.addData("Current", leftMotor.getCurrentPosition());
+                telemetry.update();
+                // Set timeTwo to this.getRuntime ()
+                timeTwo = this.getRuntime();
+            }
+        }
+        else if (direction.equals( "forwards") || direction.equals("backwards")){
+            while ( Math.abs(topMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) ) {
+                // Set motor powers based on paramater power
+                topMotor.setPower( power );
+                bottomPower.setPower( power );
+                leftMotor.setPower( 0 );
+                rightMotor.setPower( 0 );
+                // Telemetry for encoder position
+                telemetry.addData("Current", topMotor.getCurrentPosition());
+                telemetry.update();
+                // Set timeTwo to this.getRuntime ()
+                timeTwo = this.getRuntime();
+            }
+        }
+
+        // Safety timeout based on if the loop above executed in under 4 seconds
+        // If it did not, do not execute the rest of the program
+        if (timeTwo - timeOne > time) {
+            while (this.opModeIsActive()) {
+                stopDriving();
+                timeTwo = this.getRuntime();
+                // Telemetry alerting drive team of safety timeout
+                telemetry.addLine("Timed out");
+                telemetry.update();
+            }
+        }
+        // Execute stopDriving method
+        stopDriving();
+
+    }
 
     // Drives straight and backwards for a provided distance, in inches
     // and at a given speed and a given gyro heading
@@ -286,6 +348,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     // Configures all hardware devices, and sets them to their initial values, if necessary
     public void Configure() {
 
+        /******************* V U F O R I A *******************/
+
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
 
@@ -303,6 +367,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         VuforiaTrackables relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
         VuforiaTrackable relicTemplate = relicTrackables.get(0);
 
+
+
+
+
+        /******************* D R I V I N G *******************/
+
         // Motor configurations in the hardware map
         rightMotor = hardwareMap.dcMotor.get("rightMotor");
         leftMotor = hardwareMap.dcMotor.get("leftMotor");
@@ -315,42 +385,50 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         topMotor.setDirection(REVERSE);
         bottomMotor.setDirection(FORWARD);
 
+
+
+
+
+        /******************* S E N S O R S *******************/
+        // gyro and setup
         gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("gyro"); // I2C port 0
-
-        I2cAddr i2cColorLeft = I2cAddr.create8bit(0x5c); // Create I2C address of colorSensorLeft
-        I2cAddr i2cColorRight = I2cAddr.create8bit(0x3c); // Create I2C address of colorSensorRight
-
-        // requires moving connection based on alliance color
-        colorSensorFeeler = hardwareMap.colorSensor.get("colorSensorFeeler");     // I2C port 2
-        colorSensorFeeler.setI2cAddress(i2cColorFeeler); // set I2C address of colorSensorRight
-        colorSensorFeeler.enableLed(false); // Set enableLed of colorSensorRight to false
-
-
         // Set gyro variables to 0
         currentHeading = 0;
         initialHeading = 0;
         headingError = 0;
         turnSpeed = 0;
 
+        // color sensor and setup
+        I2cAddr i2cColorSensorFeeler = I2cAddr.create8bit(0x5c); // Create I2C address of colorSensorLeft
+        // requires moving connection based on alliance color
+        colorSensorFeeler = hardwareMap.colorSensor.get("colorSensorFeeler");     // I2C port 2
+        colorSensorFeeler.setI2cAddress(i2cColorFeeler); // set I2C address of colorSensorRight
+        colorSensorFeeler.enableLed(false); // Set enableLed of colorSensorRight to false
+
+        touchSensorTop = hardwareMap.touchSensor.get("touchSensorTop");
+        touchSensorBottom = hardwareMap.touchSensor.get("touchSensorBottom");
+
         // Initialize encoder variables to 0
         inches = 0;
         rotations = 0;
         counts = 0;
+
+
+
+
+
+        /******************* G R A B B E R   S E R V O S *******************/
 
         // harware map configurations
         horizontalTop = hardwareMap.servo.get("horizontalTop");
         openCloseTop = hardwareMap.servo.get("openCloseTop");
         rightGrabberTop = hardwareMap.servo.get("rightGrabberTop");
         leftGrabberTop = hardwareMap.servo.get("leftGrabberTop");
+
         horizontalBottom = hardwareMap.servo.get("horizontalBottom");
         openCloseBottom = hardwareMap.servo.get("openCloseBottom");
         leftGrabberBottom = hardwareMap.servo.get("leftGrabberBottom");
         rightGrabberBottom = hardwareMap.servo.get("rightGrabberBottom");
-
-
-        touchSensorTop = hardwareMap.touchSensor.get("touch1");
-        touchSensorBottom = hardwareMap.touchSensor.get("touch2");
-
 
         // Set servo direction orientations forward or reverse
         horizontalTop.setDirection(Servo.Direction.FORWARD);
