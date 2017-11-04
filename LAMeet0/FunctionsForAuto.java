@@ -119,6 +119,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     /******************* F U N C T I O N S   F O R   A U T O *******************/
 
+    // drive function for any direction
     public void drive( String direction, double distance, double power, double time ) {
 
         // math to calculate total counts robot should travel
@@ -161,6 +162,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                 bottomPower.setPower( power );
                 leftMotor.setPower( 0 );
                 rightMotor.setPower( 0 );
+
                 // Telemetry for encoder position
                 telemetry.addData("Current", topMotor.getCurrentPosition());
                 telemetry.update();
@@ -245,105 +247,58 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     }
 
     // Execute a robot spin using both sides of the drive train and the gyro
-    public void spinMove(double desiredHeading) {
-        // Set all drive train motor's run modes to RUN_WITHOUT_ENCODER
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    public void spinMove( String direction, double distance) {
+        String direction, double distance, double power, double time ) {
 
-        // Set initialHeading to gyro's integrated Z value
-        initialHeading = gyro.getIntegratedZValue();
+           // math to calculate total counts robot should travel
+           inches = distance;
+           rotations = inches / (Math.PI * WHEEL_DIAMETER);
+           counts = ENCODER_CPR * rotations * GEAR_RATIO;
 
-        // Set timeOne and timeTwo to this.getRuntime()
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
+           leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
+           leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        if (desiredHeading < initialHeading) // CLOCKWISE TURN
-        {
-            do {
-                // Math to calculate turnSpeed of robot using proportional control
-                // with turnSpeed lowering as robot reaches its heading target
-                currentHeading = gyro.getIntegratedZValue();
-                headingError = desiredHeading - currentHeading;
-                turnSpeed = -headingError * GYRO_GAIN;
+           // Set timeOne and timeTwo to this.getRuntime();
+           timeOne = this.getRuntime();
+           timeTwo = this.getRuntime();
 
-                // Clip turnSpeed to be .4 through .8
-                if (turnSpeed < 0.25) {
-                    turnSpeed = 0.25;
-                }
-                if (turnSpeed > .8) {
-                    turnSpeed = .8;
-                }
+           while ( Math.abs(leftMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) )
+           {
+               if ( direction.equals("clockwise") || direction.equals("cw") ) {
+                   leftPower = power;
+                   rightPower = -power;
+                   topPower = power;
+                   bottomPower = -power;
+               }
+               else if ( direction.equals("counterclockwise") || direction.equals("ccw") ) {
+                   leftPower = -power;
+                   rightPower = power;
+                   topPower = -power;
+                   bottomPower = power;
+               }
 
-                // Set motor powers
-                rightMotor1.setPower(-turnSpeed);
-                rightMotor2.setPower(-turnSpeed);
-                leftMotor1.setPower(turnSpeed);
-                leftMotor2.setPower(turnSpeed);
-                // Execute gyroTelemetry method
-                gyroTelemetry();
+               // Telemetry for encoder position
+               telemetry.addData("Current", leftMotor.getCurrentPosition());
+               telemetry.update();
+               // Set timeTwo to this.getRuntime ()
+               timeTwo = this.getRuntime();
+           }
 
-                // Set timeTwo to this.getRuntime()
-                timeTwo = this.getRuntime();
-            }
-            while (currentHeading > desiredHeading && (timeTwo - timeOne < 13));
-            // while current heading is greater than desired heading, and time elapsed in loop
-            // is under 6 seconds
-        } else // Counterclockwise turn
-        {
-            do {
-                // Math to calculate turnSpeed of robot using proportional control
-                // with turnSpeed lowering as robot reaches its heading target
-                currentHeading = gyro.getIntegratedZValue();
-                headingError = desiredHeading - currentHeading;
-                turnSpeed = headingError * GYRO_GAIN;
-
-                // Clip turnSpeed to be .4 through .8
-                if (turnSpeed < 0.25) {
-                    turnSpeed = 0.25;
-                }
-                if (turnSpeed > .8) {
-                    turnSpeed = .8;
-                }
-
-                // Set motor powers
-                rightMotor1.setPower(turnSpeed);
-                rightMotor2.setPower(turnSpeed);
-                leftMotor1.setPower(-turnSpeed);
-                leftMotor2.setPower(-turnSpeed);
-                // Execute gyroTelemetry method
-                gyroTelemetry();
-
-                // Set timeTwo to this.getRuntime()
-                timeTwo = this.getRuntime();
-            }
-            while (currentHeading < desiredHeading && (timeTwo - timeOne < 13));
-            // while current heading is less than desired heading, and time elapsed in loop
-            // is under 6 seconds
-        }
-        // Safety timeout
-        if (timeTwo - timeOne > 13) {
-            stopDriving();
-            while (this.opModeIsActive()) {
-                timeTwo = this.getRuntime();
-            }
-
-            telemetry.addLine("Timed out");
-            telemetry.update();
-        }
-        // Execute stopDriving method
-        stopDriving();
+           // Safety timeout based on if the loop above executed in under 4 seconds
+           // If it did not, do not execute the rest of the program
+           if (timeTwo - timeOne > time) {
+               while (this.opModeIsActive()) {
+                   stopDriving();
+                   timeTwo = this.getRuntime();
+                   // Telemetry alerting drive team of safety timeout
+                   telemetry.addLine("Timed out");
+                   telemetry.update();
+               }
+           }
+           // Execute stopDriving method
+           stopDriving();
     }
 
-    // Provide telemetry related to the gyro sensor
-    public void gyroTelemetry() {
-        // Current value of the gyro's integrated z value
-        telemetry.addData("Heading", gyro.getIntegratedZValue());
-        // Current value of the turnSpeed variable
-        telemetry.addData("Turn Speed", turnSpeed);
-        telemetry.update();
-    }
 
     // Configures all hardware devices, and sets them to their initial values, if necessary
     public void Configure() {
