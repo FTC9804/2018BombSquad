@@ -45,9 +45,6 @@ public class GrabbersCombo extends OpMode {
     Servo leftGrabberBottom; // Servo that controls the grabber on the left, with a reference point looking
     // at the openClose servo
 
-    TouchSensor touchSensorTop;
-    TouchSensor touchSensorBottom;
-
     // Top
     boolean dpadUp = false; // boolean that is initially set to false, and becomes true if the dpad top is pressed
     boolean dpadDown = false; // boolean that is initially set to false, and becomes true if the dpad bottom is pressed
@@ -92,8 +89,9 @@ public class GrabbersCombo extends OpMode {
         leftGrabberTop = hardwareMap.servo.get("s3");
         horizontalBottom = hardwareMap.servo.get("s5");
         openCloseBottom = hardwareMap.servo.get("s6");
-        rightGrabberBottom = hardwareMap.servo.get("s8");
         leftGrabberBottom = hardwareMap.servo.get("s7");
+        rightGrabberBottom = hardwareMap.servo.get("s8");
+
 
         touchSensorTop = hardwareMap.touchSensor.get("touch1");
         touchSensorBottom = hardwareMap.touchSensor.get("touch2");

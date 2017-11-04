@@ -17,37 +17,58 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.navigation.VuMarkInstanceId;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
+
 public abstract class FunctionsForAuto extends LinearOpMode {
 
     //Variable Declarations
+    public static final String TAG = "Vuforia VuMark Sample";
+
+    OpenGLMatrix lastLocation = null;
+
+    /**
+     * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
+     * localization engine.
+     */
+    VuforiaLocalizer vuforia;
 
     //Motors
-    DcMotor rightMotor1;   //right drive motor front
-    DcMotor leftMotor1;    //left drive motor front
-    DcMotor rightMotor2;   //right drive motor back
-    DcMotor leftMotor2;    //left drive motor back
-    DcMotor shooter;      //shooting flywheel
-    DcMotor intake;       //intake system
-    DcMotor cap1;         //Cap ball motor
-    DcMotor cap2;        //Cap ball motor
+    // DCMotors
+    DcMotor rightMotor;     //right drive motor front
+    DcMotor leftMotor;      //left drive motor front
+    DcMotor topMotor;       //right drive motor back
+    DcMotor bottomMotor;    //left drive motor back
 
-    TouchSensor touchSensor;
+
+    //  declare touch seniors
+    TouchSensor touchSensorTop;
+    TouchSensor touchSensorBottom;
 
     boolean wlsRightlight = false;  //Boolean for whether right ods has seen white light, initially set to false
     boolean wlsLeftlight = false;   //Boolean for whether left ods has seen white light, initially set to false
 
     //Servos
-    Servo hood;       //position servo for 180º, adjust angle of shooter
-    Servo turret;     //Continuous Rotation
-    Servo kicker;     //Servo to kick balls into the flywheel area
-    Servo ballControl; //Servo to prevent unwanted balls from ascending
-    Servo leftDrawbridge;  //Servo to keep intake folded into robot when desired on the left of the robot
-    Servo rightDrawbridge;  //Servo to keep intake folded into robot when desired on the right of the robot
-    Servo beaconPusherLeft;    //Servo on the left of the robot for beacon pushing
-    Servo beaconPusherRight;   //Servo on the right of the robot for beacon pushing
-    Servo capGrab; //Servo to extend and retract cap ball grabbing arms
-    Servo leftSideWheels;
-    Servo rightSideWheels;
+    Servo horizontalTop; // Servo that rotate's the grabber horizontally
+    Servo openCloseTop; // Sevo that opens and closes the two grabbers
+    Servo rightGrabberTop; // Servo that controls the grabber on the right, with a reference point looking
+    // at the openClose servo
+    Servo leftGrabberTop; // Servo that controls the grabber on the left, with a reference point looking
+    // at the openClose servo
+    Servo horizontalBottom; // Servo that rotate's the grabber horizontally
+    Servo openCloseBottom; // Sevo that opens and closes the two grabbers
+    Servo rightGrabberBottom; // Servo that controls the grabber on the right, with a reference point looking
+    // at the openClose servo
+    Servo leftGrabberBottom; // Servo that controls the grabber on the left, with a reference point looking
+    // at the openClose servo
+
 
     //encoder variables to adequately sense the lines
     final static double ENCODER_CPR = 1120;    //encoder counts per rotation (CPR)
@@ -146,6 +167,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     //Adjustment factor for motor powers when driving straight based on straightGyroGain
     double straightDriveAdjust = 0;
 
+    // booleans for limit switch state
+    boolean touchTopPress = false;
+    boolean touchBottomPress = false;
+
     // F U N C T I O N S   F O R   A U T O
 
 
@@ -159,8 +184,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         rotations = inches / (Math.PI * WHEEL_DIAMETER);
         counts = ENCODER_CPR * rotations * GEAR_RATIO;
 
-        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); //Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); //Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
+        leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         //Set timeOne and timeTwo to this.getRuntime();
         timeOne = this.getRuntime();
@@ -202,16 +227,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     //Sets all drive train motors to 0 power
     public void stopDriving() {
-        leftMotor1.setPower(0);
-        leftMotor2.setPower(0);
-        rightMotor1.setPower(0);
-        rightMotor2.setPower(0);
-    }
-
-    //Sets intake and shooter to 0 power
-    public void stopShooting() {
-        intake.setPower(0);
-        shooter.setPower(0);
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
+        topMotor.setPower(0);
+        bottomMotor.setPower(0);
     }
 
     //Execute a robot spin using both sides of the drive train and the gyro
@@ -316,80 +335,72 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         telemetry.update();
     }
 
-    //Configures all hardware devices, and sets them to their initial
-    //values, if necessary
+    //Configures all hardware devices, and sets them to their initial values, if necessary
 
     //WRITE IN ENCODER PORTS
     public void Configure() {
-        //Set variable turretPosition to .5
-        turretPosition = .5;
 
-        rightMotor1 = hardwareMap.dcMotor.get("m3"); //Motor Controller 4, port 2, XV78
-        rightMotor2 = hardwareMap.dcMotor.get("m4"); //Motor Controller 4, port 1, XV78
-        leftMotor1 = hardwareMap.dcMotor.get("m1"); //Motor Controller 1, port 2, UVQF
-        leftMotor2 = hardwareMap.dcMotor.get("m2"); //Motor Controller 1, port 1, UVQF
-        rightMotor1.setDirection(DcMotor.Direction.FORWARD); //Set direction of rightMotor1 to forward
-        rightMotor2.setDirection(DcMotor.Direction.FORWARD); //Set direction of rightMotor2 to forward
-        leftMotor1.setDirection(DcMotor.Direction.REVERSE); //Set direction of leftMotor1 to reverse
-        leftMotor2.setDirection(DcMotor.Direction.REVERSE); //Set direction of leftMotor2 to reverse
+        /**
+         * To start up Vuforia, tell it the view that we wish to use for camera monitor (on the RC phone);
+         * If no camera monitor is desired, use the parameterless constructor instead (commented out below).
+         */
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
 
-        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); //Stop and reset encoder of leftMotor1
+        // OR...  Do Not Activate the Camera Monitor View, to save power
+        // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
-        shooter = hardwareMap.dcMotor.get("m5"); //Motor Controller 2, port 1, 9PCE
-        shooter.setDirection(DcMotor.Direction.FORWARD); //Set shooter motor to forward direction
+        /**
+         * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
+         * 'parameters.vuforiaLicenseKey' is initialized is for illustration only, and will not function.
+         * A Vuforia 'Development' license key, can be obtained free of charge from the Vuforia developer
+         * web site at https://developer.vuforia.com/license-manager.
+         *
+         * Vuforia license keys are always 380 characters long, and look as if they contain mostly
+         * random data. As an example, here is a example of a fragment of a valid key:
+         *      ... yIgIzTqZ4mWjk9wd3cZO9T1axEqzuhxoGlfOOI2dRzKS4T0hQ8kT ...
+         * Once you've obtained a license key, copy the string from the Vuforia web site
+         * and paste it in to your code onthe next line, between the double quotes.
+         */
 
-        intake = hardwareMap.dcMotor.get("m6"); //Motor Controller 2, port 2, 9PCE
-        intake.setDirection(DcMotorSimple.Direction.REVERSE); //Set intake motor to forward direction
+        parameters.vuforiaLicenseKey = "AZfTpOj/////AAAAGYCE1z7z6E5whPRKfYeRJHEN/u/+LZ7AMmBU0bBa" +
+                "/7u6aTruUWfYeLur6nSFdKP0w9JPmK1gstNxVHqiaZN6iuZGxPcbnDnm" +
+                "NJdoLIMtZheeNWphUMjHKoTUgsmcloZe67TG2V9duc+8jxxCLFzH5rlq" +
+                "PPdcgvvtIO0orpxVcpENBunY2GChhVgP6V5T9Iby7MyM9tN+y7Egm7Xy" +
+                "Iz/Tzpmlj19b3FUCW4WUDjTNQ4JoKZeB1jkhPxKGFRECoPw02jJXtQSK" +
+                "zNfzmhtugA7PTOZNehc61UjOXEexTO9TRy7ZfMtW8OggcYssvIabyJ8b" +
+                "DK4ePLCUP+Q4PMf7kL9lM6yDuxxKF0oqLgRglX9Axqrf";
 
-        turret = hardwareMap.servo.get("s1"); //Servo Controller 1, port 2, VSI1
-        hood = hardwareMap.servo.get("s2"); //Servo Controller 1, port 1, VSI1
+        /**
+         * We also indicate which camera on the RC that we wish to use.
+         * Here we chose the back (HiRes) camera (for greater range), but
+         * for a competition robot, the front camera might be more convenient.
+         */
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
 
-        touchSensor = hardwareMap.touchSensor.get("touch"); //Digital port 1
+        /**
+         * Load the data set containing the VuMarks for Relic Recovery. There's only one trackable
+         * in this data set: all three of the VuMarks in the game were created from this one template,
+         * but differ in their instance id information.
+         * @see VuMarkInstanceId
+         */
+        VuforiaTrackables relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
+        VuforiaTrackable relicTemplate = relicTrackables.get(0);
 
-        beaconPusherLeft = hardwareMap.servo.get("s4"); //Servo Controller 3, port 2, VCT7
-        beaconPusherRight = hardwareMap.servo.get("s3"); //Servo Controller 3, port 1, VCT7
+        // Motor configurations in the hardware map
+        rightMotor = hardwareMap.dcMotor.get("m1");
+        leftMotor = hardwareMap.dcMotor.get("m2");
+        topMotor = hardwareMap.dcMotor.get("m3");
+        bottomMotor = hardwareMap.dcMotor.get("m4");
 
-        cap1 = hardwareMap.dcMotor.get("m7"); //Motor Controller 3, port 1, VF7F
-        cap2 = hardwareMap.dcMotor.get("m8"); //Motor Controller 3, port 2, VF7F
-
-        cap1.setDirection(DcMotor.Direction.FORWARD); //Set cap1 motor to forward setting
-        cap2.setDirection(DcMotor.Direction.FORWARD); //Set cap2 motor to reverse setting
-
-        ballControl = hardwareMap.servo.get("s5"); //Servo Controller 1, port 4, VSI1
-
-        leftDrawbridge = hardwareMap.servo.get("s6"); //Servo Controller 3, port 3, VCT7
-        rightDrawbridge = hardwareMap.servo.get("s7"); //Servo Controller 3, port 4, VCT7
-
-        kicker = hardwareMap.servo.get("s8"); //Servo Controller 1, port 3, VSI1
-
-        capGrab = hardwareMap.servo.get("s9"); //Servo Controller 3, Port 5, VCT7
-
-        capGrab.setDirection(Servo.Direction.FORWARD); //Set capGrab motor to forward position
-
-        leftSideWheels = hardwareMap.servo.get("s11"); //Servo Controller 1, port 6, VSI1;
-        rightSideWheels = hardwareMap.servo.get("s12"); //Servo Controller 1, port 5, VSI1;
-        leftSideWheels.setPosition(.5);
-        rightSideWheels.setPosition(.5);
-
-        beaconPusherLeft.setPosition(BEACON_PUSHER_LEFT_RETRACT_POSITION); //Set beaconPusherLeft to beaconPusherLeftRetractPosition
-        beaconPusherRight.setPosition(BEACON_PUSHER_RIGHT_RETRACT_POSITION); //Set beaconPusherRight to beaconPusherRightRetractPosition
-        turret.setPosition(turretPosition); //Set turret to turretPosition
-        kicker.setPosition(0); //Set kicker to 0
-        ballControl.setPosition(.6); //Set ballControl to .75
-        hood.setPosition(1); //Set hood to 1
-        leftDrawbridge.setPosition(.5); //Set leftDrawbridge to .5
-        rightDrawbridge.setPosition(.5); //Set rightDrawbridge to .5
-        capGrab.setPosition(1);
-
-        leftDrawbridge.setDirection(Servo.Direction.REVERSE);
-        rightDrawbridge.setDirection(Servo.Direction.REVERSE);
+        // Motor directions: set forward/reverse
+        rightMotor.setDirection(REVERSE);
+        leftMotor.setDirection(FORWARD);
+        topMotor.setDirection(REVERSE);
+        bottomMotor.setDirection(FORWARD);
 
         gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("gyro"); //I2C port 0
-
-        whiteLineSensorRight = hardwareMap.opticalDistanceSensor.get("ods2");    //Analog import port 0
-        whiteLineSensorLeft = hardwareMap.opticalDistanceSensor.get("ods1");     //Analog import port 4
-        whiteLineSensorRight.enableLed(true); //Set enableLed of whiteLineSensorRight to true
-        whiteLineSensorLeft.enableLed(true); //Set enableLed of whiteLineSensorLeft to true
 
         I2cAddr i2cColorLeft = I2cAddr.create8bit(0x5c); //Create I2C address of colorSensorLeft
         I2cAddr i2cColorRight = I2cAddr.create8bit(0x3c); //Create I2C address of colorSensorRight
@@ -403,29 +414,53 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         colorSensorLeft.setI2cAddress(i2cColorLeft); //set I2C address of colorSensorRight
         colorSensorLeft.enableLed(false); //Set enableLed of colorSensorLeft to false
 
-        push = false; //Set push variable to false
-
-        leftDrawbridge.setPosition(.5); //Set leftDrawbridge position to .5
-        rightDrawbridge.setPosition(.5); //Set rightDrawbridge positon to .5
-
         //Set gyro variables to 0
         currentHeading = 0;
         initialHeading = 0;
         headingError = 0;
         turnSpeed = 0;
 
-        //Set initial shooterPower to .95
-        shooterPower = .95;
-
         //Initialize encoder variables to 0
         inches = 0;
         rotations = 0;
         counts = 0;
 
-        //Set white line variables to 0
-        whitesCount = 0;
-        whiteCountLeft = 0;
-        whiteCountRight = 0;
+        // harware map configurations
+        horizontalTop = hardwareMap.servo.get("s1");
+        openCloseTop = hardwareMap.servo.get("s2");
+        rightGrabberTop = hardwareMap.servo.get("s4");
+        leftGrabberTop = hardwareMap.servo.get("s3");
+        horizontalBottom = hardwareMap.servo.get("s5");
+        openCloseBottom = hardwareMap.servo.get("s6");
+        leftGrabberBottom = hardwareMap.servo.get("s7");
+        rightGrabberBottom = hardwareMap.servo.get("s8");
+
+
+        touchSensorTop = hardwareMap.touchSensor.get("touch1");
+        touchSensorBottom = hardwareMap.touchSensor.get("touch2");
+
+
+        // Set servo direction orientations forward or reverse
+        horizontalTop.setDirection(Servo.Direction.FORWARD);
+        openCloseTop.setDirection(Servo.Direction.FORWARD);
+        rightGrabberTop.setDirection(Servo.Direction.REVERSE);
+        leftGrabberTop.setDirection(Servo.Direction.FORWARD);
+
+        horizontalBottom.setDirection(Servo.Direction.FORWARD);
+        openCloseBottom.setDirection(Servo.Direction.FORWARD);
+        rightGrabberBottom.setDirection(Servo.Direction.REVERSE);
+        leftGrabberBottom.setDirection(Servo.Direction.FORWARD);
+
+        // Initial positions for servos
+        horizontalTop.setPosition(.486);
+        openCloseTop.setPosition(.5);
+        rightGrabberTop.setPosition(.5);
+        leftGrabberTop.setPosition(.5);
+
+        horizontalBottom.setPosition(.486);
+        openCloseBottom.setPosition(.5);
+        rightGrabberBottom.setPosition(.5);
+        leftGrabberBottom.setPosition(.5);
     }
 
     //Calibrate the gyro sensor
@@ -440,13 +475,9 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             //telemetry
             telemetry.addLine("Gyro is not calibrated");
             telemetry.update();
-            //Set side wheel servos to down position
-            leftSideWheels.setPosition(.95);
-            rightSideWheels.setPosition(.95);
+
         }
-        //Set side wheel servos to not moving position
-        leftSideWheels.setPosition(.5);
-        rightSideWheels.setPosition(.5);
+
     }
 
     //Runs the flywheel shooter, attempting to maintain a constant
