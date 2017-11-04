@@ -247,8 +247,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     }
 
     // Execute a robot spin using both sides of the drive train and the gyro
-    public void spinMove( String direction, double distance) {
-        String direction, double distance, double power, double time ) {
+    public void spinMove( String direction, double distance, double power, double time ) {
 
            // math to calculate total counts robot should travel
            inches = distance;
