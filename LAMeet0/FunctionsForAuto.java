@@ -41,6 +41,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
 
 
+
+
     /******************* S E N S O R S *******************/
 
     ModernRoboticsI2cGyro gyro; // Gyro sensor declaration
@@ -48,8 +50,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     TouchSensor touchSensorTop; //  declare touch sensors for grabbers
     TouchSensor touchSensorBottom;
 
-    ColorSensor colorSensorRight; // Right color sensor for beacon autonomous
-    ColorSensor colorSensorLeft; // Left color sensor for beacon autonomous
+    ColorSensor colorSensorFeeler; // Right color feeler for balls autonomous
 
     // Gyro variables
     double currentHeading;          // measure gyro heading/position
@@ -62,6 +63,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     // Touch Sensor variables
     boolean touchTopPress = false;
     boolean touchBottomPress = false;
+
 
 
 
@@ -98,8 +100,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
 
 
+
+
     /******************* G R A B B E R S *******************/
-    
+
     // Servos
     Servo horizontalTop; // Servo that rotate's the grabber horizontally
     Servo openCloseTop; // Sevo that opens and closes the two grabbers
@@ -117,13 +121,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
 
 
-
-
-
-
-
-    // F U N C T I O N S   F O R   A U T O
-
+    /******************* F U N C T I O N S   F O R   A U T O *******************/
 
     // Drives straight and backwards for a provided distance, in inches
     // and at a given speed and a given gyro heading
@@ -185,8 +183,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     }
 
     // Execute a robot spin using both sides of the drive train and the gyro
-    public void spinMove(double desiredHeading) // desired gyro heading
-    {
+    public void spinMove(double desiredHeading) {
         // Set all drive train motor's run modes to RUN_WITHOUT_ENCODER
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -287,32 +284,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     }
 
     // Configures all hardware devices, and sets them to their initial values, if necessary
-
-    // WRITE IN ENCODER PORTS
     public void Configure() {
 
-        /**
-        * To start up Vuforia, tell it the view that we wish to use for camera monitor (on the RC phone);
-        * If no camera monitor is desired, use the parameterless constructor instead (commented out below).
-        */
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-
-        // OR...  Do Not Activate the Camera Monitor View, to save power
-        // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
-        /**
-        * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
-        * 'parameters.vuforiaLicenseKey' is initialized is for illustration only, and will not function.
-        * A Vuforia 'Development' license key, can be obtained free of charge from the Vuforia developer
-        * web site at https:// developer.vuforia.com/license-manager.
-        *
-        * Vuforia license keys are always 380 characters long, and look as if they contain mostly
-        * random data. As an example, here is a example of a fragment of a valid key:
-        *      ... yIgIzTqZ4mWjk9wd3cZO9T1axEqzuhxoGlfOOI2dRzKS4T0hQ8kT ...
-        * Once you've obtained a license key, copy the string from the Vuforia web site
-        * and paste it in to your code onthe next line, between the double quotes.
-        */
 
         parameters.vuforiaLicenseKey = "AZfTpOj// // /AAAAGYCE1z7z6E5whPRKfYeRJHEN/u/+LZ7AMmBU0bBa" +
         "/7u6aTruUWfYeLur6nSFdKP0w9JPmK1gstNxVHqiaZN6iuZGxPcbnDnm" +
@@ -322,28 +297,17 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         "zNfzmhtugA7PTOZNehc61UjOXEexTO9TRy7ZfMtW8OggcYssvIabyJ8b" +
         "DK4ePLCUP+Q4PMf7kL9lM6yDuxxKF0oqLgRglX9Axqrf";
 
-        /**
-        * We also indicate which camera on the RC that we wish to use.
-        * Here we chose the back (HiRes) camera (for greater range), but
-        * for a competition robot, the front camera might be more convenient.
-        */
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
         this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
 
-        /**
-        * Load the data set containing the VuMarks for Relic Recovery. There's only one trackable
-        * in this data set: all three of the VuMarks in the game were created from this one template,
-        * but differ in their instance id information.
-        * @see VuMarkInstanceId
-        */
         VuforiaTrackables relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
         VuforiaTrackable relicTemplate = relicTrackables.get(0);
 
         // Motor configurations in the hardware map
-        rightMotor = hardwareMap.dcMotor.get("m1");
-        leftMotor = hardwareMap.dcMotor.get("m2");
-        topMotor = hardwareMap.dcMotor.get("m3");
-        bottomMotor = hardwareMap.dcMotor.get("m4");
+        rightMotor = hardwareMap.dcMotor.get("rightMotor");
+        leftMotor = hardwareMap.dcMotor.get("leftMotor");
+        topMotor = hardwareMap.dcMotor.get("topMotor");
+        bottomMotor = hardwareMap.dcMotor.get("bottomMotor");
 
         // Motor directions: set forward/reverse
         rightMotor.setDirection(REVERSE);
@@ -357,13 +321,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         I2cAddr i2cColorRight = I2cAddr.create8bit(0x3c); // Create I2C address of colorSensorRight
 
         // requires moving connection based on alliance color
-        colorSensorRight = hardwareMap.colorSensor.get("colorright");     // I2C port 2
-        colorSensorRight.setI2cAddress(i2cColorRight); // set I2C address of colorSensorRight
-        colorSensorRight.enableLed(false); // Set enableLed of colorSensorRight to false
+        colorSensorFeeler = hardwareMap.colorSensor.get("colorSensorFeeler");     // I2C port 2
+        colorSensorFeeler.setI2cAddress(i2cColorFeeler); // set I2C address of colorSensorRight
+        colorSensorFeeler.enableLed(false); // Set enableLed of colorSensorRight to false
 
-        colorSensorLeft = hardwareMap.colorSensor.get("colorleft");     // I2C port 5
-        colorSensorLeft.setI2cAddress(i2cColorLeft); // set I2C address of colorSensorRight
-        colorSensorLeft.enableLed(false); // Set enableLed of colorSensorLeft to false
 
         // Set gyro variables to 0
         currentHeading = 0;
@@ -377,14 +338,14 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         counts = 0;
 
         // harware map configurations
-        horizontalTop = hardwareMap.servo.get("s1");
-        openCloseTop = hardwareMap.servo.get("s2");
-        rightGrabberTop = hardwareMap.servo.get("s4");
-        leftGrabberTop = hardwareMap.servo.get("s3");
-        horizontalBottom = hardwareMap.servo.get("s5");
-        openCloseBottom = hardwareMap.servo.get("s6");
-        leftGrabberBottom = hardwareMap.servo.get("s7");
-        rightGrabberBottom = hardwareMap.servo.get("s8");
+        horizontalTop = hardwareMap.servo.get("horizontalTop");
+        openCloseTop = hardwareMap.servo.get("openCloseTop");
+        rightGrabberTop = hardwareMap.servo.get("rightGrabberTop");
+        leftGrabberTop = hardwareMap.servo.get("leftGrabberTop");
+        horizontalBottom = hardwareMap.servo.get("horizontalBottom");
+        openCloseBottom = hardwareMap.servo.get("openCloseBottom");
+        leftGrabberBottom = hardwareMap.servo.get("leftGrabberBottom");
+        rightGrabberBottom = hardwareMap.servo.get("rightGrabberBottom");
 
 
         touchSensorTop = hardwareMap.touchSensor.get("touch1");
@@ -430,136 +391,6 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         }
 
     }
-
-    // Runs the flywheel shooter, attempting to maintain a constant
-    // rpm of the shooter, and also a constant speed of the intake
-    // motor.  If the rpm is not close enough to the target value,
-    // the intake will not run as too ensure balls are given the
-    // best opportunity to score.
-    public void shootAndLift(double targetRPM, double intakeSpeed, double initialWaitTime) throws InterruptedException {
-        // Set shooter power to variable shooterPower
-        shooter.setPower(shooterPower);
-
-        // Set timeOne and timeTwo to this.getRuntime
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        // 1 second wait
-        while (timeTwo - timeOne < initialWaitTime) {
-            timeTwo = this.getRuntime();
-        }
-
-        // Set timeOne and timeTwo and timeRunningLoop to this.getRuntime()
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-        timeRunningLoop = this.getRuntime();
-
-        // 3 second loop
-        while (timeTwo < (timeRunningLoop + 3)) {
-
-            // Current Run Time
-            timeTwo = this.getRuntime();
-            // Current Encoder Clicks
-            encoderClicksTwo = shooter.getCurrentPosition();
-
-            // telemetry for shooting speed
-            if (timeTwo - timeOne >= 0.1) {// if timeTwo and timeOne are more than .1 sec apart
-                timeTwo = this.getRuntime();// set time Two to curret runtime
-                encoderClicksTwo = shooter.getCurrentPosition();// set encoderClicksTwo to the current position of the shooter motor
-                rpm = (int) ((encoderClicksTwo - encoderClicksOne) / (timeTwo - timeOne) * (60 / 28)); // (clicks/seconds)(60seconds/1min)(1rev/28clicks)
-                averageRpmArray[arrayCount] = rpm; // Set position arrayCount of averageRpmArray to current rpm
-                timeOne = this.getRuntime(); // set timeOne to current run time
-                encoderClicksOne = shooter.getCurrentPosition(); // set encoderClicksOne to the current position of the shooter motor
-                arrayCount++;// increment arrayCount by 1
-            }
-
-
-            if (arrayCount == 5) // if arrayCount equals 5
-            {
-                for (int i = 0; i < 5; i++) { // loop 5 times
-                    totalRpm += averageRpmArray[i]; // increment totalRpm by the value at position i of averageRpmArray
-                }
-                avgRpm = (int) totalRpm / 5; // set avgRpm to totalRpm divided by five casted as an int
-                baseWeight = .1; // Set base weight to .1
-                for (int i = 0; i < 5; i++) { // Loop 5 times
-                    weightedAvg += (int) averageRpmArray[i] * baseWeight; // Increment weightedAvg by the value of averageRpmArray at position i times baseWeight casted as an int
-                    baseWeight += .05; // Increment base weight by .05
-                }
-                // Set tempWeightedAvg to weightedAvg
-                tempWeightedAvg = weightedAvg;
-
-                // If avgRpm>targetRPM, set intake powerto intakeSpeed, otherwise
-                // set intake power to 0
-                if (avgRpm > targetRPM) {
-                    intake.setPower(intakeSpeed);
-                    ballControl.setPosition(.6);
-                } else {
-                    intake.setPower(0);
-                }
-
-                // Adjust shooter speed based on RPM_GAIN, and difference between
-                // targetRPM and weightedAvg
-                shooterPower += RPM_GAIN * (targetRPM - weightedAvg);
-
-                // Telemetry
-                weightedAvg = 0; // set weightedAvg to 0
-                arrayCount = 0; // set arrayCount to 0
-                // set each value in averageRpmArray to 0
-                averageRpmArray[0] = 0;
-                averageRpmArray[1] = 0;
-                averageRpmArray[2] = 0;
-                averageRpmArray[3] = 0;
-                averageRpmArray[4] = 0;
-                // set totalRpm to 0;
-                totalRpm = 0;
-                // Set shooter power to variable shooterPower
-                shooterPower = Range.clip(shooterPower, .8, .99);
-                shooter.setPower(shooterPower);
-            }
-
-            // telemetry for rpm and averages
-            telemetry.addData("WeightedRPM: ", tempWeightedAvg);
-            telemetry.addData("RPM : ", rpm);
-            telemetry.addData("AvgRPM : ", avgRpm);
-            telemetry.update();
-        }
-
-        // Set timeOne and timeTwo to this.getRuntime()
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        // .5 second pause
-        while (timeTwo - timeOne < 2) {
-            shooter.setPower(.96);
-            timeTwo = this.getRuntime();
-        }
-
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-        // while timeTwo < timeRunningLoop + 6
-        while (timeTwo - timeOne < 4) {
-            timeTwo = this.getRuntime();
-            shooter.setPower(.95);
-            kicker.setPosition(.8);
-            intake.setPower(.9);
-        }
-
-        // telemetry for rpm and averages
-        telemetry.addData("WeightedRPM: ", tempWeightedAvg);
-        telemetry.addData("RPM : ", rpm);
-        telemetry.addData("AvgRPM : ", avgRpm);
-        telemetry.update();
-
-
-        // Execute stopShooting method
-        stopShooting();
-
-        // Set intake and shooter powers to 0, and kicker position to 0
-        kicker.setPosition(0);
-        shooter.setPower(0);
-        intake.setPower(0);
-    }
-
 
     // drive forward at a given distance, speed and gyro heading
     public void drive(double distance, double speed, double targetHeading, boolean isStopAtEnd) {
@@ -1010,7 +841,6 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             timeTwo = this.getRuntime();
         }
     }
-
 
     // Run method to drive at a given speed until adequate red light is detected
     // at which time the appropriate beacon pusher extends and retracts to push
