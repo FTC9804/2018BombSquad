@@ -115,138 +115,14 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     Servo leftGrabberBottom; // Servo that controls the grabber on the left, with a reference point looking
     // at the openClose servo
 
+    // grabber
+    Servo feeler;
+    double feelerRetractPosition = 0.5;
+    double feelerExtendPosition = 0;
 
 
 
     /******************* F U N C T I O N S   F O R   A U T O *******************/
-
-    // drive function for any direction
-    public void drive( String direction, double distance, double power, double time ) {
-
-        // math to calculate total counts robot should travel
-        inches = distance;
-        rotations = inches / (Math.PI * WHEEL_DIAMETER);
-        counts = ENCODER_CPR * rotations * GEAR_RATIO;
-
-        if ( direction.equals("left") || direction.equals("right") ) {
-            leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
-            leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
-        else {
-            topMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
-            topMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
-
-        // Set timeOne and timeTwo to this.getRuntime();
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        if ( direction.equals("left") || direction.equals("right") ) {
-            while ( Math.abs(leftMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) ) {
-                // Set motor powers based on paramater power
-                leftMotor.setPower( power );
-                rightMotor.setPower( power );
-                topMotor.setPower( 0 );
-                bottomPower.setPower( 0 );
-
-                // Telemetry for encoder position
-                telemetry.addData("Current", leftMotor.getCurrentPosition());
-                telemetry.update();
-                // Set timeTwo to this.getRuntime ()
-                timeTwo = this.getRuntime();
-            }
-        }
-        else if (direction.equals( "forwards") || direction.equals("backwards")){
-            while ( Math.abs(topMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) ) {
-                // Set motor powers based on paramater power
-                topMotor.setPower( power );
-                bottomPower.setPower( power );
-                leftMotor.setPower( 0 );
-                rightMotor.setPower( 0 );
-
-                // Telemetry for encoder position
-                telemetry.addData("Current", topMotor.getCurrentPosition());
-                telemetry.update();
-                // Set timeTwo to this.getRuntime ()
-                timeTwo = this.getRuntime();
-            }
-        }
-
-        // Safety timeout based on if the loop above executed in under 4 seconds
-        // If it did not, do not execute the rest of the program
-        if (timeTwo - timeOne > time) {
-            while (this.opModeIsActive()) {
-                stopDriving();
-                timeTwo = this.getRuntime();
-                // Telemetry alerting drive team of safety timeout
-                telemetry.addLine("Timed out");
-                telemetry.update();
-            }
-        }
-        // Execute stopDriving method
-        stopDriving();
-
-    }
-
-    // Sets all drive train motors to 0 power
-    public void stopDriving() {
-        leftMotor.setPower(0);
-        rightMotor.setPower(0);
-        topMotor.setPower(0);
-        bottomMotor.setPower(0);
-    }
-
-    // Execute a robot spin using both sides of the drive train and the gyro
-    public void spinMove( String direction, double distance, double power, double time ) {
-
-           // math to calculate total counts robot should travel
-           inches = distance;
-           rotations = inches / (Math.PI * WHEEL_DIAMETER);
-           counts = ENCODER_CPR * rotations * GEAR_RATIO;
-
-           leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
-           leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-           // Set timeOne and timeTwo to this.getRuntime();
-           timeOne = this.getRuntime();
-           timeTwo = this.getRuntime();
-
-           while ( Math.abs(leftMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) )
-           {
-               if ( direction.equals("clockwise") || direction.equals("cw") ) {
-                   leftPower = power;
-                   rightPower = -power;
-                   topPower = power;
-                   bottomPower = -power;
-               }
-               else if ( direction.equals("counterclockwise") || direction.equals("ccw") ) {
-                   leftPower = -power;
-                   rightPower = power;
-                   topPower = -power;
-                   bottomPower = power;
-               }
-
-               // Telemetry for encoder position
-               telemetry.addData("Current", leftMotor.getCurrentPosition());
-               telemetry.update();
-               // Set timeTwo to this.getRuntime ()
-               timeTwo = this.getRuntime();
-           }
-
-           // Safety timeout based on if the loop above executed in under 4 seconds
-           // If it did not, do not execute the rest of the program
-           if (timeTwo - timeOne > time) {
-               while (this.opModeIsActive()) {
-                   stopDriving();
-                   timeTwo = this.getRuntime();
-                   // Telemetry alerting drive team of safety timeout
-                   telemetry.addLine("Timed out");
-                   telemetry.update();
-               }
-           }
-           // Execute stopDriving method
-           stopDriving();
-    }
 
     // Configures all hardware devices, and sets them to their initial values, if necessary
     public void configure( String initialAllianceColor, String initialRobotStartingPosition ) {
@@ -341,6 +217,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         leftGrabberBottom = hardwareMap.servo.get("leftGrabberBottom");
         rightGrabberBottom = hardwareMap.servo.get("rightGrabberBottom");
 
+        feeler = hardwareMap.servo.get("feeler");
+
         // Set servo direction orientations forward or reverse
         horizontalTop.setDirection(Servo.Direction.FORWARD);
         openCloseTop.setDirection(Servo.Direction.FORWARD);
@@ -352,6 +230,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         rightGrabberBottom.setDirection(Servo.Direction.REVERSE);
         leftGrabberBottom.setDirection(Servo.Direction.FORWARD);
 
+        feeler.setDirection(Servo.Direction.FORWARD);
+
         // Initial positions for servos
         horizontalTop.setPosition(.486);
         openCloseTop.setPosition(.5);
@@ -362,60 +242,269 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         openCloseBottom.setPosition(.5);
         rightGrabberBottom.setPosition(.5);
         leftGrabberBottom.setPosition(.5);
+
+        feeler.setPosition(feelerRetractPosition);
+
     }
 
-    public void dropFeeler(){
+    // drive function for any direction
+    public void drive( String direction, double distance, double power, double time ) {
 
-        // MOVE SERVO FEELER
+        // math to calculate total counts robot should travel
+        inches = distance;
+        rotations = inches / (Math.PI * WHEEL_DIAMETER);
+        counts = ENCODER_CPR * rotations * GEAR_RATIO;
+
+        if ( direction.equals("left") || direction.equals("right") ) {
+            leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
+            leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+        else {
+            topMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
+            topMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+
+        // Set timeOne and timeTwo to this.getRuntime();
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        if ( direction.equals("left") || direction.equals("right") ) {
+            while ( Math.abs(leftMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) ) {
+                if ( direction.equals("left") ) {
+                    // Set motor powers based on paramater power
+                    topMotor.setPower( -power );
+                    bottomMotor.setPower( -power );
+                }
+                else if ( direction.equals("right") ){
+                    // Set motor powers based on paramater power
+                    topMotor.setPower( power );
+                    bottomPower.setPower( power );
+                }
+
+                leftMotor.setPower( 0 );
+                rightMotor.setPower( 0 );
+
+                // Telemetry for encoder position
+                telemetry.addData("Current", leftMotor.getCurrentPosition());
+                telemetry.update();
+                // Set timeTwo to this.getRuntime ()
+                timeTwo = this.getRuntime();
+            }
+        }
+        else if (direction.equals( "forwards") || direction.equals("backwards")){
+            while ( Math.abs(topMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) ) {
+                if ( direction.equals("backwards") ) {
+                    // Set motor powers based on paramater power
+                    leftMotor.setPower( -power );
+                    rightMotor.setPower( -power );
+                }
+                else if ( direction.equals("forwards") ) {
+                    // Set motor powers based on paramater power
+                    leftMotor.setPower( power );
+                    rightMotor.setPower( power );
+                }
+
+                topMotor.setPower( 0 );
+                bottomPower.setPower( 0 );
+
+                // Telemetry for encoder position
+                telemetry.addData("Current", topMotor.getCurrentPosition());
+                telemetry.update();
+                // Set timeTwo to this.getRuntime ()
+                timeTwo = this.getRuntime();
+            }
+        }
+
+        // Safety timeout based on if the loop above executed in under 4 seconds
+        // If it did not, do not execute the rest of the program
+        if (timeTwo - timeOne > time) {
+            while (this.opModeIsActive()) {
+                stopDriving();
+                timeTwo = this.getRuntime();
+                // Telemetry alerting drive team of safety timeout
+                telemetry.addLine("Timed out");
+                telemetry.update();
+            }
+        }
+        // Execute stopDriving method
+        stopDriving();
+
+    }
+
+    // Sets all drive train motors to 0 power
+    public void stopDriving() {
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
+        topMotor.setPower(0);
+        bottomMotor.setPower(0);
+    }
+
+    public void pause( double time ) {
+        //Set timeOne and timeTwo to this.getRuntime()
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo - timeOne < time) {
+            timeTwo = this.getRuntime();
+        }
+    }
+
+    // Execute a robot spin using both sides of the drive train and the gyro
+    public void spinMove( String direction, double distance, double power, double time ) {
+
+           // math to calculate total counts robot should travel
+           inches = distance;
+           rotations = inches / (Math.PI * WHEEL_DIAMETER);
+           counts = ENCODER_CPR * rotations * GEAR_RATIO;
+
+           leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
+           leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+           // Set timeOne and timeTwo to this.getRuntime();
+           timeOne = this.getRuntime();
+           timeTwo = this.getRuntime();
+
+           while ( Math.abs(leftMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) )
+           {
+               if ( direction.equals("clockwise") || direction.equals("cw") ) {
+                   leftPower = power;
+                   rightPower = -power;
+                   topPower = power;
+                   bottomPower = -power;
+               }
+               else if ( direction.equals("counterclockwise") || direction.equals("ccw") ) {
+                   leftPower = -power;
+                   rightPower = power;
+                   topPower = -power;
+                   bottomPower = power;
+               }
+
+               // Telemetry for encoder position
+               telemetry.addData("Current", leftMotor.getCurrentPosition());
+               telemetry.update();
+               // Set timeTwo to this.getRuntime ()
+               timeTwo = this.getRuntime();
+           }
+
+           // Safety timeout based on if the loop above executed in under 4 seconds
+           // If it did not, do not execute the rest of the program
+           if (timeTwo - timeOne > time) {
+               while (this.opModeIsActive()) {
+                   stopDriving();
+                   timeTwo = this.getRuntime();
+                   // Telemetry alerting drive team of safety timeout
+                   telemetry.addLine("Timed out");
+                   telemetry.update();
+               }
+           }
+           // Execute stopDriving method
+           stopDriving();
+    }
+
+    public void dropFeelerAndMove(){
+
+        feeler.setPosition(0);
 
         if ( allianceColor.equals("red") && robotStartingPosition.equals("relicSide") ){
             if ( colorSensorFeeler.blue() >= 2 && colorSensorFeeler.red() < 2 ){
                 // DRIVE RIGHT TO KNOCK OFF BLUE
+                drive( "right", 6, .3, 20 );
                 //RETRACT SERVO
+                feeler.setPosition(feelerRetractPosition);
                 //DRIVE LARGER FORWARD LEFT DISTANCE
+                drive( "left", 18, .3, 45 );
             }
             else if ( colorSensorFeeler.red() >= 2 && colorSensorFeeler.blue() < 2 ){
                 // DRIVE LEFT TO KNOCK OFF BLUE
+                drive( "left", 6, .3, 20 );
                 //RETRACT SERVO
-                //DRIVE SMALLER FORWARD LEFT DISTANCE
+                feeler.setPosition(feelerRetractPosition);
+                //DRIVE SMALLER FORWARD RIGHT DISTANCE
+                drive( "right", 18, .3, 20 );
+
             }
         }
         else if ( allianceColor.equals("red") && robotStartingPosition.equals("triangleSide") ){
             if ( colorSensorFeeler.blue() >= 2 && colorSensorFeeler.red() < 2 ){
                 // DRIVE RIGHT TO KNOCK OFF BLUE
+                drive( "right", 6, .3, 20 );
                 //RETRACT SERVO
+                feeler.setPosition(feelerRetractPosition);
                 //DRIVE LARGER FORWARD LEFT DISTANCE
+                drive( "left", 18, .3, 45 );
             }
             else if ( colorSensorFeeler.red() >= 2 && colorSensorFeeler.blue() < 2 ){
                 // DRIVE LEFT TO KNOCK OFF BLUE
+                drive( "left", 6, .3, 20 );
                 //RETRACT SERVO
+                feeler.setPosition(feelerRetractPosition);
                 //DRIVE LARGER FORWARD LEFT DISTANCE
+                drive( "left", 18, .3, 45 );
             }
         }
         else if ( allianceColor.equals("blue") && robotStartingPosition.equals("relicSide") ){
             if ( colorSensorFeeler.blue() >= 2 && colorSensorFeeler.red() < 2 ){
                 // DRIVE RIGHT TO KNOCK OFF BLUE
+                drive( "right", 6, .3, 20 );
                 //RETRACT SERVO
+                feeler.setPosition(feelerRetractPosition);
                 //DRIVE LARGER FORWARD LEFT DISTANCE
+                drive( "left", 18, .3, 45 );
             }
             else if ( colorSensorFeeler.red() >= 2 && colorSensorFeeler.blue() < 2 ){
                 // DRIVE LEFT TO KNOCK OFF BLUE
+                drive( "left", 6, .3, 20 );
                 //RETRACT SERVO
-                //DRIVE LARGER FORWARD RIGHT DISTANCE
+                feeler.setPosition(feelerRetractPosition);
+                //DRIVE LARGER FORWARD LEFT DISTANCE
+                drive( "left", 18, .3, 45 );
             }
         }
         else if ( allianceColor.equals("blue") && robotStartingPosition.equals("triangleSide") ){
             if ( colorSensorFeeler.blue() >= 2 && colorSensorFeeler.red() < 2 ){
-                // DRIVE RIGHT TO KNOCK OFF RED
+                // DRIVE RIGHT TO KNOCK OFF BLUE
+                drive( "right", 6, .3, 20 );
                 //RETRACT SERVO
-                //DRIVE LARGER FORWARD RIGHT DISTANCE
+                feeler.setPosition(feelerRetractPosition);
+                //DRIVE LARGER FORWARD LEFT DISTANCE
+                drive( "left", 18, .3, 45 );
             }
             else if ( colorSensorFeeler.red() >= 2 && colorSensorFeeler.blue() < 2 ){
-                // DRIVE LEFT TO KNOCK OFF RED
+                // DRIVE LEFT TO KNOCK OFF BLUE
+                drive( "left", 6, .3, 20 );
                 //RETRACT SERVO
+                feeler.setPosition(feelerRetractPosition);
                 //DRIVE LARGER FORWARD LEFT DISTANCE
+                drive( "left", 18, .3, 45 );
             }
         }
+    }
+
+    public void dropFeelerMoveBallOnly(){
+        feeler.setPosition(0);
+
+        pause( 1 );
+
+        telemetry.addData( "Value of RED: ", colorSensorFeeler.red() );
+        telemetry.addData( "Value of BLUE: ", colorSensorFeeler.blue() );
+        telemetry.update;
+
+        pause( 1 );
+
+        if ( allianceColor.equals("red") && colorSensorFeeler.blue() >= 2 && colorSensorFeeler.red() < 2 ) {
+            drive( "right", 6, .3, 15 );
+        }
+        else if ( allianceColor.equals("red") && colorSensorFeeler.red() >= 2 && colorSensorFeeler.blue() < 2 ) {
+            drive( "left", 6, .3, 15 );
+        }
+        else if ( allianceColor.equals("blue") && colorSensorFeeler.blue() >= 2 && colorSensorFeeler.red() < 2 ) {
+            drive( "left", 6, .3, 15 );
+        }
+        else if ( allianceColor.equals("blue") && colorSensorFeeler.red() >= 2 && colorSensorFeeler.blu() < 2 ) {
+            drive( "right", 6, .3, 15);
+        }
+
+        stopDriving();
     }
 
 

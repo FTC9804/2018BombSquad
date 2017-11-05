@@ -5,7 +5,6 @@ package org.firstinspires.ftc.teamcode;
  */
 
 //import statement
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Autonomous(name = "RedRelicSide", group = "AutoWithFunctions")
@@ -21,15 +20,7 @@ public class V1RedRelicRecoverySide extends FunctionsForAuto {
         //Wait until play button is pressed
         waitForStart();
 
-        //Set timeOne and timeTwo to this.getRuntime()
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        //For 1 second, bring down leftSideWheels
-        //and rightSideWheels to .95 position
-        while (timeTwo - timeOne < 1) {
-            timeTwo = this.getRuntime();
-        }
+        pause( 2 );
 
 
 
