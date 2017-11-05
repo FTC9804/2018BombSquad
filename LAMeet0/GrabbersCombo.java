@@ -205,10 +205,10 @@ public class GrabbersCombo extends OpMode {
         //Adjust openCloseValue as necesarry
 
         if (dpadUpTop && !dpadDownTop) {
-            openCloseValueTop += .012;
+            openCloseValueTop -= .012;
         }
         if (dpadDownTop && !dpadUpTop) {
-            openCloseValueTop -= .012;
+            openCloseValueTop += .012;
         }
 
         openCloseValueTop = Range.clip(openCloseValueTop, .157, .745);
@@ -216,10 +216,10 @@ public class GrabbersCombo extends OpMode {
 
 
         if (dpadRightBottom && !dpadLeftBottom) {
-            openCloseValueBottom += .012;
+            openCloseValueBottom -= .012;
         }
         if (dpadLeftBottom && !dpadRightBottom) {
-            openCloseValueBottom -= .012;
+            openCloseValueBottom += .012;
         }
 
         openCloseValueBottom = Range.clip(openCloseValueBottom, .157, .745);
@@ -298,6 +298,9 @@ public class GrabbersCombo extends OpMode {
         //{
             //openCloseBottom.setPosition(stillOpenCloseValue);
         //}
+
+
+
 
     } // end loop
 
