@@ -177,13 +177,6 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
 
         /******************* S E N S O R S *******************/
-        // gyro and setup
-        gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("gyro"); // I2C port 0
-        // Set gyro variables to 0
-        currentHeading = 0;
-        initialHeading = 0;
-        headingError = 0;
-        turnSpeed = 0;
 
         // color sensor and setup
         I2cAddr i2cColorSensorFeeler = I2cAddr.create8bit(0x5c); // Create I2C address of colorSensorLeft
