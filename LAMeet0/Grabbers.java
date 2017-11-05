@@ -1,11 +1,11 @@
-// Version 2.0 coded Oct. 7, 2017 by Marcus, Steve, and Isaac
-// Designed to test the functionality of block grabber prototype
-// So far so good!
+//Version 2.0 coded Oct. 7, 2017 by Marcus and Isaac.
+//Designed to test the functionality of block grabber prototype
+//So far so good!
 
-// package declaration
+//package declaration
 package org.firstinspires.ftc.teamcode;
 
-// import statements
+//import statements
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -23,58 +23,59 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import static com.qualcomm.robotcore.util.Range.clip;
 
+/**
+ * Created by MarcusLeher on 06/10/2017.
+ */
 
 @TeleOp(name = "Grabbers", group = "Grabbers")
-// @Disabled
+//@Disabled
 public class Grabbers extends OpMode {
 
-    // Variable declarations
+    //Variable declarations
 
-    // servo declarations
-    Servo horizontal; // Servo that rotate's the grabber horizontally
-    Servo openClose; // Sevo that opens and closes the two grabbers
-    Servo rightGrabber; // Servo that controls the grabber on the right, with a reference point looking
-    // at the openClose servo
-    Servo leftGrabber; // Servo that controls the grabber on the left, with a reference point looking
-    // at the openClose servo
+    Servo horizontal; //Servo that rotate's the grabber horizontally
+    Servo openClose; //Sevo that opens and closes the two grabbers
+    Servo rightGrabber; //Servo that controls the grabber on the right, with a reference point looking
+    //at the openClose servo
+    Servo leftGrabber; //Servo that controls the grabber on the left, with a reference point looking
+    //at the openClose servo
 
-    // touch sensor declaration
     TouchSensor touchSensor1;
 
 
-    boolean dpadUp = false; // boolean that is initially set to false, and becomes true if the dpad up is pressed
-    boolean dpadDown = false; // boolean that is initially set to false, and becomes true if the dpad down is pressed
-    double gamepadrightx; // double that represents the raw value of the x axis of the right stick of the gamepad being used
-    boolean leftBumper = false; // boolean that is initially set to false, and becomes true if the left bumper is pressed
-    double leftTrigger; // double that represents the raw value of the left trigger of the gamepad being used
-    double openCloseValue = .5; // double that represents the position value to be applied to the openClose servo
-    double conveyorValue = .5; // double that represents the postion value to be applied to the left and right grabbers
+    boolean dpadUp = false; //boolean that is initially set to false, and becomes true if the dpad up is pressed
+    boolean dpadDown = false; //boolean that is initially set to false, and becomes true if the dpad down is pressed
+    double gamepadrightx; //double that represents the raw value of the x axis of the right stick of the gamepad being used
+    boolean leftBumper = false; //boolean that is initially set to false, and becomes true if the left bumper is pressed
+    double leftTrigger; //double that represents the raw value of the left trigger of the gamepad being used
+    double openCloseValue = .5; //double that represents the position value to be applied to the openClose servo
+    double conveyorValue = .5; //double that represents the postion value to be applied to the left and right grabbers
     double stillOpenCloseValue = .745;
 
-    // adjustment math based variables
+
     double adjustedRightX;
     double adjustedLeftTrigger;
 
-    // boolean variable for touch sensor
     boolean touch1press = false;
 
     public void init() {
-        // Servo configurations
+        //Servo configurations
         horizontal = hardwareMap.servo.get("s1");
         openClose = hardwareMap.servo.get("s2");
         rightGrabber = hardwareMap.servo.get("s4");
         leftGrabber = hardwareMap.servo.get("s3");
 
-        // hardware sensor configurations
+
+
         touchSensor1 = hardwareMap.touchSensor.get("touch1");
 
-        // Servo directions
+        //Servo directions
         horizontal.setDirection(Servo.Direction.FORWARD);
         openClose.setDirection(Servo.Direction.FORWARD);
         rightGrabber.setDirection(Servo.Direction.REVERSE);
         leftGrabber.setDirection(Servo.Direction.FORWARD);
 
-        // Initial powers
+        //Initial powers
         horizontal.setPosition(.486);
         openClose.setPosition(.5);
         rightGrabber.setPosition(.5);
@@ -83,7 +84,6 @@ public class Grabbers extends OpMode {
 
     public void loop() {
 
-        // touch sensor boolean statement
         if (touchSensor1.isPressed())
         {
             touch1press = true;
@@ -93,7 +93,7 @@ public class Grabbers extends OpMode {
             touch1press = false;
         }
 
-        // Set values of booleans
+        //Set values of booleans
         if (gamepad1.dpad_up) {
             dpadUp = true;
         } else {
@@ -112,26 +112,26 @@ public class Grabbers extends OpMode {
             leftBumper = false;
         }
 
-        // Set gamepadright x and leftTriggger
+        //Set gamepadright x and leftTriggger
         gamepadrightx = gamepad1.right_stick_x;
         leftTrigger = gamepad1.left_trigger;
 
-        // As the Servo horizontal is continuous, its interval of values is (0,1), while
-        // the interval of values for gamepadrightx is (-1,1).  Thus, we need to convert this value.
+        //As the Servo horizontal is continuous, its interval of values is (0,1), while
+        //the interval of values for gamepadrightx is (-1,1).  Thus, we need to convert this value.
         adjustedRightX = .486 - gamepadrightx / 2;
 
-        // The rawLeftTrigger value is in the interval (0,1).  However, for our purposes prssing the
-        // left trigger means the grabbers are intaking, which represents values in the interval (0,.5), given
-        // the right and left grabbers are continuous
+        //The rawLeftTrigger value is in the interval (0,1).  However, for our purposes prssing the
+        //left trigger means the grabbers are intaking, which represents values in the interval (0,.5), given
+        //the right and left grabbers are continuous
         adjustedLeftTrigger = leftTrigger / 2 + .5;
 
-        // Adjust openCloseValue as necesarry
+        //Adjust openCloseValue as necesarry
 
         if (dpadUp && !dpadDown) {
-            openCloseValue += .012;
+            openCloseValue -= .012;
         }
         if (dpadDown && !dpadUp) {
-            openCloseValue -= .012;
+            openCloseValue += .012;
         }
 
         openCloseValue = Range.clip(openCloseValue, .157, .745);
@@ -151,18 +151,15 @@ public class Grabbers extends OpMode {
             conveyorValue = .5;
         }
 
-        // Set powers
+        //Set powers
         horizontal.setPosition(adjustedRightX);
         if (touch1press && conveyorValue > .5)
         {
             conveyorValue = .5;
         }
 
-        // set positions for grabbing servos
         rightGrabber.setPosition(conveyorValue);
         leftGrabber.setPosition(conveyorValue);
-
-        // adjust open/close if touch sensor is not pressed
         if (!touch1press)
         {
             openClose.setPosition(openCloseValue);
@@ -172,7 +169,6 @@ public class Grabbers extends OpMode {
             openClose.setPosition(stillOpenCloseValue);
         }
 
-        // telemetry for relevant data
         telemetry.addData("open close value", openCloseValue);
         telemetry.addData("adj right x", adjustedRightX);
         telemetry.addData("Conveyor", conveyorValue);
@@ -180,3 +176,13 @@ public class Grabbers extends OpMode {
 
     }
 }
+
+
+
+
+
+
+
+
+
+
