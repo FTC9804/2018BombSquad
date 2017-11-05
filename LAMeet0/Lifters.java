@@ -33,11 +33,11 @@ public class Lifters extends OpMode {
     DcMotor rightLift;     // right lift motor front
     DcMotor leftLift;      // left lift motor front
 
-    TouchSensor touchBottomLeft;
-    TouchSensor touchBottomRight;
+    TouchSensor touchSensorLeft;
+    TouchSensor touchSensorRight;
     // when one is pressed, don't allow that one to run down
     // when both are pressed, set encoder to 0
-    TouchSensor touchTop;
+    //TouchSensor touchTop;
 
     // raw values for right and left
     double rawRight;
@@ -75,9 +75,9 @@ public class Lifters extends OpMode {
         leftLift.setDirection(FORWARD);
 
         // touch sensor configurations
-        touchBottomLeft=hardwareMap.touchSensor.get("touchBottomLeft");
-        touchBottomRight=hardwareMap.touchSensor.get("touchBottomLeft");
-        touchTop=hardwareMap.touchSensor.get("touchTop");
+        touchSensorLeft=hardwareMap.touchSensor.get("touchSensorLeft");
+        touchSensorRight=hardwareMap.touchSensor.get("touchSensorRight");
+        //touchTop=hardwareMap.touchSensor.get("touchTop");
 
         // encoder Run Modes
         rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -127,31 +127,31 @@ public class Lifters extends OpMode {
         }
 
         // conditional statement for if the touch sensor is pressed to stop lifting mechanism from contiuing upwards in an unsafe manner
-        if (touchTop.isPressed())
-        {
-            if (rightLiftPower>.05)
-            {
-                rightLift.setPower(0);
-                leftLift.setPower(0);
-            }
-            else
-            {
-                rightLift.setPower(rightLiftPower);
-                leftLift.setPower(leftLiftPower);
-            }
-        }
+        //if (touchTop.isPressed())
+       //{
+            //if (rightLiftPower>.05)
+            //{
+                //rightLift.setPower(0);
+                //leftLift.setPower(0);
+            //}
+            //else
+            //{
+                //rightLift.setPower(rightLiftPower);
+                //leftLift.setPower(leftLiftPower);
+            //}
+        //}
         // testing sensor condition for individual pressing
-        else if (touchBottomLeft.isPressed() && !touchBottomRight.isPressed())
+        if (touchSensorLeft.isPressed() && !touchSensorRight.isPressed())
         {
             leftLift.setPower(0);
             rightLift.setPower(rightLiftPower);
         }
-        else if (touchBottomRight.isPressed() && !touchBottomLeft.isPressed())
+        else if (touchSensorRight.isPressed() && !touchSensorLeft.isPressed())
         {
             rightLift.setPower(0);
             leftLift.setPower(leftLiftPower);
         }
-        else if (touchBottomLeft.isPressed() && touchBottomRight.isPressed())
+        else if (touchSensorLeft.isPressed() && touchSensorRight.isPressed())
         {
             if (rightLiftPower>0 && leftLiftPower>0)
             {
@@ -173,5 +173,7 @@ public class Lifters extends OpMode {
             rightLift.setPower(rightLiftPower);
             leftLift.setPower(leftLiftPower);
         }
+
+
     }
 }
