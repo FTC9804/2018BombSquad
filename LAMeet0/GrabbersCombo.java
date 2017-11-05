@@ -24,21 +24,21 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import static com.qualcomm.robotcore.util.Range.clip;
 
 /**
-* Created by MarcusLeher on 06/10/2017.
-*/
+ * Created by MarcusLeher on 06/10/2017.
+ */
 
 @TeleOp(name = "GrabbersCombo", group = "GrabbersCombo")
 // @Disabled
 public class GrabbersCombo extends OpMode {
 
-    Servo horizontalTop; // Servo that rotate's the grabber horizontally
+    //Servo horizontalTop; // Servo that rotate's the grabber horizontally
     Servo openCloseTop; // Sevo that opens and closes the two grabbers
     Servo rightGrabberTop; // Servo that controls the grabber on the right, with a reference point looking
     // at the openClose servo
     Servo leftGrabberTop; // Servo that controls the grabber on the left, with a reference point looking
     // at the openClose servo
 
-    Servo horizontalBottom; // Servo that rotate's the grabber horizontally
+    //Servo horizontalBottom; // Servo that rotate's the grabber horizontally
     Servo openCloseBottom; // Sevo that opens and closes the two grabbers
     Servo rightGrabberBottom; // Servo that controls the grabber on the right, with a reference point looking
     // at the openClose servo
@@ -46,11 +46,11 @@ public class GrabbersCombo extends OpMode {
     // at the openClose servo
 
     // Top
-    boolean dpadUp = false; // boolean that is initially set to false, and becomes true if the dpad top is pressed
-    boolean dpadDown = false; // boolean that is initially set to false, and becomes true if the dpad bottom is pressed
-    double gamepadrightx; // double that represents the raw value of the x axis of the left stick of the gamepad being used
-    boolean leftBumper = false; // boolean that is initially set to false, and becomes true if the left bumper is pressed
-    double leftTrigger; // double that represents the raw value of the left trigger of the gamepad being used
+    boolean dpadUpTop = false; // boolean that is initially set to false, and becomes true if the dpad top is pressed
+    boolean dpadDownTop = false; // boolean that is initially set to false, and becomes true if the dpad bottom is pressed
+    double gamepadrightxTop; // double that represents the raw value of the x axis of the left stick of the gamepad being used
+    boolean leftBumperTop = false; // boolean that is initially set to false, and becomes true if the left bumper is pressed
+    double leftTriggerTop; // double that represents the raw value of the left trigger of the gamepad being used
     double openCloseValueTop = .5; // double that represents the position value to be applied to the openClose top servo
     double conveyorValueTop = .5; // double that represents the postion value to be applied to the left and right grabbers on top
     double stillOpenCloseValueTop = .745;  // double that represents the value of the top open close servo when it is still
@@ -58,63 +58,66 @@ public class GrabbersCombo extends OpMode {
     // Variable declarations
 
     //  declare touch seniors
-    TouchSensor touchSensorTop;
-    TouchSensor touchSensorBottom;
+    //TouchSensor touchSensorTop;
+    //TouchSensor touchSensorBottom;
 
     // Bottom
-    boolean dpadRight = false; // boolean that is initially set to false, and becomes true if the dpad right is pressed
-    boolean dpadLeft = false; // boolean that is initially set to false, and becomes true if the dpad left is pressed
-    double gamepadrighty; // double that represents the raw value of the y axis of the right stick of the gamepad being used
-    boolean rightBumper = false; // boolean that is initially set to false, and becomes true if the right bumper is pressed
-    double rightTrigger; // double that represents the raw value of the right trigger of the gamepad being used
+    boolean dpadRightBottom = false; // boolean that is initially set to false, and becomes true if the dpad right is pressed
+    boolean dpadLeftBottom = false; // boolean that is initially set to false, and becomes true if the dpad left is pressed
+    double gamepadrightyBottom; // double that represents the raw value of the y axis of the right stick of the gamepad being used
+    boolean rightBumperBottom = false; // boolean that is initially set to false, and becomes true if the right bumper is pressed
+    double rightTriggerBottom; // double that represents the raw value of the right trigger of the gamepad being used
     double openCloseValueBottom = .5; // double that represents the position value to be applied to the openClose bottom servo
     double conveyorValueBottom = .5; // double that represents the postion value to be applied to the left and right grabbers on bottom
     double stillOpenCloseValue = .745;   // double that represents the value of the bottom open close servo when it is still
 
     // booleans for limit switch state
-    boolean touchTopPress = false;
-    boolean touchBottomPress = false;
+    //boolean touchTopPress = false;
+    //boolean touchBottomPress = false;
 
     //doubles for adjustment constants
-    double adjustedRightX;
-    double adjustedLeftTrigger;
+    double adjustedRightXTop;
+    double adjustedLeftTriggerTop;
+
+    double adjustedRightYBottom;
+    double adjustedRightTriggerBottom;
 
     public void init ()
     {
 
         // harware map configurations
-        horizontalTop = hardwareMap.servo.get("s1");
-        openCloseTop = hardwareMap.servo.get("s2");
-        rightGrabberTop = hardwareMap.servo.get("s4");
-        leftGrabberTop = hardwareMap.servo.get("s3");
-        horizontalBottom = hardwareMap.servo.get("s5");
-        openCloseBottom = hardwareMap.servo.get("s6");
-        leftGrabberBottom = hardwareMap.servo.get("s7");
-        rightGrabberBottom = hardwareMap.servo.get("s8");
+        //horizontalTop = hardwareMap.servo.get("horizontalTop");
+        openCloseTop = hardwareMap.servo.get("openCloseTop");
+        rightGrabberTop = hardwareMap.servo.get("rightGrabberTop");
+        leftGrabberTop = hardwareMap.servo.get("leftGrabberTop");
+        //horizontalBottom = hardwareMap.servo.get("horizontalBottom");
+        openCloseBottom = hardwareMap.servo.get("openCloseBottom");
+        leftGrabberBottom = hardwareMap.servo.get("leftGrabberBottom");
+        rightGrabberBottom = hardwareMap.servo.get("rightGrabberBottom");
 
 
-        touchSensorTop = hardwareMap.touchSensor.get("touch1");
-        touchSensorBottom = hardwareMap.touchSensor.get("touch2");
+        //touchSensorTop = hardwareMap.touchSensor.get("touch1");
+        //touchSensorBottom = hardwareMap.touchSensor.get("touch2");
 
 
         // Set servo direction orientations forward or reverse
-        horizontalTop.setDirection(Servo.Direction.FORWARD);
+        //horizontalTop.setDirection(Servo.Direction.FORWARD);
         openCloseTop.setDirection(Servo.Direction.FORWARD);
         rightGrabberTop.setDirection(Servo.Direction.REVERSE);
         leftGrabberTop.setDirection(Servo.Direction.FORWARD);
 
-        horizontalBottom.setDirection(Servo.Direction.FORWARD);
-        openCloseBottom.setDirection(Servo.Direction.FORWARD);
-        rightGrabberBottom.setDirection(Servo.Direction.REVERSE);
-        leftGrabberBottom.setDirection(Servo.Direction.FORWARD);
+        //horizontalBottom.setDirection(Servo.Direction.FORWARD);
+        openCloseBottom.setDirection(Servo.Direction.REVERSE);
+        rightGrabberBottom.setDirection(Servo.Direction.FORWARD);
+        leftGrabberBottom.setDirection(Servo.Direction.REVERSE);
 
         // Initial positions for servos
-        horizontalTop.setPosition(.486);
+        //horizontalTop.setPosition(.486);
         openCloseTop.setPosition(.5);
         rightGrabberTop.setPosition(.5);
         leftGrabberTop.setPosition(.5);
 
-        horizontalBottom.setPosition(.486);
+        //horizontalBottom.setPosition(.486);
         openCloseBottom.setPosition(.5);
         rightGrabberBottom.setPosition(.5);
         leftGrabberBottom.setPosition(.5);
@@ -124,64 +127,177 @@ public class GrabbersCombo extends OpMode {
 
         // T O U C H   S E N S O R S
         // top touch sensor logic
-        if (touchSensorTop.isPressed()) {
-            touchTopPress = true;
-        } else {
-            touchTopPress = false;
-        }
+        //if (touchSensorTop.isPressed()) {
+        //    touchTopPress = true;
+        //} else {
+        //    touchTopPress = false;
+        //}
 
         // bottom touch senor logic
-        if (touchSensorBottom.isPressed()) {
-            touchBottomPress = true;
-        } else {
-            touchBottomPress = false;
-        }
+        //if (touchSensorBottom.isPressed()) {
+        //    touchBottomPress = true;
+        //} else {
+        //    touchBottomPress = false;
+        //}
 
 
         // D P A D
         // dpad up logic
         if (gamepad1.dpad_up) {
-            dpadUp = true;
+            dpadUpTop = true;
         } else {
-            dpadUp = false;
+            dpadUpTop = false;
         }
 
         // dpad down logic
         if (gamepad1.dpad_down) {
-            dpadDown = true;
+            dpadDownTop = true;
         } else {
-            dpadDown = false;
+            dpadDownTop = false;
         }
 
         // dpad right logic
         if (gamepad1.dpad_right) {
-            dpadRight = true;
+            dpadRightBottom = true;
         } else {
-            dpadRight = false;
+            dpadRightBottom = false;
         }
 
         // dpad down logic
-        if (gamepad1.dpad_down) {
-            dpadLeft = true;
+        if (gamepad1.dpad_left) {
+            dpadLeftBottom = true;
         } else {
-            dpadLeft = false;
+            dpadLeftBottom = false;
         }
 
 
         // B U M P E R S
-        // right bumper logic
-        if (gamepad1.right_bumper) {
-            rightBumper = true;
-        } else {
-            rightBumper = false;
-        }
 
         // left bumper logic
         if (gamepad1.left_bumper) {
-            leftBumper = true;
+            leftBumperTop = true;
         } else {
-            leftBumper = false;
+            leftBumperTop = false;
         }
+
+        // right bumper logic
+        if (gamepad1.right_bumper) {
+            rightBumperBottom = true;
+        } else {
+            rightBumperBottom = false;
+        }
+
+        //Set gamepadright x and leftTriggger
+        gamepadrightxTop = gamepad1.right_stick_x;
+        leftTriggerTop = gamepad1.left_trigger;
+
+        //Set gamepadright x and leftTriggger
+        gamepadrightyBottom = gamepad1.right_stick_y;
+        rightTriggerBottom = gamepad1.right_trigger;
+
+        adjustedRightXTop = .486 - gamepadrightxTop / 2;
+        adjustedLeftTriggerTop = leftTriggerTop / 2 + .5;
+
+        adjustedRightYBottom = .486 - gamepadrightyBottom / 2;
+        adjustedRightTriggerBottom = rightTriggerBottom / 2 + .5;
+
+
+        //Adjust openCloseValue as necesarry
+
+        if (dpadUpTop && !dpadDownTop) {
+            openCloseValueTop += .012;
+        }
+        if (dpadDownTop && !dpadUpTop) {
+            openCloseValueTop -= .012;
+        }
+
+        openCloseValueTop = Range.clip(openCloseValueTop, .157, .745);
+
+
+
+        if (dpadRightBottom && !dpadLeftBottom) {
+            openCloseValueBottom += .012;
+        }
+        if (dpadLeftBottom && !dpadRightBottom) {
+            openCloseValueBottom -= .012;
+        }
+
+        openCloseValueBottom = Range.clip(openCloseValueBottom, .157, .745);
+
+
+
+
+        if (leftTriggerTop > .05 && !leftBumperTop) {
+            conveyorValueTop = adjustedLeftTriggerTop;
+        } else if (leftTriggerTop < .05 && leftBumperTop) {
+            conveyorValueTop = 0;
+        }
+        else if (leftTriggerTop < .05 && !leftBumperTop) {
+            conveyorValueTop = .5;
+        }
+        else if (leftTriggerTop >.05 && leftBumperTop) {
+            conveyorValueTop = .5;
+        }
+        else {
+            conveyorValueTop = .5;
+        }
+
+
+
+
+        if (rightTriggerBottom > .05 && !rightBumperBottom) {
+            conveyorValueBottom = adjustedRightTriggerBottom;
+        } else if (rightTriggerBottom < .05 && rightBumperBottom) {
+            conveyorValueBottom = 0;
+        }
+        else if (rightTriggerBottom < .05 && !rightBumperBottom) {
+            conveyorValueTop = .5;
+        }
+        else if (rightTriggerBottom >.05 && rightBumperBottom) {
+            conveyorValueTop = .5;
+        }
+        else {
+            conveyorValueTop = .5;
+        }
+
+
+        //Set powers
+        //horizontalTop.setPosition(adjustedRightXTop);
+        //if (touchTopPress && conveyorValueTop > .5)
+        //{
+        //    conveyorValueTop = .5;
+        //}
+
+        rightGrabberTop.setPosition(conveyorValueTop);
+        leftGrabberTop.setPosition(conveyorValueTop);
+        //if (!touchTopPress)
+        //{
+            openCloseTop.setPosition(openCloseValueTop);
+        //}
+        //else
+        //{
+            //openCloseTop.setPosition(stillOpenCloseValue);
+        //}
+
+
+
+        //Set powers
+        //horizontalBottom.setPosition(adjustedRightYBottom);
+        //if (touchBottomPress && conveyorValueBottom > .5)
+        //{
+        //    conveyorValueBottom = .5;
+        //}
+
+        rightGrabberBottom.setPosition(conveyorValueBottom);
+        leftGrabberBottom.setPosition(conveyorValueBottom);
+        //if (!touchBottomPress)
+        //{
+            openCloseBottom.setPosition(openCloseValueBottom);
+        //}
+        //else
+        //{
+            //openCloseBottom.setPosition(stillOpenCloseValue);
+        //}
 
     } // end loop
 
