@@ -79,8 +79,8 @@ public class GrabberComboAndDrive extends OpMode {
     //TouchSensor touchSensorBottom;
 
     // Bottom
-    boolean dpadRightBottom = false; // boolean that is initially set to false, and becomes true if the dpad right is pressed
-    boolean dpadLeftBottom = false; // boolean that is initially set to false, and becomes true if the dpad left is pressed
+    boolean YBottom = false; // boolean that is initially set to false, and becomes true if the dpad right is pressed
+    boolean ABottom = false; // boolean that is initially set to false, and becomes true if the dpad left is pressed
     double gamepadrightyBottom; // double that represents the raw value of the y axis of the right stick of the gamepad being used
     boolean rightBumperBottom = false; // boolean that is initially set to false, and becomes true if the right bumper is pressed
     double rightTriggerBottom; // double that represents the raw value of the right trigger of the gamepad being used
@@ -125,8 +125,8 @@ public class GrabberComboAndDrive extends OpMode {
         // Motor directions: set forward/reverse
         rightMotor.setDirection(REVERSE);
         leftMotor.setDirection(FORWARD);
-        topMotor.setDirection(REVERSE);
-        bottomMotor.setDirection(FORWARD);
+        topMotor.setDirection(FORWARD);
+        bottomMotor.setDirection(REVERSE);
 
         // Set servo direction orientations forward or reverse
         //horizontalTop.setDirection(Servo.Direction.FORWARD);
@@ -185,17 +185,17 @@ public class GrabberComboAndDrive extends OpMode {
         }
 
         // dpad right logic
-        if (gamepad1.dpad_right) {
-            dpadRightBottom = true;
+        if (gamepad1.y) {
+            YBottom = true;
         } else {
-            dpadRightBottom = false;
+            YBottom = false;
         }
 
         // dpad down logic
-        if (gamepad1.dpad_left) {
-            dpadLeftBottom = true;
+        if (gamepad1.a) {
+            ABottom = true;
         } else {
-            dpadLeftBottom = false;
+            ABottom = false;
         }
 
 
@@ -216,17 +216,17 @@ public class GrabberComboAndDrive extends OpMode {
         }
 
         //Set gamepadright x and leftTriggger
-        gamepadrightxTop = gamepad1.right_stick_x;
+        //gamepadrightxTop = gamepad1.right_stick_x;
         leftTriggerTop = gamepad1.left_trigger;
 
         //Set gamepadright x and leftTriggger
-        gamepadrightyBottom = gamepad1.right_stick_y;
+        //gamepadrightyBottom = gamepad1.right_stick_y;
         rightTriggerBottom = gamepad1.right_trigger;
 
-        adjustedRightXTop = .486 - gamepadrightxTop / 2;
+        //adjustedRightXTop = .486 - gamepadrightxTop / 2;
         adjustedLeftTriggerTop = leftTriggerTop / 2 + .5;
 
-        adjustedRightYBottom = .486 - gamepadrightyBottom / 2;
+        //adjustedRightYBottom = .486 - gamepadrightyBottom / 2;
         adjustedRightTriggerBottom = rightTriggerBottom / 2 + .5;
 
 
@@ -243,10 +243,10 @@ public class GrabberComboAndDrive extends OpMode {
 
 
 
-        if (dpadRightBottom && !dpadLeftBottom) {
+        if (YBottom && !ABottom) {
             openCloseValueBottom += .012;
         }
-        if (dpadLeftBottom && !dpadRightBottom) {
+        if (ABottom && !YBottom) {
             openCloseValueBottom -= .012;
         }
 
@@ -279,13 +279,13 @@ public class GrabberComboAndDrive extends OpMode {
             conveyorValueBottom = 0;
         }
         else if (rightTriggerBottom < .05 && !rightBumperBottom) {
-            conveyorValueTop = .5;
+            conveyorValueBottom = .5;
         }
         else if (rightTriggerBottom >.05 && rightBumperBottom) {
-            conveyorValueTop = .5;
+            conveyorValueBottom = .5;
         }
         else {
-            conveyorValueTop = .5;
+            conveyorValueBottom = .5;
         }
 
 
