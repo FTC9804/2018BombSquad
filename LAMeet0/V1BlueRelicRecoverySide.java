@@ -7,15 +7,15 @@ package org.firstinspires.ftc.teamcode;
 //import statement
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "RedRelicSide", group = "AutoWithFunctions")
+@Autonomous(name = "BlueRelicSide", group = "AutoWithFunctions")
 
 //@Disabled
-public class V1RedRelicRecoverySide extends FunctionsForAuto {
+public class V1BlueRelicRecoverySide extends FunctionsForAuto {
 
     public void runOpMode() throws InterruptedException {
 
         //Configure motors, servos and sensors
-        configure( "red", "relicSide" );
+        configure( "blue", "relicSide" );
 
         //Wait until play button is pressed
         waitForStart();
