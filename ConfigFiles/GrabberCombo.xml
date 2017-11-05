@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<Robot type="FirstInspires-FTC">
+
+    <ServoController name="Servo Controller Bottom" serialNumber="AL026GMO">
+        <Servo name="leftGrabberBottom" port="1" />
+        <Servo name="openCloseBottom" port="2" />
+        <Servo name="rightGrabberBottom" port="6" />
+    </ServoController>
+    <ServoController name="Servo Controller Top" serialNumber="AL00VCT7">
+        <Servo name="leftGrabberTop" port="1" />
+        <Servo name="openCloseTop" port="2" />
+        <Servo name="rightGrabberTop" port="6" />
+    </ServoController>
+
+</Robot>
