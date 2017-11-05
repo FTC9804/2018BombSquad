@@ -233,10 +233,10 @@ public class GrabberComboAndDrive extends OpMode {
         //Adjust openCloseValue as necesarry
 
         if (dpadUpTop && !dpadDownTop) {
-            openCloseValueTop += .012;
+            openCloseValueTop -= .012;
         }
         if (dpadDownTop && !dpadUpTop) {
-            openCloseValueTop -= .012;
+            openCloseValueTop += .012;
         }
 
         openCloseValueTop = Range.clip(openCloseValueTop, .157, .745);
@@ -244,10 +244,10 @@ public class GrabberComboAndDrive extends OpMode {
 
 
         if (YBottom && !ABottom) {
-            openCloseValueBottom += .012;
+            openCloseValueBottom -= .012;
         }
         if (ABottom && !YBottom) {
-            openCloseValueBottom -= .012;
+            openCloseValueBottom += .012;
         }
 
         openCloseValueBottom = Range.clip(openCloseValueBottom, .157, .745);
