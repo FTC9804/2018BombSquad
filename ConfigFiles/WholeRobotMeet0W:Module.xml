@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<Robot type="FirstInspires-FTC">
+    <DeviceInterfaceModule name="Device Interface Module 1" serialNumber="AL00VGN2">
+        <I2cDevice name="colorSensorFeeler" port="1" />
+        <TouchSensor name="touchSensorLeft" port="0" />
+        <TouchSensor name="touchSensorRight" port="2" />
+    </DeviceInterfaceModule>
+    <MotorController name="Motor Controller Vertical Drive Motors" serialNumber="AL00VUTK">
+        <Motor name="bottomMotor" port="1" />
+        <Motor name="topMotor" port="2" />
+    </MotorController>
+    <MotorController name="Motor Controller Side Drive Motors" serialNumber="AL00VXSH">
+        <Motor name="rightMotor" port="1" />
+        <Motor name="leftMotor" port="2" />
+    </MotorController>
+    <ServoController name="Servo Controller Bottom" serialNumber="AL026GMO">
+        <Servo name="leftGrabberBottom" port="1" />
+        <Servo name="openCloseBottom" port="2" />
+        <Servo name="rightGrabberBottom" port="6" />
+    </ServoController>
+    <MotorController name="Motor Controller Lift" serialNumber="AL00VE1L">
+        <Motor name="liftMotorRight" port="1" />
+        <Motor name="liftMotorLeft" port="2" />
+    </MotorController>
+    <ServoController name="Servo Controller Top" serialNumber="AL00VCT7">
+        <Servo name="leftGrabberTop" port="1" />
+        <Servo name="openCloseTop" port="2" />
+        <Servo name="rightGrabberTop" port="6" />
+    </ServoController>
+</Robot>
