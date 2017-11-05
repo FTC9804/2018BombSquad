@@ -49,22 +49,22 @@ public class Omni extends OpMode {
         // Motor configurations in the hardware map
         rightMotor = hardwareMap.dcMotor.get("m1");
         leftMotor = hardwareMap.dcMotor.get("m2");
-        topMotor = hardwareMap.dcMotor.get("m3");
-        bottomMotor = hardwareMap.dcMotor.get("m4");
+        topMotor = hardwareMap.dcMotor.get("m4");
+        bottomMotor = hardwareMap.dcMotor.get("m3");
 
         // Motor directions: set forward/reverse
         rightMotor.setDirection(REVERSE);
         leftMotor.setDirection(FORWARD);
-        topMotor.setDirection(REVERSE);
-        bottomMotor.setDirection(FORWARD);
+        topMotor.setDirection(FORWARD);
+        bottomMotor.setDirection(REVERSE);
     }
 
     public void loop() {
 
         // Values from joystick given to variables
-        gamepadrighty = gamepad1.right_stick_y;
-        gamepadrightx = gamepad1.right_stick_x;
-        gamepadleftx = -(gamepad1.left_stick_x);
+        gamepadrighty = gamepad2.right_stick_y;
+        gamepadrightx = gamepad2.right_stick_x;
+        gamepadleftx = -(gamepad2.left_stick_x);
 
 
         // Rotation as priority over standard robot movement
