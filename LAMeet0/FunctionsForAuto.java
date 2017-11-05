@@ -474,6 +474,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     }
 
     public void dropFeelerMoveBallOnly(){
+
         feeler.setPosition(0);
 
         pause( 1 );

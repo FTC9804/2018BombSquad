@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
 <Robot type="FirstInspires-FTC">
-    <DeviceInterfaceModule name="Device Interface Module 1" serialNumber="AL00VGN2">
+    <DeviceInterfaceModule name="Device Interface Module 1" serialNumber="AL026BAJ">
         <I2cDevice name="colorSensorFeeler" port="1" />
         <TouchSensor name="touchSensorLeft" port="0" />
         <TouchSensor name="touchSensorRight" port="2" />
