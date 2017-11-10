@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 @Autonomous(name = "BlueTriangleSide", group = "AutoWithFunctions")
 
 //@Disabled
-public class V1RedRelicRecoverySide extends FunctionsForAuto {
+public class V1BlueTriangleSide extends FunctionsForAuto {
 
     public void runOpMode() throws InterruptedException {
 
@@ -24,7 +24,7 @@ public class V1RedRelicRecoverySide extends FunctionsForAuto {
 
         dropFeelerMoveBallOnly();
 
-        stopDriving;
+        stopDriving ();
 
 
     } // end run op mode
