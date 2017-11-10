@@ -46,14 +46,14 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     /******************* S E N S O R S *******************/
 
-    TouchSensor touchSensorTop; //  declare touch sensors for grabbers
-    TouchSensor touchSensorBottom;
+    //TouchSensor touchSensorTop; //  declare touch sensors for grabbers
+   //TouchSensor touchSensorBottom;
 
     ColorSensor colorSensorFeeler; // Right color feeler for balls autonomous
 
     // Touch Sensor variables
-    boolean touchTopPress = false;
-    boolean touchBottomPress = false;
+    //boolean touchTopPress = false;
+    //boolean touchBottomPress = false;
 
 
 
@@ -62,9 +62,9 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     /******************* V U F O R I A *******************/
 
     // Variable Declarations
-    public static final String TAG = "Vuforia VuMark Sample";
-    OpenGLMatrix lastLocation = null;
-    VuforiaLocalizer vuforia;
+    //public static final String TAG = "Vuforia VuMark Sample";
+   // OpenGLMatrix lastLocation = null;
+    //VuforiaLocalizer vuforia;
 
 
 
@@ -102,13 +102,13 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     /******************* G R A B B E R   S E R V O S *******************/
 
     // Servos
-    Servo horizontalTop; // Servo that rotate's the grabber horizontally
+    //Servo horizontalTop; // Servo that rotate's the grabber horizontally
     Servo openCloseTop; // Sevo that opens and closes the two grabbers
     Servo rightGrabberTop; // Servo that controls the grabber on the right, with a reference point looking
     // at the openClose servo
     Servo leftGrabberTop; // Servo that controls the grabber on the left, with a reference point looking
     // at the openClose servo
-    Servo horizontalBottom; // Servo that rotate's the grabber horizontally
+    //Servo horizontalBottom; // Servo that rotate's the grabber horizontally
     Servo openCloseBottom; // Sevo that opens and closes the two grabbers
     Servo rightGrabberBottom; // Servo that controls the grabber on the right, with a reference point looking
     // at the openClose servo
@@ -137,22 +137,22 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         /******************* V U F O R I A *******************/
 
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+        //int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        //VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
 
-        parameters.vuforiaLicenseKey = "AZfTpOj// // /AAAAGYCE1z7z6E5whPRKfYeRJHEN/u/+LZ7AMmBU0bBa" +
-                "/7u6aTruUWfYeLur6nSFdKP0w9JPmK1gstNxVHqiaZN6iuZGxPcbnDnm" +
-                "NJdoLIMtZheeNWphUMjHKoTUgsmcloZe67TG2V9duc+8jxxCLFzH5rlq" +
-                "PPdcgvvtIO0orpxVcpENBunY2GChhVgP6V5T9Iby7MyM9tN+y7Egm7Xy" +
-                "Iz/Tzpmlj19b3FUCW4WUDjTNQ4JoKZeB1jkhPxKGFRECoPw02jJXtQSK" +
-                "zNfzmhtugA7PTOZNehc61UjOXEexTO9TRy7ZfMtW8OggcYssvIabyJ8b" +
-                "DK4ePLCUP+Q4PMf7kL9lM6yDuxxKF0oqLgRglX9Axqrf";
+        //parameters.vuforiaLicenseKey = "AZfTpOj// // /AAAAGYCE1z7z6E5whPRKfYeRJHEN/u/+LZ7AMmBU0bBa" +
+               // "/7u6aTruUWfYeLur6nSFdKP0w9JPmK1gstNxVHqiaZN6iuZGxPcbnDnm" +
+               // "NJdoLIMtZheeNWphUMjHKoTUgsmcloZe67TG2V9duc+8jxxCLFzH5rlq" +
+               // "PPdcgvvtIO0orpxVcpENBunY2GChhVgP6V5T9Iby7MyM9tN+y7Egm7Xy" +
+               // "Iz/Tzpmlj19b3FUCW4WUDjTNQ4JoKZeB1jkhPxKGFRECoPw02jJXtQSK" +
+               // "zNfzmhtugA7PTOZNehc61UjOXEexTO9TRy7ZfMtW8OggcYssvIabyJ8b" +
+               // "DK4ePLCUP+Q4PMf7kL9lM6yDuxxKF0oqLgRglX9Axqrf";
 
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-        this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
+       // parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+       // this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
 
-        VuforiaTrackables relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
-        VuforiaTrackable relicTemplate = relicTrackables.get(0);
+        //VuforiaTrackables relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
+        //VuforiaTrackable relicTemplate = relicTrackables.get(0);
 
 
 
@@ -185,8 +185,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         //colorSensorFeeler.setI2cAddress(I2cColorFeeler); // set I2C address of colorSensorRight
         colorSensorFeeler.enableLed(false); // Set enableLed of colorSensorRight to false
 
-        touchSensorTop = hardwareMap.touchSensor.get("touchSensorTop");
-        touchSensorBottom = hardwareMap.touchSensor.get("touchSensorBottom");
+        //touchSensorTop = hardwareMap.touchSensor.get("touchSensorTop");
+        //touchSensorBottom = hardwareMap.touchSensor.get("touchSensorBottom");
 
         // Initialize encoder variables to 0
         inches = 0;
@@ -200,12 +200,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         /******************* G R A B B E R   S E R V O S *******************/
 
         // harware map configurations
-        horizontalTop = hardwareMap.servo.get("horizontalTop");
+        //horizontalTop = hardwareMap.servo.get("horizontalTop");
         openCloseTop = hardwareMap.servo.get("openCloseTop");
         rightGrabberTop = hardwareMap.servo.get("rightGrabberTop");
         leftGrabberTop = hardwareMap.servo.get("leftGrabberTop");
 
-        horizontalBottom = hardwareMap.servo.get("horizontalBottom");
+        //horizontalBottom = hardwareMap.servo.get("horizontalBottom");
         openCloseBottom = hardwareMap.servo.get("openCloseBottom");
         leftGrabberBottom = hardwareMap.servo.get("leftGrabberBottom");
         rightGrabberBottom = hardwareMap.servo.get("rightGrabberBottom");
@@ -213,12 +213,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         feeler = hardwareMap.servo.get("feeler");
 
         // Set servo direction orientations forward or reverse
-        horizontalTop.setDirection(Servo.Direction.FORWARD);
+        //horizontalTop.setDirection(Servo.Direction.FORWARD);
         openCloseTop.setDirection(Servo.Direction.FORWARD);
         rightGrabberTop.setDirection(Servo.Direction.REVERSE);
         leftGrabberTop.setDirection(Servo.Direction.FORWARD);
 
-        horizontalBottom.setDirection(Servo.Direction.FORWARD);
+        //horizontalBottom.setDirection(Servo.Direction.FORWARD);
         openCloseBottom.setDirection(Servo.Direction.FORWARD);
         rightGrabberBottom.setDirection(Servo.Direction.REVERSE);
         leftGrabberBottom.setDirection(Servo.Direction.FORWARD);
@@ -226,12 +226,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         feeler.setDirection(Servo.Direction.FORWARD);
 
         // Initial positions for servos
-        horizontalTop.setPosition(.486);
+        //horizontalTop.setPosition(.486);
         openCloseTop.setPosition(.5);
         rightGrabberTop.setPosition(.5);
         leftGrabberTop.setPosition(.5);
 
-        horizontalBottom.setPosition(.486);
+        //horizontalBottom.setPosition(.486);
         openCloseBottom.setPosition(.5);
         rightGrabberBottom.setPosition(.5);
         leftGrabberBottom.setPosition(.5);
