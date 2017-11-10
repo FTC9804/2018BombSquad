@@ -1,3 +1,4 @@
+
 package org.firstinspires.ftc.teamcode;
 
 /**
@@ -24,7 +25,7 @@ public class V1BlueRelicRecoverySide extends FunctionsForAuto {
 
         dropFeelerMoveBallOnly();
 
-        stopDriving;
+        stopDriving ();
 
 
     } // end run op mode
