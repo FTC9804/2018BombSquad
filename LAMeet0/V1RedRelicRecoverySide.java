@@ -24,7 +24,7 @@ public class V1RedRelicRecoverySide extends FunctionsForAuto {
 
         dropFeelerMoveBallOnly();
 
-        stopDriving;
+        stopDriving ();
 
 
     } // end run op mode
