@@ -1,50 +1,29 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
 <Robot type="FirstInspires-FTC">
-    <LynxUsbDevice name="Expansion Hub Portal 1" serialNumber="DQ170NBV" parentModuleAddress="2">
-        <LynxModule name="Expansion Hub 2" port="2">
-            <LynxColorSensor name="sensor_color_distance" port="0" bus="0"/>
+    <LynxUsbDevice name="Expansion Hub Portal Face Up" serialNumber="DQ170NBV" parentModuleAddress="2">
+        <LynxModule name="Expansion Hub Face Up" port="2">
+            <LynxColorSensor name="sensor_color_distance" port="1" bus="1"/>
+            <LynxEmbeddedIMU name="imu" port="0" bus="0" />
+            <Servo name="openCloseBottom" port="0" />
+            <Servo name="leftGrabberBottom" port="1" />
+            <Servo name="rightGrabberBottom" port="2" />
+            <Servo name="openCloseTop" port="3" />
+            <Servo name="leftGrabberTop" port="4" />
+            <Servo name="rightGrabberTop" port="5" />
+            <NeveRest20Gearmotor name="liftMotorRight" port="0" />
+            <NeveRest20Gearmotor name="liftMotorLeft" port="1" />
+            <NeveRest20Gearmotor name="grabberExtension" port="2" />
         </LynxModule>
     </LynxUsbDevice>
-    <MotorController name="Motor Controller Vertical Drive Motors" serialNumber="AL00VUTK">
-        <Motor name="bottomMotor" port="1" />
-        <Motor name="topMotor" port="2" />
-    </MotorController>
-    <MotorController name="Motor Controller Side Drive Motors" serialNumber="AL00VXSH">
-        <Motor name="rightMotor" port="1" />
-        <Motor name="leftMotor" port="2" />
-    </MotorController>
-    <ServoController name="Servo Controller Bottom" serialNumber="AL026GMO">
-        <Servo name="leftGrabberBottom" port="1" />
-        <Servo name="openCloseBottom" port="2" />
-        <Servo name="rightGrabberBottom" port="6" />
-    </ServoController>
-    <MotorController name="Motor Controller Lift" serialNumber="AL00VE1L">
-        <Motor name="liftMotorRight" port="1" />
-        <Motor name="liftMotorLeft" port="2" />
-    </MotorController>
-    <ServoController name="Servo Controller Top" serialNumber="AL00VCT7">
-        <Servo name="leftGrabberTop" port="1" />
-        <Servo name="openCloseTop" port="2" />
-        <Servo name="rightGrabberTop" port="6" />
-    </ServoController>
+    <LynxUsbDevice name="Expansion Hub Portal Face Down" serialNumber="DQ170NBV" parentModuleAddress="2">
+        <LynxModule name="Expansion Hub Face Down" port="2">
+            <NeveRest40Gearmotor name="topMotor" port="0" />
+            <NeveRest40Gearmotor name="bottomMotor" port="1" />
+            <NeveRest40Gearmotor name="leftMotor" port="2" />
+            <NeveRest40Gearmotor name="rightMotor" port="3" />
+            <Servo name="spin" port="0" />
+            <Servo name="grabRelic" port="1" />
+            <Servo name="liftRelic" port="2" />
+        </LynxModule>
+    </LynxUsbDevice>
 </Robot>
-
-
-
-expansion hub 2
-top motor driving = port 0
-bottom motor driving = port 1
-left motor driving = port 2
-right motor driving = port 3
-spin servo = port 0
-servo man grab = port 1
-servo man lift = port 2
-
-
-expansion hub 1
-std bottom grabber servos = port 0, 1, 2
-std top grabber servos = port 3, 4, 5
-grabber guy erection motor = port 2
-lift motor left = port 1; right = port 0
-color senso I2C = port 0
-imu
