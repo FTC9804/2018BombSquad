@@ -24,6 +24,7 @@
             <Servo name="spin" port="0" />
             <Servo name="grabRelic" port="1" />
             <Servo name="liftRelic" port="2" />
+            <Servo name="feeler" port="3" />
         </LynxModule>
     </LynxUsbDevice>
 </Robot>
