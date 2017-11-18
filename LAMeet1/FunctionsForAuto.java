@@ -46,6 +46,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
 
 
+
     /******************* S E N S O R S *******************/
 
     //TouchSensor touchSensorTop; //  declare touch sensors for grabbers
@@ -57,16 +58,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     //boolean touchTopPress = false;
     //boolean touchBottomPress = false;
 
+    // The IMU sensor object
+    BNO055IMU imu;
 
-
-
-
-    /******************* V U F O R I A *******************/
-
-    // Variable Declarations
-    //public static final String TAG = "Vuforia VuMark Sample";
-   // OpenGLMatrix lastLocation = null;
-    //VuforiaLocalizer vuforia;
+    // State used for updating telemetry
+    Orientation angles;
+    Acceleration gravity;
 
 
 
@@ -137,29 +134,6 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
 
 
-        /******************* V U F O R I A *******************/
-
-        //int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        //VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-
-        //parameters.vuforiaLicenseKey = "AZfTpOj// // /AAAAGYCE1z7z6E5whPRKfYeRJHEN/u/+LZ7AMmBU0bBa" +
-               // "/7u6aTruUWfYeLur6nSFdKP0w9JPmK1gstNxVHqiaZN6iuZGxPcbnDnm" +
-               // "NJdoLIMtZheeNWphUMjHKoTUgsmcloZe67TG2V9duc+8jxxCLFzH5rlq" +
-               // "PPdcgvvtIO0orpxVcpENBunY2GChhVgP6V5T9Iby7MyM9tN+y7Egm7Xy" +
-               // "Iz/Tzpmlj19b3FUCW4WUDjTNQ4JoKZeB1jkhPxKGFRECoPw02jJXtQSK" +
-               // "zNfzmhtugA7PTOZNehc61UjOXEexTO9TRy7ZfMtW8OggcYssvIabyJ8b" +
-               // "DK4ePLCUP+Q4PMf7kL9lM6yDuxxKF0oqLgRglX9Axqrf";
-
-       // parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-       // this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
-
-        //VuforiaTrackables relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
-        //VuforiaTrackable relicTemplate = relicTrackables.get(0);
-
-
-
-
-
         /******************* D R I V I N G *******************/
 
         // Motor configurations in the hardware map
@@ -180,18 +154,20 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         /******************* S E N S O R S *******************/
 
-//        // color sensor and setup
-//        I2cAddr i2cColorSensorFeeler = I2cAddr.create8bit(0x5c); // Create I2C address of colorSensorLeft
-//        // requires moving connection based on alliance color
-//        colorSensorFeeler = hardwareMap.colorSensor.get("colorSensorFeeler");     // I2C port 2
-//        //colorSensorFeeler.setI2cAddress(I2cColorFeeler); // set I2C address of colorSensorRight
-//        colorSensorFeeler.enableLed(false); // Set enableLed of colorSensorRight to false
-
         sensorColor = hardwareMap.get(ColorSensor.class, "sensor_color_distance");
         sensorColor.enableLed(true);
 
-        //touchSensorTop = hardwareMap.touchSensor.get("touchSensorTop");
-        //touchSensorBottom = hardwareMap.touchSensor.get("touchSensorBottom");
+
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json";
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+
 
         // Initialize encoder variables to 0
         inches = 0;
@@ -243,6 +219,59 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         feeler.setPosition(feelerRetractPosition);
 
+    }
+
+    void composeIMUTelemetry() {
+
+        // At the beginning of each telemetry update, grab a bunch of data
+        // from the IMU that we will then display in separate lines.
+        telemetry.addAction(new Runnable() { @Override public void run()
+                {
+                // Acquiring the angles is relatively expensive; we don't want
+                // to do that in each of the three items that need that info, as that's
+                // three times the necessary expense.
+                angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                gravity  = imu.getGravity();
+                }
+            });
+
+        telemetry.addLine()
+            .addData("status", new Func<String>() {
+                @Override public String value() {
+                    return imu.getSystemStatus().toShortString();
+                    }
+                })
+            .addData("calib", new Func<String>() {
+                @Override public String value() {
+                    return imu.getCalibrationStatus().toString();
+                    }
+                });
+
+        telemetry.addLine()
+            .addData("heading", new Func<String>() {
+                @Override public String value() {
+                    return formatAngle(angles.angleUnit, angles.firstAngle);
+                    }
+                })
+            .addData("roll", new Func<String>() {
+                @Override public String value() {
+                    return formatAngle(angles.angleUnit, angles.secondAngle);
+                    }
+                })
+            .addData("pitch", new Func<String>() {
+                @Override public String value() {
+                    return formatAngle(angles.angleUnit, angles.thirdAngle);
+                    }
+                });
+
+    }
+
+    String formatAngle(AngleUnit angleUnit, double angle) {
+        return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
+    }
+
+    String formatDegrees(double degrees){
+        return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
 
     // drive function for any direction
