@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-/**
- * Created by Isaac Dienstag, and Mathew Redford on 11/18/17.
- */
+
 
 import com  .qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -21,7 +19,7 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import static com.qualcomm.robotcore.util.Range.clip;
 
 
-@TeleOp(name = "OmniDrive", group = "OmniDriveBot")
+@TeleOp(name = "Grabbers", group = "LAMeets")
 
 public class Grabbers {
 
@@ -79,7 +77,6 @@ public class Grabbers {
 
         spinServoPosition = 1/3;
 
-
     }
 
 
@@ -87,32 +84,32 @@ public class Grabbers {
     //in and out suck of grabbers
     public void topSuck() {
 
-        topLeftPosition = 1;
-        topRightPosition = 1;
+        topLeftPosition = .7;
+        topRightPosition = .7;
 
     }
     public void topSpit() {
-        topLeftPosition = 0;
-        topRightPosition = 0;
+        topLeftPosition = 0.3;
+        topRightPosition = 0.3;
     }
 
     public void bottomSuck() {
-        bottomLeftPosition = 1;
-        bottomRightPosition = 1;
+        bottomLeftPosition = .7;
+        bottomRightPosition = .7;
     }
     public void bottomSpit() {
-        bottomLeftPosition = 0;
-        bottomRightPosition = 0;
+        bottomLeftPosition = 0.3;
+        bottomRightPosition = 0.3;
     }
     public void topReOrientGlyph()
     {
-        topLeftPosition = 1;
-        topRightPosition = 0;
+        topLeftPosition = .7;
+        topRightPosition = 0.3;
     }
     public void bottomReOrientGlyph()
     {
-        bottomLeftPosition = 1;
-        bottomRightPosition = 0;
+        bottomLeftPosition = .7;
+        bottomRightPosition = 0.3;
     }
 
 

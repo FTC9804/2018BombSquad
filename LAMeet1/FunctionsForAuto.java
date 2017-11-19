@@ -8,6 +8,7 @@ package org.firstinspires.ftc.teamcode;
 // import statements
 import android.graphics.Color;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -23,6 +24,8 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuMarkInstanceId;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
@@ -220,7 +223,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         feeler.setPosition(feelerRetractPosition);
 
     }
-
+/*
     void composeIMUTelemetry() {
 
         // At the beginning of each telemetry update, grab a bunch of data
@@ -273,7 +276,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     String formatDegrees(double degrees){
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
-
+*/
     // drive function for any direction
     public void drive( String direction, double distance, double power, double time ) {
 

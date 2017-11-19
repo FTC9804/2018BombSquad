@@ -22,7 +22,7 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import static com.qualcomm.robotcore.util.Range.clip;
 
 
-@TeleOp(name = "OmniDrive", group = "OmniDriveBot")
+@TeleOp(name = "OmniDrive", group = "LAMeets")
 //@Disabled
 public class Drive {
 

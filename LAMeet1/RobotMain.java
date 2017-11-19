@@ -16,9 +16,6 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import static com.qualcomm.robotcore.util.Range.clip;
 
-/**
- * Created by WilderBuchanan on 11/11/17.
- */
 
 @TeleOp(name = "TeleOpCompetition", group = "LAMeets")
 
@@ -41,8 +38,24 @@ public class RobotMain extends OpMode {
     boolean leftDpadDown2;
     boolean leftDpadRight2;
     boolean rightDpadRight2;
+    boolean rightPadXOn;
+    boolean leftPadXOn;
+    boolean rightPadYOn;
 
-
+    // Motor configurations in the hardware map
+    DcMotor RightMotor;
+    DcMotor LeftMotor;
+    DcMotor FrontMotor;
+    DcMotor BackMotor;
+    DcMotor LeftLift;
+    DcMotor RightLift;
+    Servo spin;
+    Servo top;
+    Servo bottom;
+    Servo topSuckLeft;
+    Servo topSuckRight;
+    Servo bottomSuckLeft;
+    Servo bottomSuckRight;
 
 
     Drive drive;
@@ -52,22 +65,30 @@ public class RobotMain extends OpMode {
     /* Initialize standard Hardware interfaces */
     public void init() { // use hardwaremap here instead of hwmap or ahwmap provided in sample code
         // Motor configurations in the hardware map
-        DcMotor RightMotor = hardwareMap.dcMotor.get("rightMotor");
-        DcMotor LeftMotor = hardwareMap.dcMotor.get("leftMotor");
-        DcMotor FrontMotor = hardwareMap.dcMotor.get("topMotor");
-        DcMotor BackMotor = hardwareMap.dcMotor.get("bottomMotor");
+        RightMotor = hardwareMap.dcMotor.get("rightMotor");
+        LeftMotor = hardwareMap.dcMotor.get("leftMotor");
+        FrontMotor = hardwareMap.dcMotor.get("topMotor");
+        BackMotor = hardwareMap.dcMotor.get("bottomMotor");
         drive = new Drive (RightMotor, LeftMotor, FrontMotor, BackMotor);
 
-        DcMotor LeftLift = hardwareMap.dcMotor.get("liftMotorLeft");
-        DcMotor RightLift = hardwareMap.dcMotor.get("liftMotorRight");
-        Servo spin = hardwareMap.servo.get("spin");
-        Servo top = hardwareMap.servo.get("openCloseTop");
-        Servo bottom = hardwareMap.servo.get("openCloseBottom");
-        Servo topSuckLeft = hardwareMap.servo.get("leftGrabberTop");
-        Servo topSuckRight = hardwareMap.servo.get("rightGrabberTop");
-        Servo bottomSuckLeft = hardwareMap.servo.get("leftGrabberBottom");
-        Servo bottomSuckRight = hardwareMap.servo.get("leftGrabberBottom");
+        LeftLift = hardwareMap.dcMotor.get("liftMotorLeft");
+        RightLift = hardwareMap.dcMotor.get("liftMotorRight");
+        spin = hardwareMap.servo.get("spin");
+        top = hardwareMap.servo.get("openCloseTop");
+        bottom = hardwareMap.servo.get("openCloseBottom");
+        topSuckLeft = hardwareMap.servo.get("leftGrabberTop");
+        topSuckRight = hardwareMap.servo.get("rightGrabberTop");
+        bottomSuckLeft = hardwareMap.servo.get("leftGrabberBottom");
+        bottomSuckRight = hardwareMap.servo.get("leftGrabberBottom");
         grab = new Grabbers(LeftLift, RightLift, spin, top, bottom, topSuckLeft, topSuckRight, bottomSuckRight, bottomSuckLeft);
+
+        spin.setPosition(0.5);
+        top.setPosition(0.5);
+        bottom.setPosition(0.5);
+        topSuckLeft.setPosition(0.5);
+        topSuckRight.setPosition(0.5);
+        bottomSuckLeft.setPosition(0.5);
+        bottomSuckRight.setPosition(0.5);
 
     }
 
@@ -93,14 +114,35 @@ public class RobotMain extends OpMode {
 
 
         // If pads are moved
-        boolean leftPadXOn = Math.abs (leftPadX1) > .05;
-        boolean rightPadXOn = Math.abs (rightPadX1) > .05;
-        boolean rightPadYOn = Math.abs (rightPadY1) > .05;
+        if (Math.abs(leftPadX1) > 0.05)
+        {
+            leftPadXOn = true;
+        }
+        else
+        {
+            leftPadXOn = false;
+        }
+        if (Math.abs(rightPadX1) > 0.05)
+        {
+            rightPadXOn = true;
+        }
+        else
+        {
+            rightPadXOn = false;
+        }
+        if (Math.abs(rightPadY1) > 0.05)
+        {
+            rightPadYOn = true;
+        }
+        else
+        {
+            rightPadYOn = false;
+        }
 
         // Combine rotation and movement
         if (leftPadXOn && !rightPadXOn && !rightPadYOn)
         {
-            drive.turn(leftPadX1);
+            drive.turn (leftPadX1);
         }
         else
         {
@@ -164,5 +206,6 @@ public class RobotMain extends OpMode {
         drive.run();
         grab.run();
         telemetry.update();
+
     } // end loop
 } // end class
