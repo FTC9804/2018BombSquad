@@ -8,7 +8,6 @@ package org.firstinspires.ftc.teamcode;
 // import statements
 import android.graphics.Color;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -21,11 +20,25 @@ import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import org.firstinspires.ftc.robotcore.external.Func;
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+
+import java.util.Locale;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
-import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuMarkInstanceId;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
@@ -53,7 +66,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     /******************* S E N S O R S *******************/
 
     //TouchSensor touchSensorTop; //  declare touch sensors for grabbers
-   //TouchSensor touchSensorBottom;
+    //TouchSensor touchSensorBottom;
 
     ColorSensor sensorColor; // Right color feeler for balls autonomous
 
@@ -223,47 +236,47 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         feeler.setPosition(feelerRetractPosition);
 
     }
-/*
+
     void composeIMUTelemetry() {
 
         // At the beginning of each telemetry update, grab a bunch of data
         // from the IMU that we will then display in separate lines.
         telemetry.addAction(new Runnable() { @Override public void run()
-                {
-                // Acquiring the angles is relatively expensive; we don't want
-                // to do that in each of the three items that need that info, as that's
-                // three times the necessary expense.
-                angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-                gravity  = imu.getGravity();
-                }
-            });
+        {
+            // Acquiring the angles is relatively expensive; we don't want
+            // to do that in each of the three items that need that info, as that's
+            // three times the necessary expense.
+            angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+            gravity  = imu.getGravity();
+        }
+        });
 
         telemetry.addLine()
-            .addData("status", new Func<String>() {
-                @Override public String value() {
-                    return imu.getSystemStatus().toShortString();
+                .addData("status", new Func<String>() {
+                    @Override public String value() {
+                        return imu.getSystemStatus().toShortString();
                     }
                 })
-            .addData("calib", new Func<String>() {
-                @Override public String value() {
-                    return imu.getCalibrationStatus().toString();
+                .addData("calib", new Func<String>() {
+                    @Override public String value() {
+                        return imu.getCalibrationStatus().toString();
                     }
                 });
 
         telemetry.addLine()
-            .addData("heading", new Func<String>() {
-                @Override public String value() {
-                    return formatAngle(angles.angleUnit, angles.firstAngle);
+                .addData("heading", new Func<String>() {
+                    @Override public String value() {
+                        return formatAngle(angles.angleUnit, angles.firstAngle);
                     }
                 })
-            .addData("roll", new Func<String>() {
-                @Override public String value() {
-                    return formatAngle(angles.angleUnit, angles.secondAngle);
+                .addData("roll", new Func<String>() {
+                    @Override public String value() {
+                        return formatAngle(angles.angleUnit, angles.secondAngle);
                     }
                 })
-            .addData("pitch", new Func<String>() {
-                @Override public String value() {
-                    return formatAngle(angles.angleUnit, angles.thirdAngle);
+                .addData("pitch", new Func<String>() {
+                    @Override public String value() {
+                        return formatAngle(angles.angleUnit, angles.thirdAngle);
                     }
                 });
 
@@ -276,7 +289,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     String formatDegrees(double degrees){
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
-*/
+
     // drive function for any direction
     public void drive( String direction, double distance, double power, double time ) {
 
@@ -311,8 +324,6 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                     bottomMotor.setPower( power );
                 }
 
-                leftMotor.setPower( 0 );
-                rightMotor.setPower( 0 );
 
                 // Telemetry for encoder position
                 telemetry.addData("Current", topMotor.getCurrentPosition());
@@ -320,6 +331,9 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                 // Set timeTwo to this.getRuntime ()
                 timeTwo = this.getRuntime();
             }
+
+            topMotor.setPower( 0 );
+            bottomMotor.setPower( 0 );
         }
         else if (direction.equalsIgnoreCase( "forwards") || direction.equalsIgnoreCase("backwards")){
             while ( Math.abs(leftMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) ) {
@@ -334,15 +348,16 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                     rightMotor.setPower( power );
                 }
 
-                topMotor.setPower( 0 );
-                bottomMotor.setPower(0);
-
                 // Telemetry for encoder position
                 telemetry.addData("Current", leftMotor.getCurrentPosition());
                 telemetry.update();
                 // Set timeTwo to this.getRuntime ()
                 timeTwo = this.getRuntime();
             }
+
+            leftMotor.setPower( 0 );
+            rightMotor.setPower(0);
+
         }
 
         // Safety timeout based on if the loop above executed in under 4 seconds
@@ -430,6 +445,155 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         // Execute stopDriving method
         stopDriving();
     }
+
+    public void dropFeelerAndMoveBasic(){
+
+        feeler.setPosition(0);
+
+        if ( allianceColor.equalsIgnoreCase("red") && robotStartingPosition.equalsIgnoreCase("relicSide") ){
+            if ( sensorColor.blue() >= 2 && sensorColor.red() < 2 ){
+                // DRIVE RIGHT TO KNOCK OFF BLUE
+                timeOne=this.getRuntime();
+                timeTwo=this.getRuntime();
+                while (timeTwo-timeOne<2)
+                {
+                    topMotor.setPower(.8);
+                    bottomMotor.setPower(.8);
+                    timeTwo = this.getRuntime();
+                }
+                topMotor.setPower(0);
+                bottomMotor.setPower(0);
+                //RETRACT SERVO
+                feeler.setPosition(feelerRetractPosition);
+                //DRIVE LARGER FORWARD LEFT DISTANCE
+            }
+            else if ( sensorColor.red() >= 2 && sensorColor.blue() < 2 ){
+                // DRIVE LEFT TO KNOCK OFF BLUE
+                timeOne=this.getRuntime();
+                timeTwo=this.getRuntime();
+                while (timeTwo-timeOne<2)
+                {
+                    topMotor.setPower(-.8);
+                    bottomMotor.setPower(-.8);
+                    timeTwo = this.getRuntime();
+                }
+                topMotor.setPower(0);
+                bottomMotor.setPower(0);
+                //RETRACT SERVO
+                feeler.setPosition(feelerRetractPosition);
+                //DRIVE SMALLER FORWARD RIGHT DISTANCE
+
+            }
+        }
+        else if ( allianceColor.equalsIgnoreCase("red") && robotStartingPosition.equalsIgnoreCase("triangleSide") ){
+            if ( sensorColor.blue() >= 2 && sensorColor.red() < 2 ){
+                // DRIVE RIGHT TO KNOCK OFF BLUE
+                timeOne=this.getRuntime();
+                timeTwo=this.getRuntime();
+                while (timeTwo-timeOne<2)
+                {
+                    topMotor.setPower(.8);
+                    bottomMotor.setPower(.8);
+                    timeTwo = this.getRuntime();
+                }
+                topMotor.setPower(0);
+                bottomMotor.setPower(0);
+                //RETRACT SERVO
+                feeler.setPosition(feelerRetractPosition);
+                //DRIVE LARGER FORWARD LEFT DISTANCE
+
+            }
+            else if ( sensorColor.red() >= 2 && sensorColor.blue() < 2 ){
+                // DRIVE LEFT TO KNOCK OFF BLUE
+                timeOne=this.getRuntime();
+                timeTwo=this.getRuntime();
+                while (timeTwo-timeOne<2)
+                {
+                    topMotor.setPower(-.8);
+                    bottomMotor.setPower(-.8);
+                    timeTwo = this.getRuntime();
+                }
+                topMotor.setPower(0);
+                bottomMotor.setPower(0);
+                //RETRACT SERVO
+                feeler.setPosition(feelerRetractPosition);
+                //DRIVE LARGER FORWARD LEFT DISTANCE
+            }
+        }
+        else if ( allianceColor.equalsIgnoreCase("blue") && robotStartingPosition.equalsIgnoreCase("relicSide") ){
+            if ( sensorColor.blue() >= 2 && sensorColor.red() < 2 ){
+                // DRIVE RIGHT TO KNOCK OFF BLUE
+                timeOne=this.getRuntime();
+                timeTwo=this.getRuntime();
+                while (timeTwo-timeOne<2)
+                {
+                    topMotor.setPower(.8);
+                    bottomMotor.setPower(.8);
+                    timeTwo = this.getRuntime();
+                }
+                topMotor.setPower(0);
+                bottomMotor.setPower(0);
+                //RETRACT SERVO
+                feeler.setPosition(feelerRetractPosition);
+                //DRIVE LARGER FORWARD LEFT DISTANCE
+
+            }
+            else if ( sensorColor.red() >= 2 && sensorColor.blue() < 2 ){
+                // DRIVE LEFT TO KNOCK OFF BLUE
+                timeOne=this.getRuntime();
+                timeTwo=this.getRuntime();
+                while (timeTwo-timeOne<2)
+                {
+                    topMotor.setPower(-.8);
+                    bottomMotor.setPower(-.8);
+                    timeTwo = this.getRuntime();
+                }
+                topMotor.setPower(0);
+                bottomMotor.setPower(0);
+                //RETRACT SERVO
+                feeler.setPosition(feelerRetractPosition);
+                //DRIVE LARGER FORWARD LEFT DISTANCE
+
+            }
+        }
+        else if ( allianceColor.equalsIgnoreCase("blue") && robotStartingPosition.equalsIgnoreCase("triangleSide") ){
+            if ( sensorColor.blue() >= 2 && sensorColor.red() < 2 ){
+                // DRIVE RIGHT TO KNOCK OFF BLUE
+                timeOne=this.getRuntime();
+                timeTwo=this.getRuntime();
+                while (timeTwo-timeOne<2)
+                {
+                    topMotor.setPower(.8);
+                    bottomMotor.setPower(.8);
+                    timeTwo = this.getRuntime();
+                }
+                topMotor.setPower(0);
+                bottomMotor.setPower(0);
+                //RETRACT SERVO
+                feeler.setPosition(feelerRetractPosition);
+                //DRIVE LARGER FORWARD LEFT DISTANCE
+
+            }
+            else if ( sensorColor.red() >= 2 && sensorColor.blue() < 2 ){
+                // DRIVE LEFT TO KNOCK OFF BLUE
+                timeOne=this.getRuntime();
+                timeTwo=this.getRuntime();
+                while (timeTwo-timeOne<2)
+                {
+                    topMotor.setPower(-.8);
+                    bottomMotor.setPower(-.8);
+                    timeTwo = this.getRuntime();
+                }
+                topMotor.setPower(0);
+                bottomMotor.setPower(0);
+                //RETRACT SERVO
+                feeler.setPosition(feelerRetractPosition);
+                //DRIVE LARGER FORWARD LEFT DISTANCE
+
+            }
+        }
+    }
+
 
     public void dropFeelerAndMove(){
 
@@ -522,16 +686,16 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         pause( 1 );
 
-        if ( allianceColor.equalsIgnoreCase("red") && sensorColor.blue() >= 2 && sensorColor.red() < 2 ) {
+        if ( allianceColor.equalsIgnoreCase("red") && sensorColor.blue() >= 14 && sensorColor.red() < 14 ) {
             drive( "right", 6, .3, 15 );
         }
-        else if ( allianceColor.equalsIgnoreCase("red") && sensorColor.red() >= 2 && sensorColor.blue() < 2 ) {
+        else if ( allianceColor.equalsIgnoreCase("red") && sensorColor.red() >= 14 && sensorColor.blue() < 14 ) {
             drive( "left", 6, .3, 15 );
         }
-        else if ( allianceColor.equalsIgnoreCase("blue") && sensorColor.blue() >= 2 && sensorColor.red() < 2 ) {
+        else if ( allianceColor.equalsIgnoreCase("blue") && sensorColor.blue() >= 14 && sensorColor.red() < 14) {
             drive( "left", 6, .3, 15 );
         }
-        else if ( allianceColor.equalsIgnoreCase("blue") && sensorColor.red() >= 2 && sensorColor.blue() < 2 ) {
+        else if ( allianceColor.equalsIgnoreCase("blue") && sensorColor.red() >= 14 && sensorColor.blue() < 14 ) {
             drive( "right", 6, .3, 15);
         }
 
