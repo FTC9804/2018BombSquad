@@ -63,6 +63,8 @@ public class RobotMain extends OpMode {
     Drive drive;
     Grabbers grab;
 
+    double spinValueAdjusted;
+
 
     /* Initialize standard Hardware interfaces */
     public void init() { // use hardwaremap here instead of hwmap or ahwmap provided in sample code
@@ -164,7 +166,15 @@ public class RobotMain extends OpMode {
 //            telemetry.addLine("Back Button Pressed");
 //        }
 
-        grab.spin(rightStickX2);
+        if (rightStickX2<0)
+        {
+            spinValueAdjusted = 0 - rightStickX2/2;
+        }
+        else
+        {
+            spinValueAdjusted = .5 + rightStickX2/2;
+        }
+        grab.spin(spinValueAdjusted);
 
         //Top grabber suck controls
         if(leftDpadUp2)
@@ -184,7 +194,7 @@ public class RobotMain extends OpMode {
         }
         else
         {
-           grab.topStill();
+            grab.topStill();
         }
 
 
