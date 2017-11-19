@@ -26,7 +26,7 @@ public class Grabbers {
     //Servos we will use throughout class
     Servo spinServo, topServo, bottomServo, topSuckLeftServo, topSuckRightServo, bottomSuckLeftServo, bottomSuckRightServo;
     DcMotor upDownRight, upDownLeft;
-    double topGrabberPosition = .25, bottomGrabberPosition = .25, spinServoPosition = .5, topLeftPosition, topRightPosition, bottomLeftPosition, bottomRightPosition;
+    double topGrabberPosition = .25, bottomGrabberPosition = .25, spinServoPosition = .1, topLeftPosition, topRightPosition, bottomLeftPosition, bottomRightPosition;
     boolean topStaySuck = false, topStaySpit = false, bottomStaySuck = false, bottomStaySpit = false;
 
     double liftPower = 0;
@@ -167,8 +167,8 @@ public class Grabbers {
     public void run()
     {
         spinServo.setPosition(spinServoPosition);
-        topGrabberPosition = Range.clip(topGrabberPosition,0,.8);
-        bottomGrabberPosition = Range.clip(bottomGrabberPosition,0,.83);
+        topGrabberPosition = Range.clip(topGrabberPosition,0,.815);
+        bottomGrabberPosition = Range.clip(bottomGrabberPosition,0,.825);
         topServo.setPosition(topGrabberPosition);
         bottomServo.setPosition(bottomGrabberPosition);
         topSuckLeftServo.setPosition(topLeftPosition);
