@@ -26,9 +26,10 @@ public class Grabbers {
     //Servos we will use throughout class
     Servo spinServo, topServo, bottomServo, topSuckLeftServo, topSuckRightServo, bottomSuckLeftServo, bottomSuckRightServo;
     DcMotor upDownRight, upDownLeft;
-    double topGrabberPosition = .5, bottomGrabberPosition = .5, spinServoPosition, topLeftPosition, topRightPosition, bottomLeftPosition, bottomRightPosition;
+    double topGrabberPosition = .25, bottomGrabberPosition = .25, spinServoPosition, topLeftPosition, topRightPosition, bottomLeftPosition, bottomRightPosition;
     boolean topStaySuck = false, topStaySpit = false, bottomStaySuck = false, bottomStaySpit = false;
 
+    double liftPower = 0;
 
     //Making an object of the class Grabbers
     public Grabbers (DcMotor newUpDownLeft, DcMotor newUpDownRight, Servo newSpin, Servo newTop, Servo newBottom, Servo newTopSuckLeft, Servo newTopSuckRight, Servo newBottomSuckLeft, Servo newBottomSuckRight) {
@@ -47,35 +48,44 @@ public class Grabbers {
         //Setting servo directions
         spinServo.setDirection(Servo.Direction.FORWARD);
         topServo.setDirection(Servo.Direction.FORWARD);
-        bottomServo.setDirection(Servo.Direction.FORWARD);
+        bottomServo.setDirection(Servo.Direction.REVERSE);
         topSuckLeftServo.setDirection(Servo.Direction.FORWARD);
-        topSuckRightServo.setDirection(Servo.Direction.FORWARD);
-        bottomSuckLeftServo.setDirection(Servo.Direction.FORWARD);
-        bottomSuckRightServo.setDirection(Servo.Direction.FORWARD);
+        topSuckRightServo.setDirection(Servo.Direction.REVERSE);
+        bottomSuckLeftServo.setDirection(Servo.Direction.REVERSE);
+        bottomSuckRightServo.setDirection(Servo.Direction.REVERSE);
         upDownLeft.setDirection(FORWARD);
-        upDownRight.setDirection(FORWARD);
+        upDownRight.setDirection(REVERSE);
     }
 
 
     //Spins the grabbers 180
-    public void spin() {
+    public void spin(double spinValue) {
+//
+//        if(spinServo.getPosition() <= .10) {
+//            spinServoPosition = .6667;
+//        }
+//        else {
+//            spinServoPosition = 0;
+//        }
 
-
-        if(spinServo.getPosition() <= .10) {
-            spinServoPosition = 2/3;
+        if (Math.abs(spinValue) < 0.05)
+        {
+            spinValue = 0;
         }
-        else {
-            spinServoPosition = 0;
+        else
+        {
+            spinValue += spinValue / 150;
         }
-
+        spinServoPosition = spinValue;
+        spinServoPosition = Range.clip(spinServoPosition, 0, 1);
     }
-
-    //sets the grabber to sideways position
-    public void spin90() {
-
-        spinServoPosition = 1/3;
-
-    }
+//
+//    //sets the grabber to sideways position
+//    public void spin90() {
+//
+//        spinServoPosition = 1/3;
+//
+//    }
 
     //in and out suck of grabbers
     public void topSuck() {
@@ -88,6 +98,16 @@ public class Grabbers {
     public void topSpit() {
         topLeftPosition = 0.3;
         topRightPosition = 0.3;
+    }
+
+    public void topStill() {
+        topLeftPosition = 0.5;
+        topRightPosition = 0.5;
+    }
+
+    public void bottomStill() {
+        bottomLeftPosition = 0.5;
+        bottomRightPosition = 0.5;
     }
 
     public void bottomSuck() {
@@ -109,17 +129,18 @@ public class Grabbers {
         bottomRightPosition = 0.3;
     }
 
+
     //open and close of grabbers
     public void topOpen(double leftTriggerPower, boolean leftButton)
     {
         if(leftButton && leftTriggerPower >= .05) {
         }
         else if(leftTriggerPower >= .05) {
-            topGrabberPosition += .02;
+            topGrabberPosition += .006;
         }
         else if(leftButton)
         {
-            topGrabberPosition -= .02;
+            topGrabberPosition -= .006;
         }
     }
 
@@ -128,25 +149,30 @@ public class Grabbers {
         if(rightButton && rightTriggerPower >= .05) {
         }
         else if(rightTriggerPower >= .05) {
-            topGrabberPosition += .02;
+            bottomGrabberPosition += .006;
         }
         else if(rightButton)
         {
-            bottomGrabberPosition -= .02;
+            bottomGrabberPosition -= .006;
         }
     }
 
     public void moveUp(double leftStickY)
     {
-        upDownLeft.setPower(leftStickY);
-        upDownRight.setPower(leftStickY);
+        liftPower = leftStickY;
+        if (Math.abs(liftPower) < .05 )
+        {
+            liftPower = -0.1;
+        }
+        upDownLeft.setPower(liftPower);
+        upDownRight.setPower(liftPower);
     }
 
     public void run()
     {
         spinServo.setPosition(spinServoPosition);
-        topGrabberPosition = Range.clip(topGrabberPosition,0,0.5);
-        bottomGrabberPosition = Range.clip(bottomGrabberPosition,0,0.5);
+        topGrabberPosition = Range.clip(topGrabberPosition,0,.7);
+        bottomGrabberPosition = Range.clip(bottomGrabberPosition,0,.7);
         topServo.setPosition(topGrabberPosition);
         bottomServo.setPosition(bottomGrabberPosition);
         topSuckLeftServo.setPosition(topLeftPosition);

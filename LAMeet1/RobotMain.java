@@ -27,6 +27,7 @@ public class RobotMain extends OpMode {
     double leftPadX1;
     double rightPadX1;
     double leftStickY2;
+    double rightStickX2;
     double leftTrigger2;
     double rightTrigger2;
     boolean startButton2;
@@ -80,12 +81,12 @@ public class RobotMain extends OpMode {
         topSuckLeft = hardwareMap.servo.get("leftGrabberTop");
         topSuckRight = hardwareMap.servo.get("rightGrabberTop");
         bottomSuckLeft = hardwareMap.servo.get("leftGrabberBottom");
-        bottomSuckRight = hardwareMap.servo.get("leftGrabberBottom");
+        bottomSuckRight = hardwareMap.servo.get("rightGrabberBottom");
         grab = new Grabbers(LeftLift, RightLift, spin, top, bottom, topSuckLeft, topSuckRight, bottomSuckRight, bottomSuckLeft);
 
-        spin.setPosition(0.5);
-        top.setPosition(0.5);
-        bottom.setPosition(0.5);
+        spin.setPosition(0);
+        top.setPosition(0.25);
+        bottom.setPosition(0.25);
         topSuckLeft.setPosition(0.5);
         topSuckRight.setPosition(0.5);
         bottomSuckLeft.setPosition(0.5);
@@ -100,6 +101,7 @@ public class RobotMain extends OpMode {
         leftPadX1 = -(gamepad1.left_stick_x);
 
         leftStickY2 = gamepad2.left_stick_y;
+        rightStickX2 = gamepad2.right_stick_x;
         startButton2 = gamepad2.start;
         rightTrigger2 = gamepad2.right_trigger;
         leftTrigger2 = gamepad2.left_trigger;
@@ -147,21 +149,22 @@ public class RobotMain extends OpMode {
         }
         else
         {
-            drive.move (rightPadX1, rightPadY1);
+            drive.move(rightPadX1, rightPadY1);
         }
 
-        if(startButton2)
-        {
-            grab.spin();
-            telemetry.addLine("Start Button Pressed");
-        }
+//        if(startButton2)
+//        {
+//            grab.spin();
+//            telemetry.addLine("Start Button Pressed");
+//        }
+//
+//        if(backButton2)
+//        {
+//            grab.spin90();
+//            telemetry.addLine("Back Button Pressed");
+//        }
 
-        if(backButton2)
-        {
-            grab.spin90();
-            telemetry.addLine("Back Button Pressed");
-        }
-
+        grab.spin(rightStickX2);
 
         //Top grabber suck controls
         if(leftDpadUp2)
@@ -169,16 +172,21 @@ public class RobotMain extends OpMode {
             grab.topSuck();
             telemetry.addLine("left D Pad up");
         }
-        if(leftDpadDown2)
+        else if(leftDpadDown2)
         {
             grab.topSpit();
             telemetry.addLine("left d pad down");
         }
-        if(leftDpadRight2)
+        else if(leftDpadRight2)
         {
             grab.topReOrientGlyph();
             telemetry.addLine("left d pad right");
         }
+        else
+        {
+           grab.topStill();
+        }
+
 
         //Bottom grabber suck controls
         if(rightDpadUp2)
@@ -186,15 +194,19 @@ public class RobotMain extends OpMode {
             grab.bottomSuck();
             telemetry.addLine("right d pad up");
         }
-        if(rightDpadDown2)
+        else if(rightDpadDown2)
         {
             grab.bottomSpit();
             telemetry.addLine("right d pad down");
         }
-        if(rightDpadRight2)
+        else if(rightDpadRight2)
         {
             grab.bottomReOrientGlyph();
             telemetry.addLine("right d pad down");
+        }
+        else
+        {
+            grab.bottomStill();
         }
 
         //opening and closing the grabbers
