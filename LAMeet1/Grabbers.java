@@ -60,22 +60,20 @@ public class Grabbers {
 
     //Spins the grabbers 180
     public void spin(double spinValue) {
-//
-//        if(spinServo.getPosition() <= .10) {
-//            spinServoPosition = .6667;
-//        }
-//        else {
-//            spinServoPosition = 0;
-//        }
 
-        if (Math.abs(spinValue) < 0.05)
+        if (spinValue<.5 && spinValue > .05)
         {
-            spinValue = 0;
+            spinValue -= spinValue/150;
+        }
+        else if (spinValue>=.5 && spinValue < 1)
+        {
+           spinValue += spinValue/150;
         }
         else
         {
-            spinValue += spinValue / 150;
+
         }
+
         spinServoPosition = spinValue;
         spinServoPosition = Range.clip(spinServoPosition, 0, 1);
     }
@@ -171,8 +169,8 @@ public class Grabbers {
     public void run()
     {
         spinServo.setPosition(spinServoPosition);
-        topGrabberPosition = Range.clip(topGrabberPosition,0,.7);
-        bottomGrabberPosition = Range.clip(bottomGrabberPosition,0,.7);
+        topGrabberPosition = Range.clip(topGrabberPosition,0,.8);
+        bottomGrabberPosition = Range.clip(bottomGrabberPosition,0,.83);
         topServo.setPosition(topGrabberPosition);
         bottomServo.setPosition(bottomGrabberPosition);
         topSuckLeftServo.setPosition(topLeftPosition);
@@ -182,5 +180,4 @@ public class Grabbers {
     }
 
 }
-
 
