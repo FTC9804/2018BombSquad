@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 
 
-import com  .qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -28,8 +28,6 @@ public class Grabbers {
     DcMotor upDownRight, upDownLeft;
     double topGrabberPosition = .5, bottomGrabberPosition = .5, spinServoPosition, topLeftPosition, topRightPosition, bottomLeftPosition, bottomRightPosition;
     boolean topStaySuck = false, topStaySpit = false, bottomStaySuck = false, bottomStaySpit = false;
-
-
 
 
     //Making an object of the class Grabbers
@@ -79,8 +77,6 @@ public class Grabbers {
 
     }
 
-
-
     //in and out suck of grabbers
     public void topSuck() {
 
@@ -88,6 +84,7 @@ public class Grabbers {
         topRightPosition = .7;
 
     }
+
     public void topSpit() {
         topLeftPosition = 0.3;
         topRightPosition = 0.3;
@@ -111,8 +108,6 @@ public class Grabbers {
         bottomLeftPosition = .7;
         bottomRightPosition = 0.3;
     }
-
-
 
     //open and close of grabbers
     public void topOpen(double leftTriggerPower, boolean leftButton)
@@ -141,19 +136,17 @@ public class Grabbers {
         }
     }
 
-
-
     public void moveUp(double leftStickY)
     {
         upDownLeft.setPower(leftStickY);
         upDownRight.setPower(leftStickY);
     }
 
-
-
     public void run()
     {
         spinServo.setPosition(spinServoPosition);
+        topGrabberPosition = Range.clip(topGrabberPosition,0,0.5);
+        bottomGrabberPosition = Range.clip(bottomGrabberPosition,0,0.5);
         topServo.setPosition(topGrabberPosition);
         bottomServo.setPosition(bottomGrabberPosition);
         topSuckLeftServo.setPosition(topLeftPosition);
@@ -161,8 +154,6 @@ public class Grabbers {
         bottomSuckLeftServo.setPosition(bottomLeftPosition);
         bottomSuckRightServo.setPosition(bottomRightPosition);
     }
-
-
 
 }
 

@@ -21,6 +21,7 @@ import static com.qualcomm.robotcore.util.Range.clip;
 
 
 public class RobotMain extends OpMode {
+
     // Variables
     double rightPadY1;
     double leftPadX1;
