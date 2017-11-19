@@ -298,13 +298,13 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         rotations = inches / (Math.PI * WHEEL_DIAMETER);
         counts = ENCODER_CPR * rotations * GEAR_RATIO;
 
-        if ( direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right") ) {
+        if ( direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right") ) { // check should be tob and bottom motors instead
             leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
-            leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//check should do right too?
         }
         else {
-            topMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
-            topMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            topMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of topMotor1 to STOP_AND_RESET_ENCODER
+            topMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //check should to bottom too?
         }
 
         // Set timeOne and timeTwo to this.getRuntime();
@@ -312,7 +312,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         timeTwo = this.getRuntime();
 
         if ( direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right") ) {
-            while ( Math.abs(topMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) ) {
+            while ( Math.abs(topMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) ) { //check here
                 if ( direction.equalsIgnoreCase("left") ) {
                     // Set motor powers based on paramater power
                     topMotor.setPower( -power );
@@ -336,7 +336,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             bottomMotor.setPower( 0 );
         }
         else if (direction.equalsIgnoreCase( "forwards") || direction.equalsIgnoreCase("backwards")){
-            while ( Math.abs(leftMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) ) {
+            while ( Math.abs(leftMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) ) { //check here
                 if ( direction.equalsIgnoreCase("backwards") ) {
                     // Set motor powers based on paramater power
                     leftMotor.setPower( -power );
@@ -362,7 +362,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         // Safety timeout based on if the loop above executed in under 4 seconds
         // If it did not, do not execute the rest of the program
-        if (timeTwo - timeOne > time) {
+        if (timeTwo - timeOne > time) { //check
             while (this.opModeIsActive()) {
                 stopDriving();
                 timeTwo = this.getRuntime();
@@ -375,92 +375,18 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         stopDriving();
 
     }
+    public void test(double power)
+    {
+        topMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of topMotor1 to STOP_AND_RESET_ENCODER
+        topMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // check to change to bottom
 
+        topMotor.setPower( power );
+        bottomMotor.setPower( power );
 
-    public void rotate( String direction, double distance, double power, double time ) {
-
-        // math to calculate total counts robot should travel
-        inches = distance;
-        rotations = inches / (Math.PI * WHEEL_DIAMETER);
-        counts = ENCODER_CPR * rotations * GEAR_RATIO;
-
-        if ( direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right") ) {
-            leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
-            leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
-        else {
-            topMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
-            topMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
-
-        // Set timeOne and timeTwo to this.getRuntime();
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        if ( direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right") ) {
-            while ( Math.abs(topMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) ) {
-                if ( direction.equalsIgnoreCase("left") ) {
-                    // Set motor powers based on paramater power
-                    topMotor.setPower( -power );
-                    bottomMotor.setPower( power );
-                }
-                else if ( direction.equalsIgnoreCase("right") ){
-                    // Set motor powers based on paramater power
-                    topMotor.setPower( power );
-                    bottomMotor.setPower( -power );
-                }
-
-
-                // Telemetry for encoder position
-                telemetry.addData("Current", topMotor.getCurrentPosition());
-                telemetry.update();
-                // Set timeTwo to this.getRuntime ()
-                timeTwo = this.getRuntime();
-            }
-
-            topMotor.setPower( 0 );
-            bottomMotor.setPower( 0 );
-        }
-        else if (direction.equalsIgnoreCase( "forwards") || direction.equalsIgnoreCase("backwards")){
-            while ( Math.abs(leftMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) ) {
-                if ( direction.equalsIgnoreCase("backwards") ) {
-                    // Set motor powers based on paramater power
-                    leftMotor.setPower( -power );
-                    rightMotor.setPower( -power );
-                }
-                else if ( direction.equalsIgnoreCase("forwards") ) {
-                    // Set motor powers based on paramater power
-                    leftMotor.setPower( power );
-                    rightMotor.setPower( power );
-                }
-
-                // Telemetry for encoder position
-                telemetry.addData("Current", leftMotor.getCurrentPosition());
-                telemetry.update();
-                // Set timeTwo to this.getRuntime ()
-                timeTwo = this.getRuntime();
-            }
-
-            leftMotor.setPower( 0 );
-            rightMotor.setPower(0);
-
-        }
-
-        // Safety timeout based on if the loop above executed in under 4 seconds
-        // If it did not, do not execute the rest of the program
-        if (timeTwo - timeOne > time) {
-            while (this.opModeIsActive()) {
-                stopDriving();
-                timeTwo = this.getRuntime();
-                // Telemetry alerting drive team of safety timeout
-                telemetry.addLine("Timed out");
-                telemetry.update();
-            }
-        }
-        // Execute stopDriving method
-        stopDriving();
-
+        pause (1);
     }
+
+
 
     // Sets all drive train motors to 0 power
     public void stopDriving() {
@@ -762,31 +688,37 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     public void dropFeelerMoveBallOnly(){
 
-        feeler.setPosition(1);
-
         pause( 1 );
 
-        telemetry.addData( "Value of RED: ", sensorColor.red() );
-        telemetry.addData( "Value of BLUE: ", sensorColor.blue() );
-        telemetry.update ();
 
-        pause( 1 );
+
 
         if ( allianceColor.equalsIgnoreCase("red") && sensorColor.blue() >=  sensorColor.red()) {
-            drive( "left", 20, .9, 15 );
-            feeler.setPosition(1);
+            telemetry.addData( "Value of RED: ", sensorColor.red() );
+            telemetry.addData( "Value of BLUE: ", sensorColor.blue() );
+            telemetry.update ();
+            pause(1);
+            drive( "left", 20, .85, 15 );
         }
         else if ( allianceColor.equalsIgnoreCase("red") && sensorColor.red() >= sensorColor.blue()) {
-            drive( "right", 20, .9, 15 );
-            feeler.setPosition(1);
+            telemetry.addData( "Value of RED: ", sensorColor.red() );
+            telemetry.addData( "Value of BLUE: ", sensorColor.blue() );
+            telemetry.update ();
+            drive( "right", 20, .85, 15 );
         }
         else if ( allianceColor.equalsIgnoreCase("blue") && sensorColor.blue() >= sensorColor.red()) {
-            drive( "right", 20, .9, 15 );
-            feeler.setPosition(1);
+            telemetry.addData( "Value of RED: ", sensorColor.red() );
+            telemetry.addData( "Value of BLUE: ", sensorColor.blue() );
+            telemetry.update ();
+            pause(1);
+            drive( "right", 20, .85, 15 );
         }
         else if ( allianceColor.equalsIgnoreCase("blue") && sensorColor.red() >= sensorColor.blue()) {
-            drive( "left", 20, .9, 15);
-            feeler.setPosition(1);
+            telemetry.addData( "Value of RED: ", sensorColor.red() );
+            telemetry.addData( "Value of BLUE: ", sensorColor.blue() );
+            telemetry.update ();
+            pause(1);
+            drive( "left", 20, .85, 15);
         }
 
         stopDriving();
