@@ -26,10 +26,13 @@ public class Grabbers {
     //Servos we will use throughout class
     Servo spinServo, topServo, bottomServo, topSuckLeftServo, topSuckRightServo, bottomSuckLeftServo, bottomSuckRightServo;
     DcMotor upDownRight, upDownLeft;
-    double topGrabberPosition = .25, bottomGrabberPosition = .25, spinServoPosition, topLeftPosition, topRightPosition, bottomLeftPosition, bottomRightPosition;
+    double topGrabberPosition = .25, bottomGrabberPosition = .25, spinServoPosition = .5, topLeftPosition, topRightPosition, bottomLeftPosition, bottomRightPosition;
     boolean topStaySuck = false, topStaySpit = false, bottomStaySuck = false, bottomStaySpit = false;
 
     double liftPower = 0;
+
+    boolean start = false;
+    boolean back = false;
 
     //Making an object of the class Grabbers
     public Grabbers (DcMotor newUpDownLeft, DcMotor newUpDownRight, Servo newSpin, Servo newTop, Servo newBottom, Servo newTopSuckLeft, Servo newTopSuckRight, Servo newBottomSuckLeft, Servo newBottomSuckRight) {
@@ -59,22 +62,17 @@ public class Grabbers {
 
 
     //Spins the grabbers 180
-    public void spin(double spinValue) {
+    public void spin(boolean start, boolean x) {
 
-        if (spinValue<.5 && spinValue > .05)
+        if (start && !x)
         {
-            spinValue -= spinValue/150;
+            spinServoPosition -= .006;
         }
-        else if (spinValue>=.5 && spinValue < 1)
+        else if (x && !start)
         {
-           spinValue += spinValue/150;
-        }
-        else
-        {
-
+            spinServoPosition += .006;
         }
 
-        spinServoPosition = spinValue;
         spinServoPosition = Range.clip(spinServoPosition, 0, 1);
     }
 //
