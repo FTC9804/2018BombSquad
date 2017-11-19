@@ -20,49 +20,149 @@ import static com.qualcomm.robotcore.util.Range.clip;
  * Created by WilderBuchanan on 11/11/17.
  */
 
+@TeleOp(name = "TeleOpCompetition", group = "LAMeets")
+
+
 public class RobotMain extends OpMode {
     // Variables
-    double rightPadY;
-    double leftPadX;
-    double rightPadX;
+    double rightPadY1;
+    double leftPadX1;
+    double rightPadX1;
+    double leftStickY2;
+    double leftTrigger2;
+    double rightTrigger2;
+    boolean startButton2;
+    boolean backButton2;
+    boolean rightButton2;
+    boolean leftButton2;
+    boolean leftDpadUp2;
+    boolean rightDpadUp2;
+    boolean rightDpadDown2;
+    boolean leftDpadDown2;
+    boolean leftDpadRight2;
+    boolean rightDpadRight2;
+
+
+
 
     Drive drive;
+    Grabbers grab;
 
-    // DCMotors
-    DcMotor rightMotor, leftMotor, frontMotor, backMotor;
 
     /* Initialize standard Hardware interfaces */
     public void init() { // use hardwaremap here instead of hwmap or ahwmap provided in sample code
         // Motor configurations in the hardware map
-        DcMotor newRightMotor = hardwareMap.dcMotor.get("m1");
-        DcMotor newLeftMotor = hardwareMap.dcMotor.get("m2");
-        DcMotor newFrontMotor = hardwareMap.dcMotor.get("m4");
-        DcMotor newBackMotor = hardwareMap.dcMotor.get("m3");
-        drive = new Drive (newRightMotor, newLeftMotor, newFrontMotor, newBackMotor);
+        DcMotor RightMotor = hardwareMap.dcMotor.get("rightMotor");
+        DcMotor LeftMotor = hardwareMap.dcMotor.get("leftMotor");
+        DcMotor FrontMotor = hardwareMap.dcMotor.get("topMotor");
+        DcMotor BackMotor = hardwareMap.dcMotor.get("bottomMotor");
+        drive = new Drive (RightMotor, LeftMotor, FrontMotor, BackMotor);
+
+        DcMotor LeftLift = hardwareMap.dcMotor.get("liftMotorLeft");
+        DcMotor RightLift = hardwareMap.dcMotor.get("liftMotorRight");
+        Servo spin = hardwareMap.servo.get("spin");
+        Servo top = hardwareMap.servo.get("openCloseTop");
+        Servo bottom = hardwareMap.servo.get("openCloseBottom");
+        Servo topSuckLeft = hardwareMap.servo.get("leftGrabberTop");
+        Servo topSuckRight = hardwareMap.servo.get("rightGrabberTop");
+        Servo bottomSuckLeft = hardwareMap.servo.get("leftGrabberBottom");
+        Servo bottomSuckRight = hardwareMap.servo.get("leftGrabberBottom");
+        grab = new Grabbers(LeftLift, RightLift, spin, top, bottom, topSuckLeft, topSuckRight, bottomSuckRight, bottomSuckLeft);
 
     }
 
     public void loop () {
 
-        rightPadY = gamepad2.right_stick_y;
-        rightPadX = gamepad2.right_stick_x;
-        leftPadX = -(gamepad2.left_stick_x);
+        rightPadY1 = gamepad1.right_stick_y;
+        rightPadX1 = gamepad1.right_stick_x;
+        leftPadX1 = -(gamepad1.left_stick_x);
+
+        leftStickY2 = gamepad2.left_stick_y;
+        startButton2 = gamepad2.start;
+        rightTrigger2 = gamepad2.right_trigger;
+        leftTrigger2 = gamepad2.left_trigger;
+        leftButton2 = gamepad2.left_bumper;
+        rightButton2 = gamepad2.right_bumper;
+        leftDpadUp2 = gamepad2.dpad_up;
+        rightDpadUp2 = gamepad2.y;
+        leftDpadDown2 = gamepad2.dpad_down;
+        rightDpadDown2 = gamepad2.a;
+        rightDpadRight2 = gamepad2.b;
+        leftDpadRight2 = gamepad2.dpad_right;
+        backButton2 = gamepad2.back;
+
 
         // If pads are moved
-        boolean leftPadXOn = Math.abs (leftPadX) > .05;
-        boolean rightPadXOn = Math.abs (rightPadX) > .05;
-        boolean rightPadYOn = Math.abs (rightPadY) > .05;
+        boolean leftPadXOn = Math.abs (leftPadX1) > .05;
+        boolean rightPadXOn = Math.abs (rightPadX1) > .05;
+        boolean rightPadYOn = Math.abs (rightPadY1) > .05;
 
         // Combine rotation and movement
         if (leftPadXOn && !rightPadXOn && !rightPadYOn)
         {
-            drive.turn(leftPadX);
+            drive.turn(leftPadX1);
         }
         else
         {
-            drive.move (rightPadX, rightPadY);
+            drive.move (rightPadX1, rightPadY1);
         }
 
+        if(startButton2)
+        {
+            grab.spin();
+            telemetry.addLine("Start Button Pressed");
+        }
+
+        if(backButton2)
+        {
+            grab.spin90();
+            telemetry.addLine("Back Button Pressed");
+        }
+
+
+        //Top grabber suck controls
+        if(leftDpadUp2)
+        {
+            grab.topSuck();
+            telemetry.addLine("left D Pad up");
+        }
+        if(leftDpadDown2)
+        {
+            grab.topSpit();
+            telemetry.addLine("left d pad down");
+        }
+        if(leftDpadRight2)
+        {
+            grab.topReOrientGlyph();
+            telemetry.addLine("left d pad right");
+        }
+
+        //Bottom grabber suck controls
+        if(rightDpadUp2)
+        {
+            grab.bottomSuck();
+            telemetry.addLine("right d pad up");
+        }
+        if(rightDpadDown2)
+        {
+            grab.bottomSpit();
+            telemetry.addLine("right d pad down");
+        }
+        if(rightDpadRight2)
+        {
+            grab.bottomReOrientGlyph();
+            telemetry.addLine("right d pad down");
+        }
+
+        //opening and closing the grabbers
+        grab.topOpen(leftTrigger2, leftButton2);
+        grab.bottomOpen(rightTrigger2, rightButton2);
+
+        //move grabbers up and down
+        grab.moveUp(leftStickY2);
+
         drive.run();
+        grab.run();
+        telemetry.update();
     } // end loop
 } // end class
