@@ -44,6 +44,9 @@ public class RobotMain extends OpMode {
     boolean leftPadXOn;
     boolean rightPadYOn;
 
+    boolean startPress;
+    boolean xPress;
+
     // Motor configurations in the hardware map
     DcMotor RightMotor;
     DcMotor LeftMotor;
@@ -84,7 +87,7 @@ public class RobotMain extends OpMode {
         topSuckRight = hardwareMap.servo.get("rightGrabberTop");
         bottomSuckLeft = hardwareMap.servo.get("leftGrabberBottom");
         bottomSuckRight = hardwareMap.servo.get("rightGrabberBottom");
-        grab = new Grabbers(LeftLift, RightLift, spin, top, bottom, topSuckLeft, topSuckRight, bottomSuckRight, bottomSuckLeft);
+        grab = new Grabbers(LeftLift, RightLift, spin, top, bottom, topSuckLeft, topSuckRight, bottomSuckLeft, bottomSuckRight);
 
         spin.setPosition(0);
         top.setPosition(0.25);
@@ -101,6 +104,9 @@ public class RobotMain extends OpMode {
         rightPadY1 = gamepad1.right_stick_y;
         rightPadX1 = gamepad1.right_stick_x;
         leftPadX1 = -(gamepad1.left_stick_x);
+
+        startPress = gamepad2.start;
+        xPress = gamepad2.x;
 
         leftStickY2 = gamepad2.left_stick_y;
         rightStickX2 = gamepad2.right_stick_x;
@@ -166,15 +172,8 @@ public class RobotMain extends OpMode {
 //            telemetry.addLine("Back Button Pressed");
 //        }
 
-        if (rightStickX2<0)
-        {
-            spinValueAdjusted = 0 - rightStickX2/2;
-        }
-        else
-        {
-            spinValueAdjusted = .5 + rightStickX2/2;
-        }
-        grab.spin(spinValueAdjusted);
+
+        grab.spin(startPress, xPress);
 
         //Top grabber suck controls
         if(leftDpadUp2)
