@@ -47,6 +47,18 @@ public class RobotMain extends OpMode {
     boolean startPress;
     boolean xPress;
 
+    double ltpress1;
+    double rtpress1;
+    boolean rbpress1;
+    boolean lbpress1;
+    boolean y1;
+    boolean a1;
+
+    boolean ltispressed1;
+    boolean rtispressed1;
+
+
+
     // Motor configurations in the hardware map
     DcMotor RightMotor;
     DcMotor LeftMotor;
@@ -61,10 +73,16 @@ public class RobotMain extends OpMode {
     Servo topSuckRight;
     Servo bottomSuckLeft;
     Servo bottomSuckRight;
+    Servo open;
+    Servo rotate;
+    DcMotor extend;
+    Servo feeler;
 
 
     Drive drive;
     Grabbers grab;
+    Relicc recovery;
+
 
     double spinValueAdjusted;
 
@@ -89,6 +107,14 @@ public class RobotMain extends OpMode {
         bottomSuckRight = hardwareMap.servo.get("rightGrabberBottom");
         grab = new Grabbers(LeftLift, RightLift, spin, top, bottom, topSuckLeft, topSuckRight, bottomSuckLeft, bottomSuckRight);
 
+        open = hardwareMap.servo.get("grabRelic");
+        rotate = hardwareMap.servo.get("liftRelic");
+        extend = hardwareMap.dcMotor.get("grabberExtension");
+        recovery = new Relicc(extend, open, rotate);
+
+        feeler = hardwareMap.servo.get("feeler");
+
+
         spin.setPosition(0);
         top.setPosition(0.25);
         bottom.setPosition(0.25);
@@ -96,6 +122,7 @@ public class RobotMain extends OpMode {
         topSuckRight.setPosition(0.5);
         bottomSuckLeft.setPosition(0.5);
         bottomSuckRight.setPosition(0.5);
+        feeler.setPosition(1);
 
     }
 
@@ -122,6 +149,30 @@ public class RobotMain extends OpMode {
         rightDpadRight2 = gamepad2.b;
         leftDpadRight2 = gamepad2.dpad_right;
         backButton2 = gamepad2.back;
+
+        ltpress1 = gamepad1.left_trigger;
+        rtpress1 = gamepad1.right_trigger;
+        lbpress1 = gamepad1.left_bumper;
+        rbpress1 = gamepad1.right_bumper;
+        y1 = gamepad1.y;
+        a1 = gamepad1.a;
+
+        if(ltpress1 >= .05)
+        {
+            ltispressed1 = true;
+        }
+        else
+        {
+            ltispressed1 = false;
+        }
+        if (rtpress1 >= .05)
+        {
+            rtispressed1 = true;
+        }
+        else
+        {
+            rtispressed1 = false;
+        }
 
 
         // If pads are moved
@@ -225,8 +276,39 @@ public class RobotMain extends OpMode {
         //move grabbers up and down
         grab.moveUp(leftStickY2);
 
+        if(ltispressed1 && !rtispressed1)
+        {
+            recovery.rotateUp();
+        }
+        else if(!ltispressed1 && rtispressed1 )
+        {
+            recovery.rotateDown();
+        }
+
+        if(rbpress1 && !lbpress1)
+        {
+            recovery.open();
+        }
+        else if(!rbpress1 && lbpress1)
+        {
+            recovery.close();
+        }
+
+        if(a1 && !y1)
+        {
+            recovery.extend();
+        }
+        else if(!a1 && y1)
+        {
+            recovery.retract();
+        }
+
+
+
+
         drive.run();
         grab.run();
+        recovery.run();
         telemetry.update();
 
     } // end loop
