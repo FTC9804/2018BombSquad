@@ -85,6 +85,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
 
 
+
     /******************* D R I V I N G *******************/
 
     // DRIVE MOTORS
@@ -129,6 +130,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     // at the openClose servo
     Servo leftGrabberBottom; // Servo that controls the grabber on the left, with a reference point looking
     // at the openClose servo
+    Servo ballKnockServo; //Servo that controls the mechanism to knock the appropriate ball off of the stand in auto
+    Servo ballExtendServo; //Servo that extends the knocking mechanism from perpendicular to parallell to the floor
 
     // grabber
     Servo feeler;
@@ -208,12 +211,17 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         rightGrabberBottom = hardwareMap.servo.get("rightGrabberBottom");
 
         feeler = hardwareMap.servo.get("feeler");
+        ballKnockServo = hardwareMap.servo.get("ballKnockServo");
+        ballExtendServo = hardwareMap.servo.get("ballExtendServo");
 
         // Set servo direction orientations forward or reverse
         //horizontalTop.setDirection(Servo.Direction.FORWARD);
         openCloseTop.setDirection(Servo.Direction.FORWARD);
         rightGrabberTop.setDirection(Servo.Direction.REVERSE);
         leftGrabberTop.setDirection(Servo.Direction.FORWARD);
+
+        ballKnockServo.setDirection(Servo.Direction.FORWARD);
+        ballExtendServo.setDirection(Servo.Direction.FORWARD);
 
         //horizontalBottom.setDirection(Servo.Direction.FORWARD);
         openCloseBottom.setDirection(Servo.Direction.FORWARD);
@@ -232,6 +240,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         openCloseBottom.setPosition(.5);
         rightGrabberBottom.setPosition(.5);
         leftGrabberBottom.setPosition(.5);
+
+        ballKnockServo.setPosition(0); //against robot position
+
+        ballExtendServo.setPosition(.5); //retracted (perpendicular to the floor) position
+
+
 
         feeler.setPosition(feelerRetractPosition);
 
@@ -692,7 +706,6 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
 
 
-
         if ( allianceColor.equalsIgnoreCase("red") && sensorColor.blue() >=  sensorColor.red()) {
             telemetry.addData( "Value of RED: ", sensorColor.red() );
             telemetry.addData( "Value of BLUE: ", sensorColor.blue() );
@@ -725,6 +738,78 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
 
     }
+
+    public void dropFeelerMoveBallOnlyNewRobot (){
+
+        pause( 1 );
+
+        if ( allianceColor.equalsIgnoreCase("red") && sensorColor.blue() >=  sensorColor.red()) {
+            telemetry.addData( "Value of RED: ", sensorColor.red() );
+            telemetry.addData( "Value of BLUE: ", sensorColor.blue() );
+            telemetry.update ();
+            pause(1);
+            ballKnockServo.setPosition(.5); //pointing away from robot
+            pause(1);
+            ballExtendServo.setPosition(1); //extend position
+            pause(1);
+            ballKnockServo.setPosition(.6); //left knock
+            pause(1);
+            ballExtendServo.setPosition(.5); //retract position
+            pause(1);
+            ballKnockServo.setPosition(0); //adjacent to robot
+
+        }
+        else if ( allianceColor.equalsIgnoreCase("red") && sensorColor.red() >= sensorColor.blue()) {
+            telemetry.addData( "Value of RED: ", sensorColor.red() );
+            telemetry.addData( "Value of BLUE: ", sensorColor.blue() );
+            telemetry.update ();
+            pause(1);
+            ballKnockServo.setPosition(.5); //pointing away from robot
+            pause(1);
+            ballExtendServo.setPosition(1); //extend position
+            pause(1);
+            ballKnockServo.setPosition(.4); //right knock
+            pause(1);
+            ballExtendServo.setPosition(.5); //retract position
+            pause(1);
+            ballKnockServo.setPosition(0); //adjacent to robot
+        }
+        else if ( allianceColor.equalsIgnoreCase("blue") && sensorColor.blue() >= sensorColor.red()) {
+            telemetry.addData( "Value of RED: ", sensorColor.red() );
+            telemetry.addData( "Value of BLUE: ", sensorColor.blue() );
+            telemetry.update ();
+            pause(1);
+            ballKnockServo.setPosition(.5); //pointing away from robot
+            pause(1);
+            ballExtendServo.setPosition(1); //extend position
+            pause(1);
+            ballKnockServo.setPosition(.4); //right knock
+            pause(1);
+            ballExtendServo.setPosition(.5); //retract position
+            pause(1);
+            ballKnockServo.setPosition(0); //adjacent to robot
+        }
+        else if ( allianceColor.equalsIgnoreCase("blue") && sensorColor.red() >= sensorColor.blue()) {
+            telemetry.addData( "Value of RED: ", sensorColor.red() );
+            telemetry.addData( "Value of BLUE: ", sensorColor.blue() );
+            telemetry.update ();
+            pause(1);
+            ballKnockServo.setPosition(.5); //pointing away from robot
+            pause(1);
+            ballExtendServo.setPosition(1); //extend position
+            pause(1);
+            ballKnockServo.setPosition(.6); //left knock
+            pause(1);
+            ballExtendServo.setPosition(.5); //retract position
+            pause(1);
+            ballKnockServo.setPosition(0); //adjacent to robot
+        }
+
+        stopDriving();
+
+
+    }
+
 
 
 }
