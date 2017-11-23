@@ -1,4 +1,5 @@
 
+
 package org.firstinspires.ftc.teamcode;
 
 /**
@@ -8,7 +9,7 @@ package org.firstinspires.ftc.teamcode;
 //import statement
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "V1BlueRelicRecoverySide", group = "AutoWithFunctions")
+@Autonomous(name = "BlueBasicColor", group = "AutoWithFunctions")
 
 //@Disabled
 public class BlueBasicColor extends FunctionsForAuto {
@@ -29,5 +30,5 @@ public class BlueBasicColor extends FunctionsForAuto {
 
 
     } // end run op mode
-} // end V1RedRelicRecoverySide
+} // end BlueBasicColor
 
