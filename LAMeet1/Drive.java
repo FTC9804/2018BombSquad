@@ -66,19 +66,18 @@ public class Drive {
         backPower = -(xPower);
     }
 
-    public void run ()
+    public void run (double left, double right, double front, double back)
     {
         // clip power to ensure we are not giving too high a value
-        frontPower = Range.clip(frontPower, -1, 1);
-        backPower = Range.clip(backPower, -1, 1);
-        leftPower = Range.clip(leftPower, -1, 1);
-        rightPower = Range.clip(rightPower, -1, 1);
-
+        front = Range.clip(front, -1, 1);
+        back = Range.clip(back, -1, 1);
+        left = Range.clip(left, -1, 1);
+        right = Range.clip(right, -1, 1);
 
         //set motor powers
-        leftMotor.setPower(leftPower);
-        rightMotor.setPower(rightPower);
-        frontMotor.setPower(frontPower);
-        backMotor.setPower(backPower);
+        leftMotor.setPower(left);
+        rightMotor.setPower(right);
+        frontMotor.setPower(front);
+        backMotor.setPower(back);
     }
 }   //end class
