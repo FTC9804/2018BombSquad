@@ -23,9 +23,9 @@ import static com.qualcomm.robotcore.util.Range.clip;
 public class RobotMain extends OpMode {
 
     // Variables
-    double rightPadY1;
-    double leftPadX1;
-    double rightPadX1;
+    double leftStickY1;
+    double leftStickX1;
+    double rightStickX1;
     double leftStickY2;
     double rightStickX2;
     double leftTrigger2;
@@ -83,9 +83,37 @@ public class RobotMain extends OpMode {
     Grabbers grab;
     Relicc recovery;
 
+    int dPadDirection = 1;
+    boolean single = true;
+    int leftOverOne;
+    int rightOverOne;
+    int frontOverOne;
+    int backOverOne;
+    double rotRatio = .733333;
+    int direction = 0;
+    int over;
+
+    double linLeftPower;
+    double linRightPower;
+    double linFrontPower;
+    double linBackPower;
+
+    double rotLeftPower;
+    double rotRightPower;
+    double rotBackPower;
+    double rotFrontPower;
+
+    double testLeftPower;
+    double testRightPower;
+    double testBackPower;
+    double testFrontPower;
+
+    double finLeftPower = 0;
+    double finRightPower = 0;
+    double finFrontPower = 0;
+    double finBackPower = 0;
 
     double spinValueAdjusted;
-
 
     /* Initialize standard Hardware interfaces */
     public void init() { // use hardwaremap here instead of hwmap or ahwmap provided in sample code
@@ -128,9 +156,124 @@ public class RobotMain extends OpMode {
 
     public void loop () {
 
-        rightPadY1 = gamepad1.right_stick_y;
-        rightPadX1 = gamepad1.right_stick_x;
-        leftPadX1 = -(gamepad1.left_stick_x);
+        leftStickY1 = gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y);
+        leftStickX1 = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x);
+        rightStickX1 = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x);
+
+        telemetry.addData("Left X Joy Raw: ", gamepad1.left_stick_x);
+        telemetry.addData("Left Y Joy Raw: ", gamepad1.left_stick_y);
+        telemetry.addData("Right X Joy Raw: ", gamepad1.right_stick_x);
+
+        linLeftPower = leftStickY1;
+        linRightPower = -leftStickY1;
+        linFrontPower = -leftStickX1;
+        linBackPower = leftStickX1;
+
+        rotLeftPower = -rightStickX1;
+        rotRightPower = -rightStickX1;
+        rotBackPower = -rightStickX1 * rotRatio;
+        double rotFrontPower = -rightStickX1 * rotRatio;
+
+        double testLeftPower = linLeftPower + rotLeftPower;
+        double testRightPower = linRightPower + rotRightPower;
+        double testBackPower = linBackPower + rotBackPower;
+        double testFrontPower = linFrontPower + rotFrontPower;
+
+        if (Math.abs(testLeftPower) > 1) //Tests if each Math.abs(testDirectionPower) is over 1 or not if it is, set respective bool to true
+        {
+            leftOverOne = 1;
+            direction = 1;
+        } else {
+            leftOverOne = 0;
+        }
+        if (Math.abs(testRightPower) > 1) {
+            rightOverOne = 1;
+            direction = 2;
+        } else {
+            rightOverOne = 0;
+        }
+        if (Math.abs(testFrontPower) > 1) {
+            frontOverOne = 1;
+            direction = 3;
+        } else {
+            frontOverOne = 0;
+        }
+        if (Math.abs(testBackPower) > 1) {
+            backOverOne = 1;
+            direction = 4;
+        } else {
+            backOverOne = 0;
+        }
+
+        if ((leftOverOne + rightOverOne + frontOverOne + backOverOne) > 1) //Test if more than one testDirectionPower is over 1 i true, set single to false
+        {
+            single = false;
+            over = 1;
+        } else if ((leftOverOne + rightOverOne + frontOverOne + backOverOne) == 1) {
+            single = true;
+            over = 1;
+        } else {
+            over = 0;
+        }
+
+        switch (over) {
+
+            case 0:
+                finLeftPower = testLeftPower;
+                finRightPower = testRightPower;
+                finFrontPower = testFrontPower;
+                finBackPower = testBackPower;
+                break;
+            case 1:
+                if (single == true) {
+
+                    switch (direction) {
+
+                        case 1:
+                            finLeftPower = testLeftPower / Math.abs(testLeftPower);
+                            finRightPower = testRightPower / Math.abs(testLeftPower);
+                            finFrontPower = testFrontPower / Math.abs(testLeftPower);
+                            finBackPower = testBackPower / Math.abs(testLeftPower);
+                            break;
+                        case 2:
+                            finLeftPower = testLeftPower / Math.abs(testRightPower);
+                            finRightPower = testRightPower / Math.abs(testRightPower);
+                            finFrontPower = testFrontPower / Math.abs(testRightPower);
+                            finBackPower = testBackPower / Math.abs(testRightPower);
+                            break;
+                        case 3:
+                            finLeftPower = testLeftPower / Math.abs(testFrontPower);
+                            finRightPower = testRightPower / Math.abs(testFrontPower);
+                            finFrontPower = testFrontPower / Math.abs(testFrontPower);
+                            finBackPower = testBackPower / Math.abs(testFrontPower);
+                            break;
+
+                        case 4:
+                            finLeftPower = testLeftPower / Math.abs(testBackPower);
+                            finRightPower = testRightPower / Math.abs(testBackPower);
+                            finFrontPower = testFrontPower / Math.abs(testBackPower);
+                            finBackPower = testBackPower / Math.abs(testBackPower);
+                            break;
+
+                        default:
+                            telemetry.addData("Return", "Less than 1");
+                            break;
+                    }
+                } else {
+                    double maxPower = Math.max(Math.max(Math.abs(testLeftPower), Math.abs(testRightPower)), Math.max(Math.abs(testFrontPower), Math.abs(testBackPower)));
+                    finLeftPower = testLeftPower / maxPower;
+                    finRightPower = testRightPower / maxPower;
+                    finFrontPower = testFrontPower / maxPower;
+                    finBackPower = testBackPower / maxPower;
+                }
+                break;
+
+            default:
+                telemetry.addData("Something", "Messed up");
+                break;
+        }
+
+        //following code is used to switch which side is front
 
         startPress = gamepad2.start;
         xPress = gamepad2.x;
@@ -175,53 +318,6 @@ public class RobotMain extends OpMode {
         }
 
 
-        // If pads are moved
-        if (Math.abs(leftPadX1) > 0.05)
-        {
-            leftPadXOn = true;
-        }
-        else
-        {
-            leftPadXOn = false;
-        }
-        if (Math.abs(rightPadX1) > 0.05)
-        {
-            rightPadXOn = true;
-        }
-        else
-        {
-            rightPadXOn = false;
-        }
-        if (Math.abs(rightPadY1) > 0.05)
-        {
-            rightPadYOn = true;
-        }
-        else
-        {
-            rightPadYOn = false;
-        }
-
-        // Combine rotation and movement
-        if (leftPadXOn && !rightPadXOn && !rightPadYOn)
-        {
-            drive.turn (leftPadX1);
-        }
-        else
-        {
-            drive.move(rightPadX1, rightPadY1);
-        }
-
-//        if(startButton2)
-//        {
-//            grab.spin();
-//            telemetry.addLine("Start Button Pressed");
-//        }
-//
-//        if(backButton2)
-//        {
-//            grab.spin90();
-//            telemetry.addLine("Back Button Pressed");
-//        }
 
 
         grab.spin(startPress, xPress);
@@ -304,9 +400,7 @@ public class RobotMain extends OpMode {
         }
 
 
-
-
-        drive.run();
+        drive.run(finLeftPower, finRightPower, finFrontPower, finBackPower);
         grab.run();
         recovery.run();
         telemetry.update();
