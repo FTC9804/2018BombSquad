@@ -155,9 +155,9 @@ public class RobotRegular extends OpMode {
         //DRIVING
         //DRIVING
         //DRIVING
-
+       
         leftStickX1 = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x);
-        leftStickY1 = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x); //i know this is reversed
+        leftStickY1 = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x); 
         rightStickX1 = gamepad1.right_stick_y * Math.abs(gamepad1.right_stick_y);
 
         telemetry.addData("Left X Joy Raw: ", gamepad1.left_stick_x);
