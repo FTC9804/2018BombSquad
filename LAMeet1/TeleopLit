@@ -138,9 +138,9 @@ public class RobotRegular extends OpMode {
         LeftLift.setDirection(FORWARD);
         RightLift.setDirection(REVERSE);
 
-        top.setPosition(0.25);
-        topSuckLeft.setPosition(0.5);
-        topSuckRight.setPosition(0.5);
+        top.setPosition(1);
+        topSuckLeft.setPosition(1);
+        topSuckRight.setPosition(1);
 
         feelerRaise.setPosition(1);
         feelerSwipe.setPosition(.5);
@@ -331,7 +331,7 @@ public class RobotRegular extends OpMode {
         }
         else
         {
-            liftPower = -0.1;
+            liftPower = 0;
         }
         LeftLift.setPower(liftPower);
         RightLift.setPower(liftPower);
@@ -362,11 +362,11 @@ public class RobotRegular extends OpMode {
 
         if(dpadDown1 && !dpadUp1)
         {
-            openPosition = 1;
+            openPosition = 0;
         }
         else if(!dpadDown1 && dpadUp1)
         {
-            openPosition = 0;;
+            openPosition = 1;
         }
 
         if(dpadRight1 && !dpadLeft1)
@@ -376,6 +376,10 @@ public class RobotRegular extends OpMode {
         else if(!dpadRight1 && dpadLeft1)
         {
             extendPower = -1;
+        }
+        else
+        {
+            extendPower = 0;
         }
 
 
@@ -392,8 +396,17 @@ public class RobotRegular extends OpMode {
         finRightPower = Range.clip(finRightPower, -1, 1);
         finLeftPower = Range.clip(finLeftPower, -1, 1);
 
-        LeftMotor.setPower(finLeftPower);
-        RightMotor.setPower(finRightPower);
+        if ((finBackPower<0&&finRightPower>0)||(finBackPower>0&&finRightPower<0))
+        {
+            if (Math.abs(finFrontPower)>.1)
+            {
+                finRightPower/=4;
+                finLeftPower/=4;
+            }
+        }
+
+        LeftMotor.setPower(-finLeftPower);
+        RightMotor.setPower(-finRightPower);
         FrontMotor.setPower(finFrontPower);
         BackMotor.setPower(finBackPower);
 
@@ -406,6 +419,7 @@ public class RobotRegular extends OpMode {
         rotate.setPosition(rotatePosition);
         extension.setPower(extendPower);
 
+        telemetry.addData("topgrabberposition", topGrabberPosition);
         telemetry.update();
 
     } // end loop
