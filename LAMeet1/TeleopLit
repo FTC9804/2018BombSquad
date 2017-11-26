@@ -138,7 +138,7 @@ public class RobotRegular extends OpMode {
         LeftLift.setDirection(FORWARD);
         RightLift.setDirection(REVERSE);
 
-        top.setPosition(1);
+        top.setPosition(.5);
         topSuckLeft.setPosition(1);
         topSuckRight.setPosition(1);
 
@@ -155,9 +155,9 @@ public class RobotRegular extends OpMode {
         //DRIVING
         //DRIVING
         //DRIVING
-       
+
         leftStickX1 = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x);
-        leftStickY1 = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x); 
+        leftStickY1 = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x); //i know this is reversed
         rightStickX1 = gamepad1.right_stick_y * Math.abs(gamepad1.right_stick_y);
 
         telemetry.addData("Left X Joy Raw: ", gamepad1.left_stick_x);
@@ -410,7 +410,7 @@ public class RobotRegular extends OpMode {
         FrontMotor.setPower(finFrontPower);
         BackMotor.setPower(finBackPower);
 
-        topGrabberPosition = Range.clip(topGrabberPosition,0,.815);
+        topGrabberPosition = Range.clip(topGrabberPosition,.22563219,.5);
         top.setPosition(topGrabberPosition);
         topSuckLeft.setPosition(topLeftPosition);
         topSuckRight.setPosition(topRightPosition);
