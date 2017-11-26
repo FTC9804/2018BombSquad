@@ -371,11 +371,11 @@ public class RobotRegular extends OpMode {
 
         if(dpadRight1 && !dpadLeft1)
         {
-            extendPower = 1;
+            extendPower = -1;
         }
         else if(!dpadRight1 && dpadLeft1)
         {
-            extendPower = -1;
+            extendPower = 1;
         }
         else
         {
