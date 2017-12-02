@@ -3,6 +3,7 @@
  * Code for Harvey's autonomous
  */
 // package declaration
+
 package org.firstinspires.ftc.teamcode;
 
 // import statements
@@ -33,6 +34,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 import java.util.Locale;
@@ -61,6 +63,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     String robotStartingPosition;
 
 
+    /******************* V U F O R I A *******************/
+
+    VuforiaLocalizer vuforia;
+    RelicRecoveryVuMark vuMark;
+    String vuMarkChecker = new String();
+    VuforiaTrackable relicTemplate;
 
 
     /******************* S E N S O R S *******************/
@@ -150,7 +158,23 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         robotStartingPosition = initialRobotStartingPosition; // Options: "relicSide" or "triangleSide"
 
 
+        /******************* V U F O R I A *******************/
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
 
+        parameters.vuforiaLicenseKey =  "AZfTpOj/////AAAAGYCE1z7z6E5whPRKfYeRJHEN/u/+LZ7AMmBU0bBa" +
+                "/7u6aTruUWfYeLur6nSFdKP0w9JPmK1gstNxVHqiaZN6iuZGxPcbnDnm" +
+                "NJdoLIMtZheeNWphUMjHKoTUgsmcloZe67TG2V9duc+8jxxCLFzH5rlq" +
+                "PPdcgvvtIO0orpxVcpENBunY2GChhVgP6V5T9Iby7MyM9tN+y7Egm7Xy" +
+                "Iz/Tzpmlj19b3FUCW4WUDjTNQ4JoKZeB1jkhPxKGFRECoPw02jJXtQSK" +
+                "zNfzmhtugA7PTOZNehc61UjOXEexTO9TRy7ZfMtW8OggcYssvIabyJ8b" +
+                "DK4ePLCUP+Q4PMf7kL9lM6yDuxxKF0oqLgRglX9Axqrf";
+
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
+
+        VuforiaTrackables relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
+        relicTemplate = relicTrackables.get(0);
 
 
         /******************* D R I V I N G *******************/
@@ -177,15 +201,15 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         sensorColor.enableLed(true);
 
 
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json";
-        parameters.loggingEnabled      = true;
-        parameters.loggingTag          = "IMU";
+        BNO055IMU.Parameters IMUparameters = new BNO055IMU.Parameters();
+        IMUparameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        IMUparameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        IMUparameters.calibrationDataFile = "BNO055IMUCalibration.json";
+        IMUparameters.loggingEnabled      = true;
+        IMUparameters.loggingTag          = "IMU";
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
+        imu.initialize(IMUparameters);
 
 
         // Initialize encoder variables to 0
@@ -251,6 +275,59 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     }
 
+    public String detectVuMark()
+    {
+        vuMark = RelicRecoveryVuMark.from(relicTemplate);
+
+        if (vumarkToString().equalsIgnoreCase("LEFT"))
+        {
+            vuMarkChecker = "left";
+        }
+        else if (vumarkToString().equalsIgnoreCase("RIGHT"))
+        {
+            vuMarkChecker = "right";
+        }
+        else if (vumarkToString().equalsIgnoreCase("CENTER"))
+        {
+            vuMarkChecker = "center";
+        }
+        else
+        {
+            vuMarkChecker = "novalue";
+        }
+
+        if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
+
+                /* Found an instance of the template. In the actual game, you will probably
+                 * loop until this condition occurs, then move on to act accordingly depending
+                 * on which VuMark was visible. */
+            telemetry.addData("VuMark", "%s visible", vuMark);
+
+        } else {
+            telemetry.addData("VuMark", "not visible");
+        }
+
+        timeTwo = this.getRuntime();
+        telemetry.addData("Time: ", timeTwo - timeOne);
+
+        telemetry.addData("Vu mark detector: ", vuMarkChecker);
+        telemetry.update();
+
+        return vuMarkChecker;
+    }
+
+
+    String format(OpenGLMatrix transformationMatrix) {
+        return (transformationMatrix != null) ? transformationMatrix.formatAsTransform() : "null";
+    }
+
+
+    public String vumarkToString()
+    {
+        String output = new String();
+        output = "" + vuMark;
+        return output;
+    }
     void composeIMUTelemetry() {
 
         // At the beginning of each telemetry update, grab a bunch of data
@@ -389,18 +466,83 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         stopDriving();
 
     }
-    public void test(double power)
-    {
+
+    // drive function for any direction with time
+    public void driveForTime( String direction, double power, double time ) {
+
+        if ( direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right") ) { // check should be tob and bottom motors instead
+            leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
+            leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//check should do right too?
+        }
+        else {
+            topMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of topMotor1 to STOP_AND_RESET_ENCODER
+            topMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //check should to bottom too?
+        }
+
+        // Set timeOne and timeTwo to this.getRuntime();
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        if ( direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right") ) {
+            while ( (timeTwo - timeOne < time) ) { //check here
+                if ( direction.equalsIgnoreCase("left") ) {
+                    // Set motor powers based on paramater power
+                    topMotor.setPower( -power );
+                    bottomMotor.setPower( -power );
+                }
+                else if ( direction.equalsIgnoreCase("right") ){
+                    // Set motor powers based on paramater power
+                    topMotor.setPower( power );
+                    bottomMotor.setPower( power );
+                }
+
+                telemetry.update();
+                // Set timeTwo to this.getRuntime ()
+                timeTwo = this.getRuntime();
+            }
+
+            topMotor.setPower( 0 );
+            bottomMotor.setPower( 0 );
+        }
+        else if (direction.equalsIgnoreCase( "forwards") || direction.equalsIgnoreCase("backwards")){
+            while ( (timeTwo - timeOne < time) ) { //check here
+                if ( direction.equalsIgnoreCase("backwards") ) {
+                    // Set motor powers based on paramater power
+                    leftMotor.setPower( -power );
+                    rightMotor.setPower( -power );
+                }
+                else if ( direction.equalsIgnoreCase("forwards") ) {
+                    // Set motor powers based on paramater power
+                    leftMotor.setPower( power );
+                    rightMotor.setPower( power );
+                }
+
+                // Telemetry for encoder position
+                telemetry.addData("Current", leftMotor.getCurrentPosition());
+                telemetry.update();
+                // Set timeTwo to this.getRuntime ()
+                timeTwo = this.getRuntime();
+            }
+
+            leftMotor.setPower( 0 );
+            rightMotor.setPower(0);
+
+        }
+
+        // Execute stopDriving method
+        stopDriving();
+
+    }
+
+    public void test(double power) {
         topMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of topMotor1 to STOP_AND_RESET_ENCODER
         topMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // check to change to bottom
 
         topMotor.setPower( power );
         bottomMotor.setPower( power );
 
-        pause (1);
+        pause(1);
     }
-
-
 
     // Sets all drive train motors to 0 power
     public void stopDriving() {
@@ -620,7 +762,6 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         }
     }
 
-
     public void dropFeelerAndMove(){
 
         feeler.setPosition(0);
@@ -628,7 +769,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         if ( allianceColor.equalsIgnoreCase("red") && robotStartingPosition.equalsIgnoreCase("relicSide") ){
             if ( sensorColor.blue() >= 2 && sensorColor.red() < 2 ){
                 // DRIVE RIGHT TO KNOCK OFF BLUE
-                drive( "right", 6, .3, 20 );
+                drive("right", 6, .3, 20);
                 //RETRACT SERVO
                 feeler.setPosition(feelerRetractPosition);
                 //DRIVE LARGER FORWARD LEFT DISTANCE
@@ -636,7 +777,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             }
             else if ( sensorColor.red() >= 2 && sensorColor.blue() < 2 ){
                 // DRIVE LEFT TO KNOCK OFF BLUE
-                drive( "left", 6, .3, 20 );
+                drive("left", 6, .3, 20);
                 //RETRACT SERVO
                 feeler.setPosition(feelerRetractPosition);
                 //DRIVE SMALLER FORWARD RIGHT DISTANCE
@@ -647,7 +788,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         else if ( allianceColor.equalsIgnoreCase("red") && robotStartingPosition.equalsIgnoreCase("triangleSide") ){
             if ( sensorColor.blue() >= 2 && sensorColor.red() < 2 ){
                 // DRIVE RIGHT TO KNOCK OFF BLUE
-                drive( "right", 6, .3, 20 );
+                drive("right", 6, .3, 20);
                 //RETRACT SERVO
                 feeler.setPosition(feelerRetractPosition);
                 //DRIVE LARGER FORWARD LEFT DISTANCE
@@ -655,7 +796,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             }
             else if ( sensorColor.red() >= 2 && sensorColor.blue() < 2 ){
                 // DRIVE LEFT TO KNOCK OFF BLUE
-                drive( "left", 6, .3, 20 );
+                drive("left", 6, .3, 20);
                 //RETRACT SERVO
                 feeler.setPosition(feelerRetractPosition);
                 //DRIVE LARGER FORWARD LEFT DISTANCE
@@ -665,7 +806,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         else if ( allianceColor.equalsIgnoreCase("blue") && robotStartingPosition.equalsIgnoreCase("relicSide") ){
             if ( sensorColor.blue() >= 2 && sensorColor.red() < 2 ){
                 // DRIVE RIGHT TO KNOCK OFF BLUE
-                drive( "right", 6, .3, 20 );
+                drive("right", 6, .3, 20);
                 //RETRACT SERVO
                 feeler.setPosition(feelerRetractPosition);
                 //DRIVE LARGER FORWARD LEFT DISTANCE
@@ -673,7 +814,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             }
             else if ( sensorColor.red() >= 2 && sensorColor.blue() < 2 ){
                 // DRIVE LEFT TO KNOCK OFF BLUE
-                drive( "left", 6, .3, 20 );
+                drive("left", 6, .3, 20);
                 //RETRACT SERVO
                 feeler.setPosition(feelerRetractPosition);
                 //DRIVE LARGER FORWARD LEFT DISTANCE
@@ -683,7 +824,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         else if ( allianceColor.equalsIgnoreCase("blue") && robotStartingPosition.equalsIgnoreCase("triangleSide") ){
             if ( sensorColor.blue() >= 2 && sensorColor.red() < 2 ){
                 // DRIVE RIGHT TO KNOCK OFF BLUE
-                drive( "right", 6, .3, 20 );
+                drive("right", 6, .3, 20);
                 //RETRACT SERVO
                 feeler.setPosition(feelerRetractPosition);
                 //DRIVE LARGER FORWARD LEFT DISTANCE
@@ -691,7 +832,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             }
             else if ( sensorColor.red() >= 2 && sensorColor.blue() < 2 ){
                 // DRIVE LEFT TO KNOCK OFF BLUE
-                drive( "left", 6, .3, 20 );
+                drive("left", 6, .3, 20);
                 //RETRACT SERVO
                 feeler.setPosition(feelerRetractPosition);
                 //DRIVE LARGER FORWARD LEFT DISTANCE
@@ -702,36 +843,36 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     public void dropFeelerMoveBallOnly(){
 
-        pause( 1 );
+        pause(1);
 
 
 
         if ( allianceColor.equalsIgnoreCase("red") && sensorColor.blue() >=  sensorColor.red()) {
-            telemetry.addData( "Value of RED: ", sensorColor.red() );
-            telemetry.addData( "Value of BLUE: ", sensorColor.blue() );
-            telemetry.update ();
+            telemetry.addData("Value of RED: ", sensorColor.red());
+            telemetry.addData("Value of BLUE: ", sensorColor.blue());
+            telemetry.update();
             pause(1);
-            drive( "left", 20, .85, 15 );
+            drive("left", 20, .85, 15);
         }
         else if ( allianceColor.equalsIgnoreCase("red") && sensorColor.red() >= sensorColor.blue()) {
-            telemetry.addData( "Value of RED: ", sensorColor.red() );
-            telemetry.addData( "Value of BLUE: ", sensorColor.blue() );
-            telemetry.update ();
-            drive( "right", 20, .85, 15 );
+            telemetry.addData("Value of RED: ", sensorColor.red());
+            telemetry.addData("Value of BLUE: ", sensorColor.blue());
+            telemetry.update();
+            drive("right", 20, .85, 15);
         }
         else if ( allianceColor.equalsIgnoreCase("blue") && sensorColor.blue() >= sensorColor.red()) {
-            telemetry.addData( "Value of RED: ", sensorColor.red() );
-            telemetry.addData( "Value of BLUE: ", sensorColor.blue() );
-            telemetry.update ();
+            telemetry.addData("Value of RED: ", sensorColor.red());
+            telemetry.addData("Value of BLUE: ", sensorColor.blue());
+            telemetry.update();
             pause(1);
-            drive( "right", 20, .85, 15 );
+            drive("right", 20, .85, 15);
         }
         else if ( allianceColor.equalsIgnoreCase("blue") && sensorColor.red() >= sensorColor.blue()) {
-            telemetry.addData( "Value of RED: ", sensorColor.red() );
-            telemetry.addData( "Value of BLUE: ", sensorColor.blue() );
-            telemetry.update ();
+            telemetry.addData("Value of RED: ", sensorColor.red());
+            telemetry.addData("Value of BLUE: ", sensorColor.blue());
+            telemetry.update();
             pause(1);
-            drive( "left", 20, .85, 15);
+            drive("left", 20, .85, 15);
         }
 
         stopDriving();
@@ -809,7 +950,4 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
 
     }
-
-
-
 }
