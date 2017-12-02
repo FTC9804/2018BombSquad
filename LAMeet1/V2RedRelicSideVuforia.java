@@ -1,4 +1,5 @@
 
+
 package org.firstinspires.ftc.teamcode;
 
 /**
@@ -13,21 +14,25 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 public class V2RedRelicSideVuforia extends FunctionsForAuto {
 
+    String vuMarkOutput = "";
+
     public void runOpMode() throws InterruptedException {
 
         //Configure motors, servos and sensors
-        configure("blue", "relicSide");
+        configure("red", "relicSide");
 
         //Wait until play button is pressed
         waitForStart();
 
-        pause( 2 );
+        pause(.2);
 
         /**
          * Order of Operations
          *      Drop color sensor and then hit ball
          *      detect vumark
          *      move off ramp
+         *          //ramp adjsuted/moved???
+         *      spin 180º
          *      move slowly to touch ramp and re-position
          *      move sideways to a certain spot
          *      push in
@@ -45,32 +50,33 @@ public class V2RedRelicSideVuforia extends FunctionsForAuto {
         while (timeTwo - timeOne < 5) {
             timeTwo  = this.getRuntime();
 
-            detectVuMark();
+            vuMarkOutput = detectVuMark();
         }
 
         drive( "right", 15, .75, 15 );
-        driveForTime( "left", .2, 5);
-
-        if (detectVuMark().equalsIgnoreCase("right"))
-        {
-            drive( "right", 12, .4, 15 );
-        }
-        else if (detectVuMark().equalsIgnoreCase("left"))
-        {
-            drive( "right", 28, .4, 15 );
-        }
-        else
-        {
-            //center condition as default
-            drive( "right", 20, .4, 15 );
-        }
-
-        stopDriving ();
-
-        drive( "backwards", 12, .4, 15);
-        drive( "forwards", 6, .2, 15);
-        drive( "backwards", 6, .2, 15);
-        drive( "forwards", 12, .4, 15);
+        spinMove ("clockwise", 26.24, .5, 100);
+//        driveForTime( "right", .2, 5);
+//
+//        if (vuMarkOutput.equalsIgnoreCase("right"))
+//        {
+//            drive( "left", 12, .4, 15 );
+//        }
+//        else if (vuMarkOutput.equalsIgnoreCase("left"))
+//        {
+//            drive( "left", 28, .4, 15 );
+//        }
+//        else
+//        {
+//            //center condition as default
+//            drive( "left", 20, .4, 15 );
+//        }
+//
+//        stopDriving ();
+//
+//        drive( "forward", 12, .4, 15);
+//        drive( "backwards", 6, .2, 15);
+//        drive( "forward", 6, .2, 15);
+//        drive( "backwards", 12, .4, 15);
 
     } // end run op mode
 } // end V1RedRelicRecoverySide
