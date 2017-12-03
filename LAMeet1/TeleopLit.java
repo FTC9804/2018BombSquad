@@ -283,6 +283,10 @@
             {
                 ltPressed = true;
             }
+            else
+            {
+                ltPressed = false;
+            }
             y1 = gamepad1.y;
             a1 = gamepad1.a;
             lb = gamepad1.left_bumper;
@@ -319,11 +323,11 @@
             if(rightBumper1 && rightTrigger1 >= .05) {
             }
             else if(rightTrigger1 >= .05) {
-                topGrabberPosition += .006;
+                topGrabberPosition = .5;
             }
             else if(rightBumper1)
             {
-                topGrabberPosition -= .006;
+                topGrabberPosition = .23;
             }
             //move grabbers up and down
             if (y1)
