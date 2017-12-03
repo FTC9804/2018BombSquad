@@ -136,6 +136,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     //Servo horizontalBottom; // Servo that rotate's the grabber horizontally
     //Servo open; // Sevo that opens and closes the two grabbers
 
+    DcMotor LeftLift;
+    DcMotor RightLift;
+
+
+    /******************* F E E L E R S   S E R V O S *******************/
+
     // grabber
     Servo feelerRaise;
     Servo feelerSwipe;
@@ -229,6 +235,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         topSuckRight = hardwareMap.servo.get("rightGrabberTop");
         topSuckLeft = hardwareMap.servo.get("leftGrabberTop");
 
+        LeftLift = hardwareMap.dcMotor.get("liftMotorLeft");
+        RightLift = hardwareMap.dcMotor.get("liftMotorRight");
+
+        LeftLift.setDirection(FORWARD);
+        RightLift.setDirection(REVERSE);
+
         //horizontalBottom = hardwareMap.servo.get("horizontalBottom");
         //open = hardwareMap.servo.get("open");
 
@@ -244,14 +256,14 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
 
         //horizontalBottom.setDirection(Servo.Direction.FORWARD);
-       // open.setDirection(Servo.Direction.FORWARD);
+        // open.setDirection(Servo.Direction.FORWARD);
 
         feelerRaise.setDirection(Servo.Direction.FORWARD);
         feelerSwipe.setDirection(Servo.Direction.REVERSE);
 
         // Initial positions for servos
         //horizontalTop.setPosition(.486);
-        top.setPosition(.5);
+        //top.setPosition(.5);
         topSuckRight.setPosition(.5);
         topSuckLeft.setPosition(.5);
 
@@ -261,6 +273,49 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         feelerRaise.setPosition(feelerRaiseUpPosition);
         feelerSwipe.setPosition(feelerSwipeNeutralPosition);
+
+    }
+
+    public void grabAndLiftBlock( double liftPower, double timeToRun )
+    {
+
+        top.setPosition(.5);
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo - timeOne < timeToRun)
+        {
+            timeTwo = this.getRuntime();
+
+            top.setPosition(.5);
+
+            LeftLift.setPower(-liftPower);
+            RightLift.setPower(-liftPower);
+
+
+        }
+        LeftLift.setPower(0);
+        RightLift.setPower(0);
+    }
+
+    public void lowerAndReleaseBlock( double liftPower, double timeToRun )
+    {
+/*
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+        while ( timeTwo - timeOne < timeToRun )
+        {
+            timeTwo = this.getRuntime();
+
+            LeftLift.setPower(liftPower);
+            RightLift.setPower(liftPower);
+        }
+
+        LeftLift.setPower(0);
+        RightLift.setPower(0);
+*/
+        top.setPosition(0);
 
     }
 
@@ -331,8 +386,6 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         output = "" + vuMark;
         return output;
     }
-
-
 
     // drive function for any direction
     public void drive( String direction, double distance, double power, double time ) {
@@ -461,17 +514,17 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             while ( (timeTwo - timeOne < time) ) { //check here
                 if ( direction.equalsIgnoreCase("backwards") ) {
                     // Set motor powers based on paramater power
-                    LeftMotor.setPower( -power );
-                    RightMotor.setPower( -power );
-                }
-                else if ( direction.equalsIgnoreCase("forwards") ) {
-                    // Set motor powers based on paramater power
                     LeftMotor.setPower( power );
                     RightMotor.setPower( power );
                 }
+                else if ( direction.equalsIgnoreCase("forwards") ) {
+                    // Set motor powers based on paramater power
+                    LeftMotor.setPower( -power );
+                    RightMotor.setPower( -power );
+                }
 
                 // Telemetry for encoder position
-                telemetry.addData("Current", LeftMotor.getCurrentPosition());
+                //telemetry.addData("Current", LeftMotor.getCurrentPosition());
                 telemetry.update();
                 // Set timeTwo to this.getRuntime ()
                 timeTwo = this.getRuntime();
@@ -499,6 +552,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     // Sets all drive train motors to 0 power
     public void stopDriving() {
+
         LeftMotor.setPower(0);
         RightMotor.setPower(0);
         FrontMotor.setPower(0);
@@ -564,6 +618,39 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             }
         }
         // Execute stopDriving method
+        stopDriving();
+    }
+
+    public void spin180( double power, double timeToRun)
+    {
+        rotations = inches / (Math.PI * WHEEL_DIAMETER);
+        counts = 1500; // per Wilder's testing 12-1-17 at midnight
+
+        LeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of LeftMotor1 to STOP_AND_RESET_ENCODER
+        LeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        // Set timeOne and timeTwo to this.getRuntime();
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while ( Math.abs(LeftMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < timeToRun) )
+        {
+
+            leftPower = power;
+            rightPower = -power;
+
+            LeftMotor.setPower(leftPower);
+            RightMotor.setPower(rightPower);
+
+
+            // Telemetry for encoder position
+            telemetry.addData("Current", Math.abs(LeftMotor.getCurrentPosition()));
+            telemetry.addData("To completion", (counts - Math.abs(LeftMotor.getCurrentPosition())));
+            telemetry.update();
+
+            timeTwo = this.getRuntime();
+        }
+
         stopDriving();
     }
 
