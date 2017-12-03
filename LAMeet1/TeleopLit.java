@@ -67,10 +67,11 @@ public class RobotRegular extends OpMode {
     //Grabber controls
     double rightTrigger1;
     boolean rightBumper1;
+    boolean lb;
+    double lt;
+    boolean ltPressed;
     boolean y1;
     boolean a1;
-    boolean x1;
-    boolean b1;
     boolean start;
 
     //Relicc variables
@@ -82,8 +83,8 @@ public class RobotRegular extends OpMode {
     boolean dpadRight1;
     boolean dpadLeft1;
 
-    double leftTrigger1;
-    boolean leftBumper1;
+    double x1;
+    boolean b1;
 
     // Motor configurations in the hardware map
     DcMotor RightMotor;
@@ -171,7 +172,7 @@ public class RobotRegular extends OpMode {
 
         rotLeftPower = -rightStickX1;
         rotRightPower = -rightStickX1;
-       // rotBackPower = -rightStickX1 * rotRatio;
+        // rotBackPower = -rightStickX1 * rotRatio;
         //rotFrontPower = -rightStickX1 * rotRatio;
 
         testLeftPower = linLeftPower + rotLeftPower;
@@ -277,32 +278,36 @@ public class RobotRegular extends OpMode {
         //GRABBING
 
 
-        a1 = gamepad1.a;
-        x1 = gamepad1.x;
-        b1 = gamepad1.b;
+        lt = gamepad1.left_trigger;
+        if(lt > .05)
+        {
+            ltPressed = true;
+        }
         y1 = gamepad1.y;
+        a1 = gamepad1.a;
+        lb = gamepad1.left_bumper;
         rightTrigger1 = gamepad1.right_trigger;
         rightBumper1= gamepad1.right_bumper;
         start = gamepad1.start;
 
         //Top grabber suck controls
-        if(y1)
+        if(lb)
         {
             topLeftPosition = .7;
             topRightPosition = .7;
-            telemetry.addLine("left D Pad up");
+            telemetry.addLine("left Bumper");
         }
-        else if(a1)
+        else if(ltPressed)
         {
             topLeftPosition = 0.3;
             topRightPosition = 0.3;
-            telemetry.addLine("left d pad down");
+            telemetry.addLine("Left Trigger");
         }
         else if(start)
         {
             topLeftPosition = .7;
             topRightPosition = 0.3;
-            telemetry.addLine("left d pad right");
+            telemetry.addLine("Start pressed");
         }
         else
         {
@@ -321,11 +326,11 @@ public class RobotRegular extends OpMode {
             topGrabberPosition -= .006;
         }
         //move grabbers up and down
-        if (x1)
+        if (y1)
         {
             liftPower = .6;
         }
-        else if (b1)
+        else if (a1)
         {
             liftPower = -.6;
         }
@@ -344,36 +349,36 @@ public class RobotRegular extends OpMode {
         //RELICC
         //RELICC
 
-        leftTrigger1 = gamepad1.left_trigger;
-        leftBumper1 = gamepad1.left_bumper;
-        dpadLeft1=gamepad1.dpad_left;
-        dpadRight1=gamepad1.dpad_right;
-        dpadUp1=gamepad1.dpad_up;
-        dpadDown1=gamepad1.dpad_down;
+        x1 = gamepad1.left_trigger;
+        b1 = gamepad1.left_bumper;
+        dpadUp1=gamepad1.dpad_left;
+        dpadDown1=gamepad1.dpad_right;
+        dpadLeft1=gamepad1.dpad_up;
+        dpadRight1=gamepad1.dpad_down;
 
-        if(leftTrigger1 >= .05 && !leftBumper1)
+        if(x1 >= .05 && !b1)
         {
             rotatePosition = 0;
         }
-        else if(leftTrigger1 < .05 && leftBumper1)
+        else if(x1 < .05 && b1)
         {
             rotatePosition = 1;
         }
 
-        if(dpadDown1 && !dpadUp1)
+        if(dpadRight1 && !dpadLeft1)
         {
             openPosition = 0;
         }
-        else if(!dpadDown1 && dpadUp1)
+        else if(!dpadRight1 && dpadLeft1)
         {
             openPosition = 1;
         }
 
-        if(dpadRight1 && !dpadLeft1)
+        if(dpadUp1 && !dpadDown1)
         {
             extendPower = -1;
         }
-        else if(!dpadRight1 && dpadLeft1)
+        else if(!dpadUp1 && dpadRight1)
         {
             extendPower = 1;
         }
