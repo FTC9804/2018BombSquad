@@ -47,11 +47,7 @@ public class V2RedRelicSideVuforia extends FunctionsForAuto {
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
-        while (timeTwo - timeOne < 5) {
-            timeTwo  = this.getRuntime();
-
-            vuMarkOutput = detectVuMark();
-        }
+            vuMarkOutput = detectVuMark( 5 );
 
         drive( "right", 15, .75, 15 );
         spinMove ("clockwise", 26.24, .5, 100);

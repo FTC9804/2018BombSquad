@@ -69,6 +69,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     RelicRecoveryVuMark vuMark;
     String vuMarkChecker = new String();
     VuforiaTrackable relicTemplate;
+    VuforiaTrackables relicTrackables;
 
 
     /******************* S E N S O R S *******************/
@@ -172,7 +173,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
         this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
 
-        VuforiaTrackables relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
+        relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
         relicTemplate = relicTrackables.get(0);
 
 
@@ -274,10 +275,15 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         }
     }
 
-    public String detectVuMark() {
+    public String detectVuMark( int timeToCheck ) {
+
+        relicTrackables.activate();
+
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
-        while (timeTwo - timeOne < 30) {
+
+        while (timeTwo - timeOne < timeToCheck) {
+
             vuMark = RelicRecoveryVuMark.from(relicTemplate);
 
             if (vumarkToString().equalsIgnoreCase("LEFT")) {
@@ -286,7 +292,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                 vuMarkChecker = "right";
             } else if (vumarkToString().equalsIgnoreCase("CENTER")) {
                 vuMarkChecker = "center";
-            } else {
+            } else if (vumarkToString().equals("UNKOWN")){
+                vuMarkChecker = "unknown as answer";
+            }
+            else {
                 vuMarkChecker = "novalue";
             }
 
