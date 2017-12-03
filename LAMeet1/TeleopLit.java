@@ -83,7 +83,7 @@ public class RobotRegular extends OpMode {
     boolean dpadRight1;
     boolean dpadLeft1;
 
-    double x1;
+    boolean  x1;
     boolean b1;
 
     // Motor configurations in the hardware map
@@ -349,18 +349,18 @@ public class RobotRegular extends OpMode {
         //RELICC
         //RELICC
 
-        x1 = gamepad1.left_trigger;
-        b1 = gamepad1.left_bumper;
-        dpadUp1=gamepad1.dpad_left;
-        dpadDown1=gamepad1.dpad_right;
-        dpadLeft1=gamepad1.dpad_up;
-        dpadRight1=gamepad1.dpad_down;
+        x1 = gamepad1.x;
+        b1 = gamepad1.b;
+        dpadUp1=gamepad1.dpad_up;
+        dpadDown1=gamepad1.dpad_down;
+        dpadLeft1=gamepad1.dpad_left;
+        dpadRight1=gamepad1.dpad_right;
 
-        if(x1 >= .05 && !b1)
+        if(x1 && !b1)
         {
             rotatePosition = 0;
         }
-        else if(x1 < .05 && b1)
+        else if(x1 && b1)
         {
             rotatePosition = 1;
         }
