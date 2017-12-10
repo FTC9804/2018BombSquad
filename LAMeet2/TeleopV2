@@ -360,7 +360,7 @@ public class TeleopV2 extends OpMode {
                 sensor = false;
             }
 
-            movement = pastPanPosition - panPosition;
+            movement = panPosition - pastPanPosition;
 
             if(sensor && readCounter)
             {
