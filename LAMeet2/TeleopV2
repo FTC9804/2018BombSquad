@@ -1,0 +1,480 @@
+/**
+ * TeleopV2 Made Saturday December 9 by Isaac, Marcus, and Steve
+ */
+
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.DigitalChannelController;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoController;
+import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.Range;
+
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
+import static com.qualcomm.robotcore.util.Range.clip;
+
+import java.util.concurrent.TimeUnit;
+
+
+@TeleOp(name = "TeleOpCompetitionLit", group = "LAMeets")
+
+
+public class TeleopV2 extends OpMode {
+
+    //Driving controls
+    double leftStickX1;
+    double leftStickY1;
+    double rightStickX1;
+
+    //Driving variables
+    boolean single = true;
+    int leftOverOne;
+    int rightOverOne;
+    int frontOverOne;
+    int backOverOne;
+    double rotRatio = .733333;
+    int direction = 0;
+    int over;
+
+    double linLeftPower;
+    double linRightPower;
+    double linFrontPower    ;
+    double linBackPower;
+
+    double rotLeftPower;
+    double rotRightPower;
+    double rotBackPower;
+    double rotFrontPower;
+
+    double testLeftPower;
+    double testRightPower;
+    double testBackPower;
+    double testFrontPower;
+
+    double finLeftPower = 0;
+    double finRightPower = 0;
+    double finFrontPower = 0;
+    double finBackPower = 0;
+
+    DcMotor RightMotor;
+    DcMotor LeftMotor;
+    DcMotor BackRightMotor;
+    DcMotor BackLeftMotor;
+
+
+    //Cube movement variables
+    double rightTrigger;
+    boolean rightBumper;
+    double leftTrigger;
+    boolean leftBumper;
+    double panSpinPosition;
+    boolean dpadDownPressed;
+    boolean dpadRightPressed;
+    boolean dpadLeftPressed;
+    boolean dpadUpPressed;
+    boolean readCounter;
+
+    int panPosition;
+    int pastPanPosition;
+    int movement;
+    boolean sensor;
+    int counter;
+
+    long lastTime;
+
+    // Motor and servo configurations
+    DcMotor rightIntake;
+    DcMotor leftIntake;
+    DcMotor panLifter;
+    Servo leftPanSpin;
+    Servo rightPanSpin;
+
+    TouchSensor touchSensor;
+
+    /* Initialize standard Hardware interfaces */
+    public void init() { // use hardwaremap here instead of hwmap or ahwmap provided in sample code
+        // Motor configurations in the hardware map
+        RightMotor = hardwareMap.dcMotor.get("rightMotor");
+        LeftMotor = hardwareMap.dcMotor.get("leftMotor");
+        BackLeftMotor = hardwareMap.dcMotor.get("backLeftMoter");
+        BackRightMotor = hardwareMap.dcMotor.get("backRightMotor");
+        rightIntake = hardwareMap.dcMotor.get("rightIntake");
+        leftIntake = hardwareMap.dcMotor.get("leftIntake");
+        panLifter = hardwareMap.dcMotor.get("elevator");
+
+        touchSensor = hardwareMap.touchSensor.get("sensor");
+
+        panPosition = 1;
+        pastPanPosition = 1;
+        readCounter = false;
+        counter = 0;
+
+        // Servo configurations in the hardware map
+
+        leftPanSpin = hardwareMap.servo.get("leftPanSpin");
+        rightPanSpin = hardwareMap.servo.get("rightPanSpin");
+
+        leftPanSpin.setDirection(Servo.Direction.REVERSE);
+        rightPanSpin.setDirection(Servo.Direction.FORWARD);
+
+        // Motor directions: set forward/reverse
+        RightMotor.setDirection(REVERSE);
+        LeftMotor.setDirection(FORWARD);
+        BackRightMotor.setDirection(REVERSE);
+        BackLeftMotor.setDirection(REVERSE);
+
+        rightIntake.setDirection(FORWARD);
+        leftIntake.setDirection(FORWARD);
+        panLifter.setDirection(FORWARD);
+
+        //Init powers
+
+        rightIntake.setPower(0);
+        leftIntake.setPower(0);
+        panLifter.setPower(0);
+
+
+    }
+
+    public void loop () {
+
+
+        //DRIVING
+        //DRIVING
+        //DRIVING
+        //DRIVING
+        //DRIVING
+
+        leftStickX1 = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x);
+        leftStickY1 = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x); //i know this is reversed
+        rightStickX1 = gamepad1.right_stick_y * Math.abs(gamepad1.right_stick_y);
+
+        telemetry.addData("Left X Joy Raw: ", gamepad1.left_stick_x);
+        telemetry.addData("Left Y Joy Raw: ", gamepad1.left_stick_y);
+        telemetry.addData("Right X Joy Raw: ", gamepad1.right_stick_x);
+
+        linLeftPower = leftStickY1;
+        linRightPower = -leftStickY1;
+        linFrontPower = -leftStickX1;
+        linBackPower = leftStickX1;
+
+        rotLeftPower = -rightStickX1;
+        rotRightPower = -rightStickX1;
+        // rotBackPower = -rightStickX1 * rotRatio;
+        //rotFrontPower = -rightStickX1 * rotRatio;
+
+        testLeftPower = linLeftPower + rotLeftPower;
+        testRightPower = linRightPower + rotRightPower;
+        testBackPower = linBackPower + rotBackPower;
+        testFrontPower = linFrontPower + rotFrontPower;
+
+        if (Math.abs(testLeftPower) > 1) //Tests if each Math.abs(testDirectionPower) is over 1 or not if it is, set respective bool to true
+        {
+            leftOverOne = 1;
+            direction = 1;
+        } else {
+            leftOverOne = 0;
+        }
+        if (Math.abs(testRightPower) > 1) {
+            rightOverOne = 1;
+            direction = 2;
+        } else {
+            rightOverOne = 0;
+        }
+        if (Math.abs(testFrontPower) > 1) {
+            frontOverOne = 1;
+            direction = 3;
+        } else {
+            frontOverOne = 0;
+        }
+        if (Math.abs(testBackPower) > 1) {
+            backOverOne = 1;
+            direction = 4;
+        } else {
+            backOverOne = 0;
+        }
+
+        if ((leftOverOne + rightOverOne + frontOverOne + backOverOne) > 1) //Test if more than one testDirectionPower is over 1 i true, set single to false
+        {
+            single = false;
+            over = 1;
+        } else if ((leftOverOne + rightOverOne + frontOverOne + backOverOne) == 1) {
+            single = true;
+            over = 1;
+        } else {
+            over = 0;
+        }
+
+        switch (over) {
+
+            case 0:
+                finLeftPower = testLeftPower;
+                finRightPower = testRightPower;
+                finFrontPower = testFrontPower;
+                finBackPower = testBackPower;
+                break;
+            case 1:
+                if (single == true) {
+
+                    switch (direction) {
+
+                        case 1:
+                            finLeftPower = testLeftPower / Math.abs(testLeftPower);
+                            finRightPower = testRightPower / Math.abs(testLeftPower);
+                            finFrontPower = testFrontPower / Math.abs(testLeftPower);
+                            finBackPower = testBackPower / Math.abs(testLeftPower);
+                            break;
+                        case 2:
+                            finLeftPower = testLeftPower / Math.abs(testRightPower);
+                            finRightPower = testRightPower / Math.abs(testRightPower);
+                            finFrontPower = testFrontPower / Math.abs(testRightPower);
+                            finBackPower = testBackPower / Math.abs(testRightPower);
+                            break;
+                        case 3:
+                            finLeftPower = testLeftPower / Math.abs(testFrontPower);
+                            finRightPower = testRightPower / Math.abs(testFrontPower);
+                            finFrontPower = testFrontPower / Math.abs(testFrontPower);
+                            finBackPower = testBackPower / Math.abs(testFrontPower);
+                            break;
+
+                        case 4:
+                            finLeftPower = testLeftPower / Math.abs(testBackPower);
+                            finRightPower = testRightPower / Math.abs(testBackPower);
+                            finFrontPower = testFrontPower / Math.abs(testBackPower);
+                            finBackPower = testBackPower / Math.abs(testBackPower);
+                            break;
+
+                        default:
+                            telemetry.addData("Return", "Less than 1");
+                            break;
+                    }
+                } else {
+                    double maxPower = Math.max(Math.max(Math.abs(testLeftPower), Math.abs(testRightPower)), Math.max(Math.abs(testFrontPower), Math.abs(testBackPower)));
+                    finLeftPower = testLeftPower / maxPower;
+                    finRightPower = testRightPower / maxPower;
+                    finFrontPower = testFrontPower / maxPower;
+                    finBackPower = testBackPower / maxPower;
+                }
+                break;
+
+            default:
+                telemetry.addData("Something", "Messed up");
+                break;
+        }
+
+        //TRANSPORTING
+        //TRANSPORTING
+        //TRANSPORTING
+        //TRANSPORTING
+        //TRANSPORTING
+
+        //Controller Inputs
+        rightTrigger = gamepad1.right_trigger;
+        rightBumper = gamepad1.right_bumper;
+        leftTrigger = gamepad1.left_trigger;
+        leftBumper = gamepad1.left_bumper;
+
+        dpadLeftPressed = gamepad1.dpad_left;
+        dpadRightPressed = gamepad1.dpad_right;
+        dpadUpPressed = gamepad1.dpad_up;
+        dpadDownPressed = gamepad1.dpad_down;
+
+        //Setting RT to power of suck
+        if (rightTrigger > .05 && rightBumper)
+        {
+            leftIntake.setPower(0);
+            rightIntake.setPower(0);
+        }
+        else if(leftTrigger > .05)
+        {
+            leftIntake.setPower(rightTrigger * rightTrigger);
+            rightIntake.setPower(rightTrigger * rightTrigger);
+        }
+        else if(rightBumper)
+        {
+            leftIntake.setPower(-.7);
+            rightIntake.setPower(-.7);
+        }
+        else
+        {
+            leftIntake.setPower(0);
+            rightIntake.setPower(0);
+        }
+
+        //Setting LT and RB to score or intake positions of pan
+
+        if(leftBumper && leftTrigger >= .05)
+        {
+        }
+        else  if(leftBumper)
+        {
+            panSpinPosition = .3;
+        }
+        else if(leftTrigger >= 0.5)
+        {
+            panSpinPosition = .7;
+        }
+
+        leftPanSpin.setPosition(panSpinPosition);
+        rightPanSpin.setPosition(panSpinPosition);
+
+        //Setting dpad to panPosition
+
+
+        if(dpadDownPressed && !dpadLeftPressed && !dpadUpPressed && !dpadRightPressed)
+        {
+            panPosition = 1;
+        }
+        else if(dpadRightPressed && !dpadDownPressed && !dpadLeftPressed && !dpadUpPressed)
+        {
+            panPosition = 2;
+        }
+        else if(dpadUpPressed && !dpadLeftPressed && !dpadRightPressed && !dpadDownPressed)
+        {
+            panPosition = 3;
+        }
+        else if(dpadLeftPressed && !dpadRightPressed && !dpadDownPressed && !dpadUpPressed)
+        {
+            panPosition = 4;
+        }
+        else
+        {
+
+        }
+        if(panPosition != pastPanPosition)
+        {
+            if(touchSensor.isPressed())
+            {
+                sensor = true;
+                lastTime = 0;
+            }
+            else
+            {
+                sensor = false;
+            }
+
+            movement = pastPanPosition - panPosition;
+
+            if(sensor && readCounter)
+            {
+                counter++;
+                readCounter = false;
+            }
+            if(System.currentTimeMillis() >= lastTime + 250) {
+                lastTime = System.currentTimeMillis();
+                readCounter = true;
+            }
+            if(movement == 1)
+            {
+                if(counter <= 1)
+                {
+                    panLifter.setPower(.5);
+                }
+                else
+                {
+                    panLifter.setPower(0);
+                }
+
+                counter = 0;
+                pastPanPosition = panPosition;
+            }
+            else if(movement == 2)
+            {
+                if(counter <= 2)
+                {
+                    panLifter.setPower(.5);
+                }
+                else
+                {
+                    panLifter.setPower(0);
+                }
+                counter = 0;
+                pastPanPosition = panPosition;
+            }
+            else if(movement == 3)
+            {
+                if(counter <= 3)
+                {
+                    panLifter.setPower(.5);
+                }
+                else
+                {
+                    panLifter.setPower(0);
+                }
+                counter = 0;
+                pastPanPosition = panPosition;
+            }
+            else if(movement == -1)
+            {
+                if(counter <= 1)
+                {
+                    panLifter.setPower(-.5);
+                }
+                else
+                {
+                    panLifter.setPower(0);
+                }
+                counter = 0;
+                pastPanPosition = panPosition;
+            }
+            else if(movement == -2)
+            {
+                if(counter <= 2)
+                {
+                    panLifter.setPower(-.5);
+                }
+                else
+                {
+                    panLifter.setPower(0);
+                }
+                counter = 0;
+                pastPanPosition = panPosition;
+            }
+            else if(movement == -3)
+            {
+                if(counter <= 3)
+                {
+                    panLifter.setPower(-.5);
+                }
+                else
+                {
+                    panLifter.setPower(0);
+                }
+                counter = 0;
+                pastPanPosition = panPosition;
+            }
+
+        }
+
+        //SET CONTROLS
+        //SET CONTROLS
+        //SET CONTROLS
+        //SET CONTROLS
+        //SET CONTROLS
+
+        finBackPower = Range.clip(finBackPower, -1, 1);
+        finRightPower = Range.clip(finRightPower, -1, 1);
+        finLeftPower = Range.clip(finLeftPower, -1, 1);
+
+        if ((finBackPower<0&&finRightPower>0)||(finBackPower>0&&finRightPower<0))
+        {
+                finRightPower/=4;
+                finLeftPower/=4;
+
+        }
+
+        LeftMotor.setPower(-finLeftPower);
+        RightMotor.setPower(-finRightPower);
+        BackLeftMotor.setPower(finBackPower);
+        BackRightMotor.setPower(finBackPower);
+
+
+    } // end loop
+} // end class
