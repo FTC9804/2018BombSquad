@@ -2,6 +2,8 @@
  * TeleopV2 Made Saturday December 9 by Isaac, Marcus, and Steve
  */
 
+
+//Import Statements
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -23,15 +25,17 @@ import static com.qualcomm.robotcore.util.Range.clip;
 import java.util.concurrent.TimeUnit;
 
 
-@TeleOp(name = "TeleOpCompetitionLit", group = "LAMeets")
+@TeleOp(name = "TeleOpV2", group = "LAMeets")
 
 
 public class TeleopV2 extends OpMode {
 
+    //Controls and Variables
+
     //Driving controls
-    double leftStickX1;
-    double leftStickY1;
-    double rightStickX1;
+    double leftStickX1; //Adjusted value taken from the raw value of the left X stick on gamepad 1
+    double rightStickX1; //Adjusted value taken from the raw value of the right X stick on gamepad 1
+    double rightStickY1; //Adjusted value taken from the raw value of the right Y stick on gamepad 1
 
     //Driving variables
     boolean single = true;
@@ -39,13 +43,12 @@ public class TeleopV2 extends OpMode {
     int rightOverOne;
     int frontOverOne;
     int backOverOne;
-    double rotRatio = .733333;
-    int direction = 0;
+    int direction;
     int over;
 
     double linLeftPower;
     double linRightPower;
-    double linFrontPower    ;
+    double linFrontPower;
     double linBackPower;
 
     double rotLeftPower;
@@ -58,27 +61,28 @@ public class TeleopV2 extends OpMode {
     double testBackPower;
     double testFrontPower;
 
-    double finLeftPower = 0;
-    double finRightPower = 0;
-    double finFrontPower = 0;
-    double finBackPower = 0;
+    double finLeftPower;
+    double finRightPower;
+    double finFrontPower;
+    double finBackPower;
 
-    DcMotor RightMotor;
-    DcMotor LeftMotor;
-    DcMotor BackRightMotor;
-    DcMotor BackLeftMotor;
+    //Driving Dc Motors
+    DcMotor rightMotor;
+    DcMotor leftMotor;
+    DcMotor backRightMotor;
+    DcMotor backLeftMotor;
 
 
     //Cube movement variables
-    double rightTrigger;
-    boolean rightBumper;
-    double leftTrigger;
-    boolean leftBumper;
+    double rightTrigger; //double for the extent to which rightTrigger is pressed.  No press is 0, full press is 1
+    boolean rightBumper; //boolean for rightBumper.  Set to true if rightBumper is pressed and set to false otherwise
+    double leftTrigger; //double for the extent to which leftTrigger is pressed.  No press is 0, full press is 1
+    boolean leftBumper; //boolean for leftBumper.  Set to true if leftBumper is pressed and set to false otherwise
     double panSpinPosition;
-    boolean dpadDownPressed;
-    boolean dpadRightPressed;
-    boolean dpadLeftPressed;
-    boolean dpadUpPressed;
+    boolean dpadDownPressed; //boolean for dpadDown.  Set to true if dpadDown is pressed and set to false otherwise
+    boolean dpadRightPressed; //boolean for dpadRight.  Set to true if dpadRight is pressed and set to false otherwise
+    boolean dpadLeftPressed; //boolean for dpadLeft.  Set to true if dpadLeft is pressed and set to false otherwise
+    boolean dpadUpPressed; //boolean for dpadUp.  Set to true if dpadUp is pressed and set to false otherwise
     boolean readCounter;
 
     int panPosition;
@@ -90,9 +94,9 @@ public class TeleopV2 extends OpMode {
     long lastTime;
 
     // Motor and servo configurations
-    DcMotor rightIntake;
-    DcMotor leftIntake;
-    DcMotor panLifter;
+    DcMotor rightIntakeMotor; //Dc motor that controls the right intake/right wheel of the intake
+    DcMotor leftIntakeMotor; //Dc motor that controls the left intake/left wheel of the intake
+    DcMotor panLifterMotor;
     Servo leftPanSpin;
     Servo rightPanSpin;
 
@@ -101,72 +105,72 @@ public class TeleopV2 extends OpMode {
     /* Initialize standard Hardware interfaces */
     public void init() { // use hardwaremap here instead of hwmap or ahwmap provided in sample code
         // Motor configurations in the hardware map
-        RightMotor = hardwareMap.dcMotor.get("rightMotor");
-        LeftMotor = hardwareMap.dcMotor.get("leftMotor");
-        BackLeftMotor = hardwareMap.dcMotor.get("backLeftMoter");
-        BackRightMotor = hardwareMap.dcMotor.get("backRightMotor");
-        rightIntake = hardwareMap.dcMotor.get("rightIntake");
-        leftIntake = hardwareMap.dcMotor.get("leftIntake");
-        panLifter = hardwareMap.dcMotor.get("elevator");
+        rightMotor = hardwareMap.dcMotor.get("rightMotor"); //RightMotor configuration
+        leftMotor = hardwareMap.dcMotor.get("leftMotor"); //LeftMotor configuration
+        backLeftMotor = hardwareMap.dcMotor.get("backLeftMoter"); //BackLeftMotor configuration
+        backRightMotor = hardwareMap.dcMotor.get("backRightMotor"); //BackRightMotor configuration
+        rightIntakeMotor = hardwareMap.dcMotor.get("rightIntake"); //rightIntakeMotor configuration
+        leftIntakeMotor = hardwareMap.dcMotor.get("leftIntake"); //leftIntakeMotor configuration
+        panLifterMotor = hardwareMap.dcMotor.get("elevator"); //panLifterMotor configuration
 
-        touchSensor = hardwareMap.touchSensor.get("sensor");
+        // Servo configurations in the hardware map
+        leftPanSpin = hardwareMap.servo.get("leftPanSpin"); //leftPanSpin configuration
+        rightPanSpin = hardwareMap.servo.get("rightPanSpin"); //rightPanSpin configuration
+
+        // Touch sensor configuration in the hardware map
+        touchSensor = hardwareMap.touchSensor.get("sensor"); //touchSensor configuration
+
+        // Motor directions
+        rightMotor.setDirection(REVERSE); //Set rightMotor to REVERSE direction
+        leftMotor.setDirection(FORWARD); //Set leftMotor to FORWARD direction
+        backRightMotor.setDirection(REVERSE); //Set backRightMotor to REVERSE direcion
+        backLeftMotor.setDirection(REVERSE); //Set backLeftMotor to REVERSE direction
+        rightIntakeMotor.setDirection(FORWARD); //Set rightIntakeMotor to FORWARD direction
+        leftIntakeMotor.setDirection(FORWARD); //Set leftIntakeMotor to FORWARD direction
+        panLifterMotor.setDirection(FORWARD); //Set panLifterMotor to FORWARD direction
+
+        //Init powers
+        rightIntakeMotor.setPower(0); //Set rightIntakeMotor to 0 power
+        leftIntakeMotor.setPower(0); //Set leftIntakeMotor to 0 power
+        panLifterMotor.setPower(0); //Set panLifterMotor to 0 power
+
+        // Servo directions
+        leftPanSpin.setDirection(Servo.Direction.REVERSE); //Set leftPanSpin to REVERSE direction
+        rightPanSpin.setDirection(Servo.Direction.FORWARD); //Set rightPanSpin to FORWARD direction
 
         panPosition = 1;
         pastPanPosition = 1;
         readCounter = false;
         counter = 0;
-
-        // Servo configurations in the hardware map
-
-        leftPanSpin = hardwareMap.servo.get("leftPanSpin");
-        rightPanSpin = hardwareMap.servo.get("rightPanSpin");
-
-        leftPanSpin.setDirection(Servo.Direction.REVERSE);
-        rightPanSpin.setDirection(Servo.Direction.FORWARD);
-
-        // Motor directions: set forward/reverse
-        RightMotor.setDirection(REVERSE);
-        LeftMotor.setDirection(FORWARD);
-        BackRightMotor.setDirection(REVERSE);
-        BackLeftMotor.setDirection(REVERSE);
-
-        rightIntake.setDirection(FORWARD);
-        leftIntake.setDirection(FORWARD);
-        panLifter.setDirection(FORWARD);
-
-        //Init powers
-
-        rightIntake.setPower(0);
-        leftIntake.setPower(0);
-        panLifter.setPower(0);
-
-
     }
 
     public void loop () {
 
-
         //DRIVING
         //DRIVING
         //DRIVING
         //DRIVING
         //DRIVING
 
-        leftStickX1 = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x);
-        leftStickY1 = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x); //i know this is reversed
-        rightStickX1 = gamepad1.right_stick_y * Math.abs(gamepad1.right_stick_y);
+        telemetry.addData("Left X Joy Raw: ", gamepad1.left_stick_x); //The raw value of left stick x
+        telemetry.addData("Left Y Joy Raw: ", gamepad1.left_stick_y); //The raw value of left stick y
+        telemetry.addData("Right X Joy Raw: ", gamepad1.right_stick_x); //The raw value of right stick x
 
-        telemetry.addData("Left X Joy Raw: ", gamepad1.left_stick_x);
-        telemetry.addData("Left Y Joy Raw: ", gamepad1.left_stick_y);
-        telemetry.addData("Right X Joy Raw: ", gamepad1.right_stick_x);
 
-        linLeftPower = leftStickY1;
-        linRightPower = -leftStickY1;
-        linFrontPower = -leftStickX1;
-        linBackPower = leftStickX1;
+        leftStickX1 = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x);
+        //Set rightStickX1 to the left stick x value of gamepad 1 times the absolute value of this left stick x value
+        rightStickX1 = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x);
+        //Set rightStickX1 to the right stick x value of gamepad 1 times the absolute value of this right stick x value
+        rightStickY1 = gamepad1.right_stick_y * Math.abs(gamepad1.right_stick_y);
+        //Set rightStickY1 to the right stick x value of gamepad 1 times the absolute value of this right stick y value
 
-        rotLeftPower = -rightStickX1;
-        rotRightPower = -rightStickX1;
+        linLeftPower = leftStickX1;
+        linRightPower = -leftStickX1;
+        linFrontPower = -rightStickX1;
+        linBackPower = rightStickX1;
+
+        rotLeftPower = -rightStickY1;
+        rotRightPower = -rightStickY1;
         // rotBackPower = -rightStickX1 * rotRatio;
         //rotFrontPower = -rightStickX1 * rotRatio;
 
@@ -276,8 +280,8 @@ public class TeleopV2 extends OpMode {
         //TRANSPORTING
 
         //Controller Inputs
-        rightTrigger = gamepad1.right_trigger;
-        rightBumper = gamepad1.right_bumper;
+        rightTrigger = gamepad1.right_trigger; //Set variable rightTrigger to the raw double value of the right trigger
+        rightBumper = gamepad1.right_bumper; //Set variable rightBumper to the raw boolean value of the right bumper
         leftTrigger = gamepad1.left_trigger;
         leftBumper = gamepad1.left_bumper;
 
@@ -289,23 +293,23 @@ public class TeleopV2 extends OpMode {
         //Setting RT to power of suck
         if (rightTrigger > .05 && rightBumper)
         {
-            leftIntake.setPower(0);
-            rightIntake.setPower(0);
+            leftIntakeMotor.setPower(0);
+            rightIntakeMotor.setPower(0);
         }
         else if(leftTrigger > .05)
         {
-            leftIntake.setPower(rightTrigger * rightTrigger);
-            rightIntake.setPower(rightTrigger * rightTrigger);
+            leftIntakeMotor.setPower(rightTrigger * rightTrigger);
+            rightIntakeMotor.setPower(rightTrigger * rightTrigger);
         }
         else if(rightBumper)
         {
-            leftIntake.setPower(-.7);
-            rightIntake.setPower(-.7);
+            leftIntakeMotor.setPower(-.7);
+            rightIntakeMotor.setPower(-.7);
         }
         else
         {
-            leftIntake.setPower(0);
-            rightIntake.setPower(0);
+            leftIntakeMotor.setPower(0);
+            rightIntakeMotor.setPower(0);
         }
 
         //Setting LT and RB to score or intake positions of pan
@@ -375,11 +379,11 @@ public class TeleopV2 extends OpMode {
             {
                 if(counter <= 1)
                 {
-                    panLifter.setPower(.5);
+                    panLifterMotor.setPower(.5);
                 }
                 else
                 {
-                    panLifter.setPower(0);
+                    panLifterMotor.setPower(0);
                 }
 
                 counter = 0;
@@ -389,11 +393,11 @@ public class TeleopV2 extends OpMode {
             {
                 if(counter <= 2)
                 {
-                    panLifter.setPower(.5);
+                    panLifterMotor.setPower(.5);
                 }
                 else
                 {
-                    panLifter.setPower(0);
+                    panLifterMotor.setPower(0);
                 }
                 counter = 0;
                 pastPanPosition = panPosition;
@@ -402,11 +406,11 @@ public class TeleopV2 extends OpMode {
             {
                 if(counter <= 3)
                 {
-                    panLifter.setPower(.5);
+                    panLifterMotor.setPower(.5);
                 }
                 else
                 {
-                    panLifter.setPower(0);
+                    panLifterMotor.setPower(0);
                 }
                 counter = 0;
                 pastPanPosition = panPosition;
@@ -415,11 +419,11 @@ public class TeleopV2 extends OpMode {
             {
                 if(counter <= 1)
                 {
-                    panLifter.setPower(-.5);
+                    panLifterMotor.setPower(-.5);
                 }
                 else
                 {
-                    panLifter.setPower(0);
+                    panLifterMotor.setPower(0);
                 }
                 counter = 0;
                 pastPanPosition = panPosition;
@@ -428,11 +432,11 @@ public class TeleopV2 extends OpMode {
             {
                 if(counter <= 2)
                 {
-                    panLifter.setPower(-.5);
+                    panLifterMotor.setPower(-.5);
                 }
                 else
                 {
-                    panLifter.setPower(0);
+                    panLifterMotor.setPower(0);
                 }
                 counter = 0;
                 pastPanPosition = panPosition;
@@ -441,11 +445,11 @@ public class TeleopV2 extends OpMode {
             {
                 if(counter <= 3)
                 {
-                    panLifter.setPower(-.5);
+                    panLifterMotor.setPower(-.5);
                 }
                 else
                 {
-                    panLifter.setPower(0);
+                    panLifterMotor.setPower(0);
                 }
                 counter = 0;
                 pastPanPosition = panPosition;
@@ -465,15 +469,15 @@ public class TeleopV2 extends OpMode {
 
         if ((finBackPower<0&&finRightPower>0)||(finBackPower>0&&finRightPower<0))
         {
-                finRightPower/=4;
-                finLeftPower/=4;
+            finRightPower/=4;
+            finLeftPower/=4;
 
         }
 
-        LeftMotor.setPower(-finLeftPower);
-        RightMotor.setPower(-finRightPower);
-        BackLeftMotor.setPower(finBackPower);
-        BackRightMotor.setPower(finBackPower);
+        leftMotor.setPower(-finLeftPower);
+        rightMotor.setPower(-finRightPower);
+        backLeftMotor.setPower(finBackPower);
+        backRightMotor.setPower(finBackPower);
 
 
     } // end loop
