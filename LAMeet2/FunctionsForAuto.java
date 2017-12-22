@@ -7,25 +7,32 @@
 package org.firstinspires.ftc.teamcode;
 
 // import statements
-import android.graphics.Color;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.I2cAddr;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
-import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
+
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
+
 //import com.qualcomm.hardware.bosch.BNO055IMU;
+
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
@@ -34,33 +41,23 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import java.util.Locale;
-
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
-import org.firstinspires.ftc.robotcore.external.navigation.VuMarkInstanceId;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
-
 
 
 public abstract class FunctionsForAuto extends LinearOpMode {
 
     /******************* MISC *******************/
 
-    int loopCounter = 0; // Variable to count how many times a given loop has been entered
-
     // time variables set to current run time throughout the code, typically set to this.getRunTime()
     double timeOne;
     double timeTwo;
-    double timeRunningLoop;
 
-    String allianceColor;
-    String robotStartingPosition;
+    String allianceColor; //The alliance color of a given match
+    String robotStartingPosition; //The starting position of the robot, either relicSide
+    //or triangle Side, representing different places on the field
 
 
     /******************* V U F O R I A *******************/
@@ -74,24 +71,23 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     /******************* S E N S O R S *******************/
 
-    //TouchSensor touchSensorTop; //  declare touch sensors for grabbers
-    //TouchSensor touchSensorBottom;
+    TouchSensor touchSensorFront; //  declare touch sensors for grabbers
+    TouchSensor touchSensorLeft;
+    TouchSensor touchSensorRight;
 
     ColorSensor sensorColor; // Right color feeler for balls autonomous
 
-    // Touch Sensor variables
-    //boolean touchTopPress = false;
-    //boolean touchBottomPress = false;
+    //Touch Sensor variables
+    boolean touchTopPress = false;
+    boolean touchLeftPress = false;
+    boolean touchRightPress = false;
 
     // The IMU sensor object
-    //BNO055IMU imu;
+    BNO055IMU imu;
 
     // State used for updating telemetry
     Orientation angles;
     Acceleration gravity;
-
-
-
 
 
 
@@ -102,6 +98,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     DcMotor LeftMotor;      // left drive motor front
     DcMotor FrontMotor;       // right drive motor back
     DcMotor BackMotor;    // left drive motor back
+
 
     // driving powers
     double rightPower;
@@ -114,14 +111,18 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     final static double GEAR_RATIO = 0.727;     // Gear ratio used in Harvey in 22/16, so in code we multiply by 16/22
     final static double WHEEL_DIAMETER = 4; // wheel diameter in inches
 
+    //Gyro/imu variables
+    double initialHeading;
+    double currentHeading;
+    double headingError;
+    double gyroGain = .0099;
+    double straightGyroGain = .025;
+    double straightGyroAdjust;
+
     // Driving variables
     double inches;  // Desired number of inches to drive
     double rotations;       // Wheel rotations necessary to drive the above amount of inches
     double counts;// Encoder counts necessary to drive the above amount of inches/rotations
-
-
-
-
 
 
     /******************* G R A B B E R   S E R V O S *******************/
@@ -199,23 +200,26 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
 
 
-
-
         /******************* S E N S O R S *******************/
 
         sensorColor = hardwareMap.get(ColorSensor.class, "sensor_color_distance");
         sensorColor.enableLed(true);
 
 
-//        BNO055IMU.Parameters IMUparameters = new BNO055IMU.Parameters();
-//        IMUparameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-//        IMUparameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-//        IMUparameters.calibrationDataFile = "BNO055IMUCalibration.json";
-//        IMUparameters.loggingEnabled      = true;
-//        IMUparameters.loggingTag          = "IMU";
-//
-//        imu = hardwareMap.get(BNO055IMU.class, "imu");
-//        imu.initialize(IMUparameters);
+        BNO055IMU.Parameters parameters2 = new BNO055IMU.Parameters();
+        parameters2.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters2.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters2.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters2.loggingEnabled      = true;
+        parameters2.loggingTag          = "IMU";
+
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters2);
+
+        // Start the logging of measured acceleration
+       // imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
+
 
 
         // Initialize encoder variables to 0
@@ -330,6 +334,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         }
     }
 
+    public void imu ()
+    {
+        // Set up our telemetry dashboard
+        composeTelemetry();
+    }
+
     public String detectVuMark( int timeToCheck ) {
 
         relicTrackables.activate();
@@ -388,7 +398,9 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     }
 
     // drive function for any direction
-    public void drive( String direction, double distance, double power, double time ) {
+    public void drive(String direction, double distance, double speed, double time, double targetHeading) {
+
+        initialHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
 
         // math to calculate total counts robot should travel
         inches = distance;
@@ -409,16 +421,25 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         timeTwo = this.getRuntime();
 
         if ( direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right")) {
-            while ( Math.abs(FrontMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) ) { //check here
+
+
+            while ( Math.abs(FrontMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time)) {//check here
+
+                currentHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
+
+                straightGyroAdjust = (currentHeading - targetHeading) * straightGyroGain;
+
+                straightGyroAdjust = Range.clip(straightGyroAdjust, -.5, .5);
+
                 if ( direction.equalsIgnoreCase("left") ) {
                     // Set motor powers based on paramater power
-                    FrontMotor.setPower( -power );
-                    BackMotor.setPower( -power );
+                    FrontMotor.setPower(-speed + straightGyroAdjust );
+                    BackMotor.setPower(-speed - straightGyroAdjust );
                 }
                 else if ( direction.equalsIgnoreCase("right") ){
                     // Set motor powers based on paramater power
-                    FrontMotor.setPower( power );
-                    BackMotor.setPower( power );
+                    FrontMotor.setPower(speed + straightGyroAdjust);
+                    BackMotor.setPower(speed - straightGyroAdjust);
                 }
 
 
@@ -429,20 +450,27 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                 timeTwo = this.getRuntime();
             }
 
-            FrontMotor.setPower( 0 );
-            BackMotor.setPower( 0 );
+            FrontMotor.setPower(0);
+            BackMotor.setPower(0);
         }
         else {
             while ( Math.abs(RightMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) ) { //check here
+
+                currentHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
+
+                straightGyroAdjust = (currentHeading - targetHeading) * straightGyroGain;
+
+                straightGyroAdjust = Range.clip(straightGyroAdjust, -.5, .5);
+
                 if ( direction.equalsIgnoreCase("backwards") ) {
                     // Set motor powers based on paramater power
-                    LeftMotor.setPower( power );
-                    RightMotor.setPower( power );
+                    LeftMotor.setPower( speed + straightGyroAdjust );
+                    RightMotor.setPower( speed - straightGyroAdjust );
                 }
                 else if ( direction.equalsIgnoreCase("forwards") ) {
                     // Set motor powers based on paramater power
-                    LeftMotor.setPower( -power );
-                    RightMotor.setPower( -power );
+                    LeftMotor.setPower( -speed + straightGyroAdjust );
+                    RightMotor.setPower( -speed - straightGyroAdjust );
                 }
 
                 // Telemetry for encoder position
@@ -624,7 +652,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     public void spin180( double power, double timeToRun)
     {
         rotations = inches / (Math.PI * WHEEL_DIAMETER);
-        counts = 1500; // per Wilder's testing 12-1-17 at midnight
+        counts = 1440; // per Wilder's testing 12-1-17 at midnight
 
         LeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of LeftMotor1 to STOP_AND_RESET_ENCODER
         LeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -669,7 +697,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             feelerSwipe.setPosition(feelerSwipeCWPosition);
             pause(.2);
             feelerRaise.setPosition(feelerRaiseUpPosition);
-            pause(.2);
+            pause(1);
             feelerSwipe.setPosition(feelerSwipeNeutralPosition);
         }
         else if ( allianceColor.equalsIgnoreCase("red") && sensorColor.red() >= sensorColor.blue()) {
@@ -680,7 +708,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             feelerSwipe.setPosition(feelerSwipeCCWPosition);
             pause(.2);
             feelerRaise.setPosition(feelerRaiseUpPosition);
-            pause(.2);
+            pause(1);
             feelerSwipe.setPosition(feelerSwipeNeutralPosition);
         }
         else if ( allianceColor.equalsIgnoreCase("blue") && sensorColor.blue() >= sensorColor.red()) {
@@ -691,7 +719,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             feelerSwipe.setPosition(feelerSwipeCCWPosition);
             pause(.2);
             feelerRaise.setPosition(feelerRaiseUpPosition);
-            pause(.2);
+            pause(1);
             feelerSwipe.setPosition(feelerSwipeNeutralPosition);
         }
         else if ( allianceColor.equalsIgnoreCase("blue") && sensorColor.red() >= sensorColor.blue()) {
@@ -702,11 +730,259 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             feelerSwipe.setPosition(feelerSwipeCWPosition);
             pause(.2);
             feelerRaise.setPosition(feelerRaiseUpPosition);
-            pause(.2);
+            pause(1);
             feelerSwipe.setPosition(feelerSwipeNeutralPosition);
         }
 
         stopDriving();
 
+    }
+
+    public void composeTelemetry() {
+
+        // At the beginning of each telemetry update, grab a bunch of data
+        // from the IMU that we will then display in separate lines.
+        telemetry.addAction(new Runnable() { @Override public void run()
+        {
+            // Acquiring the angles is relatively expensive; we don't want
+            // to do that in each of the three items that need that info, as that's
+            // three times the necessary expense.
+            angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+            gravity  = imu.getGravity();
+        }
+        });
+
+        telemetry.addLine()
+                .addData("status", new Func<String>() {
+                    @Override public String value() {
+                        return imu.getSystemStatus().toShortString();
+                    }
+                })
+                .addData("calib", new Func<String>() {
+                    @Override public String value() {
+                        return imu.getCalibrationStatus().toString();
+                    }
+                });
+
+        telemetry.addLine()
+                .addData("heading", new Func<String>() {
+                    @Override public String value() {
+                        return formatAngle(angles.angleUnit, angles.firstAngle);
+                    }
+                })
+                .addData("roll", new Func<String>() {
+                    @Override public String value() {
+                        return formatAngle(angles.angleUnit, angles.secondAngle);
+                    }
+                })
+                .addData("pitch", new Func<String>() {
+                    @Override public String value() {
+                        return formatAngle(angles.angleUnit, angles.thirdAngle);
+                    }
+                });
+
+//        telemetry.addLine()
+//            .addData("grvty", new Func<String>() {
+//                @Override public String value() {
+//                    return gravity.toString();
+//                    }
+//                })
+//            .addData("mag", new Func<String>() {
+//                @Override public String value() {
+//                    return String.format(Locale.getDefault(), "%.3f",
+//                            Math.sqrt(gravity.xAccel*gravity.xAccel
+//                                    + gravity.yAccel*gravity.yAccel
+//                                    + gravity.zAccel*gravity.zAccel));
+//                    }
+//                });
+    }
+
+    public String formatAngle(AngleUnit angleUnit, double angle) {
+        return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
+    }
+
+    public String formatDegrees(double degrees){
+        return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
+    }
+
+    public void driveToTouch (String direction, double distance, double speed, double time, double targetHeading, String touchDirection) {
+
+        initialHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
+
+        // math to calculate total counts robot should travel
+        inches = distance;
+        rotations = inches / (Math.PI * WHEEL_DIAMETER);
+        counts = ENCODER_CPR * rotations * GEAR_RATIO;
+
+        if (direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right")) { // check should be tob and bottom motors instead
+            FrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of LeftMotor1 to STOP_AND_RESET_ENCODER
+            FrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//check should do right too?
+        } else {
+            RightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of FrontMotor1 to STOP_AND_RESET_ENCODER
+            RightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //check should to bottom too?
+        }
+
+        // Set timeOne and timeTwo to this.getRuntime();
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        if (direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right")) {
+
+            if (touchDirection.equalsIgnoreCase("front"))
+                while (!touchSensorFront.isPressed()) {//check here
+
+                    currentHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
+                    straightGyroAdjust = (currentHeading - targetHeading) * straightGyroGain;
+                    straightGyroAdjust = Range.clip(straightGyroAdjust, -.5, .5);
+
+                    if (direction.equalsIgnoreCase("left")) {
+                        // Set motor powers based on paramater power
+                        FrontMotor.setPower(-speed + straightGyroAdjust);
+                        BackMotor.setPower(-speed - straightGyroAdjust);
+                    } else if (direction.equalsIgnoreCase("right")) {
+                        // Set motor powers based on paramater power
+                        FrontMotor.setPower(speed + straightGyroAdjust);
+                        BackMotor.setPower(speed - straightGyroAdjust);
+                    }
+
+                    // Telemetry for encoder position
+                    telemetry.addData("Current", FrontMotor.getCurrentPosition());
+                    telemetry.update();
+                    // Set timeTwo to this.getRuntime ()
+                    timeTwo = this.getRuntime();
+                }
+
+            if (touchDirection.equalsIgnoreCase("left"))
+                while (!touchSensorLeft.isPressed()) {//check here
+
+                    currentHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
+                    straightGyroAdjust = (currentHeading - targetHeading) * straightGyroGain;
+                    straightGyroAdjust = Range.clip(straightGyroAdjust, -.5, .5);
+
+                    if (direction.equalsIgnoreCase("left")) {
+                        // Set motor powers based on paramater power
+                        FrontMotor.setPower(-speed + straightGyroAdjust);
+                        BackMotor.setPower(-speed - straightGyroAdjust);
+                    } else if (direction.equalsIgnoreCase("right")) {
+                        // Set motor powers based on paramater power
+                        FrontMotor.setPower(speed + straightGyroAdjust);
+                        BackMotor.setPower(speed - straightGyroAdjust);
+                    }
+
+                    // Telemetry for encoder position
+                    telemetry.addData("Current", FrontMotor.getCurrentPosition());
+                    telemetry.update();
+                    // Set timeTwo to this.getRuntime ()
+                    timeTwo = this.getRuntime();
+                }
+
+            if (touchDirection.equalsIgnoreCase("right"))
+                while (!touchSensorRight.isPressed()) {//check here
+
+                    currentHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
+                    straightGyroAdjust = (currentHeading - targetHeading) * straightGyroGain;
+                    straightGyroAdjust = Range.clip(straightGyroAdjust, -.5, .5);
+
+                    if (direction.equalsIgnoreCase("left")) {
+                        // Set motor powers based on paramater power
+                        FrontMotor.setPower(-speed + straightGyroAdjust);
+                        BackMotor.setPower(-speed - straightGyroAdjust);
+                    } else if (direction.equalsIgnoreCase("right")) {
+                        // Set motor powers based on paramater power
+                        FrontMotor.setPower(speed + straightGyroAdjust);
+                        BackMotor.setPower(speed - straightGyroAdjust);
+                    }
+
+                    // Telemetry for encoder position
+                    telemetry.addData("Current", FrontMotor.getCurrentPosition());
+                    telemetry.update();
+                    // Set timeTwo to this.getRuntime ()
+                    timeTwo = this.getRuntime();
+                }
+
+            FrontMotor.setPower(0);
+            BackMotor.setPower(0);
+        }
+        
+        else {
+
+            if (touchDirection.equalsIgnoreCase("front")) {
+                while (!touchSensorFront.isPressed()) { //check here
+
+                    currentHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
+                    straightGyroAdjust = (currentHeading - targetHeading) * straightGyroGain;
+                    straightGyroAdjust = Range.clip(straightGyroAdjust, -.5, .5);
+
+                    if (direction.equalsIgnoreCase("backwards")) {
+                        // Set motor powers based on paramater power
+                        LeftMotor.setPower(speed + straightGyroAdjust);
+                        RightMotor.setPower(speed - straightGyroAdjust);
+                    } else if (direction.equalsIgnoreCase("forwards")) {
+                        // Set motor powers based on paramater power
+                        LeftMotor.setPower(-speed + straightGyroAdjust);
+                        RightMotor.setPower(-speed - straightGyroAdjust);
+                    }
+
+                    // Telemetry for encoder position
+                    telemetry.addData("Current", RightMotor.getCurrentPosition());
+                    telemetry.update();
+                    // Set timeTwo to this.getRuntime ()
+                    timeTwo = this.getRuntime();
+                }
+            }
+
+            if (touchDirection.equalsIgnoreCase("left")) {
+                while (!touchSensorLeft.isPressed()) { //check here
+
+                    currentHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
+                    straightGyroAdjust = (currentHeading - targetHeading) * straightGyroGain;
+                    straightGyroAdjust = Range.clip(straightGyroAdjust, -.5, .5);
+
+                    if (direction.equalsIgnoreCase("backwards")) {
+                        // Set motor powers based on paramater power
+                        LeftMotor.setPower(speed + straightGyroAdjust);
+                        RightMotor.setPower(speed - straightGyroAdjust);
+                    } else if (direction.equalsIgnoreCase("forwards")) {
+                        // Set motor powers based on paramater power
+                        LeftMotor.setPower(-speed + straightGyroAdjust);
+                        RightMotor.setPower(-speed - straightGyroAdjust);
+                    }
+
+                    // Telemetry for encoder position
+                    telemetry.addData("Current", RightMotor.getCurrentPosition());
+                    telemetry.update();
+                    // Set timeTwo to this.getRuntime ()
+                    timeTwo = this.getRuntime();
+                }
+            }
+
+            if (touchDirection.equalsIgnoreCase("right")) {
+                while (!touchSensorRight.isPressed()) { //check here
+
+                    currentHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
+                    straightGyroAdjust = (currentHeading - targetHeading) * straightGyroGain;
+                    straightGyroAdjust = Range.clip(straightGyroAdjust, -.5, .5);
+
+                    if (direction.equalsIgnoreCase("backwards")) {
+                        // Set motor powers based on paramater power
+                        LeftMotor.setPower(speed + straightGyroAdjust);
+                        RightMotor.setPower(speed - straightGyroAdjust);
+                    } else if (direction.equalsIgnoreCase("forwards")) {
+                        // Set motor powers based on paramater power
+                        LeftMotor.setPower(-speed + straightGyroAdjust);
+                        RightMotor.setPower(-speed - straightGyroAdjust);
+                    }
+
+                    // Telemetry for encoder position
+                    telemetry.addData("Current", RightMotor.getCurrentPosition());
+                    telemetry.update();
+                    // Set timeTwo to this.getRuntime ()
+                    timeTwo = this.getRuntime();
+                }
+            }
+            
+            LeftMotor.setPower(0);
+            RightMotor.setPower(0);
+        }
     }
 }
