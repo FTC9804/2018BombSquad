@@ -21,6 +21,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
@@ -130,6 +132,21 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     DcMotor panLifterMotor;
     Servo leftPanSpin;
     Servo rightPanSpin;
+    Servo pan45;
+
+    double intakePower = .5;
+    double outtakePower = -.5;
+
+    double panLiftingPower;
+
+    double panSpinUpFirst = .7;
+    double panSpinUpSecond = .8;
+    double panSpinDown = .3;
+
+    double pan45Still = .5;
+    double pan45Redirect = .75;
+
+    boolean liftHasGoneUp = false;
 
     /******************* F E E L E R S   S E R V O S *******************/
 
@@ -142,6 +159,18 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     double feelerSwipeNeutralPosition = .5;
     double feelerSwipeCWPosition = .25; //tentative, cw
     double feelerSwipeCCWPosition = .75; //tentative, ccw
+
+    /******************* B L O C K    D I S T A N C E *******************/
+
+    DistanceSensor sensorA;
+    DistanceSensor sensorB;
+    DistanceSensor sensorC;
+
+    double distanceA;
+    double distanceB;
+    double distanceC;
+
+    boolean threeBlocks = false;
 
     /******************* F U N C T I O N S   F O R   A U T O *******************/
 
@@ -192,6 +221,9 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         limitTop = hardwareMap.touchSensor.get("limitTop"); //Top touchSensor configuration
         limitBottom = hardwareMap.touchSensor.get("limitBottom");
 
+        pan45 = hardwareMap.servo.get("pan45");
+        pan45.setDirection(Servo.Direction.FORWARD);
+
         rightIntakeMotor.setDirection(FORWARD); //Set rightIntakeMotor to FORWARD direction
         leftIntakeMotor.setDirection(FORWARD); //Set leftIntakeMotor to FORWARD direction
         panLifterMotor.setDirection(FORWARD); //Set panLifterMotor to FORWARD direction
@@ -209,6 +241,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         sensorColor = hardwareMap.get(ColorSensor.class, "sensor_color_distance");
         sensorColor.enableLed(true);
+
+        sensorA = hardwareMap.get(DistanceSensor.class, "sensor A");
+        sensorB = hardwareMap.get(DistanceSensor.class, "sensor B");
+        sensorC = hardwareMap.get(DistanceSensor.class, "sensor C");
 
         BNO055IMU.Parameters parameters2 = new BNO055IMU.Parameters();
         parameters2.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
@@ -234,6 +270,16 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         feelerRaise.setPosition(feelerRaiseUpPosition);
         feelerSwipe.setPosition(feelerSwipeNeutralPosition);
+
+        touchLift.setPosition(touchLiftRetractPosition);
+
+
+        /******************* P A N    S P I N *******************/
+        leftPanSpin.setPosition(.5);
+        rightPanSpin.setPosition(.5);
+
+
+        pan45.setPosition(pan45Still);
 
     }
 
@@ -264,6 +310,91 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         // Set up our telemetry dashboard
         composeTelemetry();
     }
+
+    public void ScoreBlock (boolean bottom)
+    {
+        if (bottom)
+        {
+            leftPanSpin.setPosition(panSpinUpFirst);
+            rightPanSpin.setPosition(panSpinUpFirst);
+            pause(.3);
+            pan45.setPosition(pan45Redirect);
+            pause(.3);
+            leftPanSpin.setPosition(panSpinUpSecond);
+            rightPanSpin.setPosition(panSpinUpSecond);
+            pause(1);
+            leftPanSpin.setPosition(panSpinDown);
+            rightPanSpin.setPosition(panSpinDown);
+        }
+        else
+        {
+            if (!liftHasGoneUp) {
+                while (!limitTop.isPressed()) {
+                    panLifterMotor.setPower(.4);
+                }
+                panLifterMotor.setPower(0);
+                liftHasGoneUp = true;
+            }
+
+            leftPanSpin.setPosition(panSpinUpFirst);
+            rightPanSpin.setPosition(panSpinUpFirst);
+            pause(.3);
+            pan45.setPosition(pan45Redirect);
+            pause(.3);
+            leftPanSpin.setPosition(panSpinUpSecond);
+            rightPanSpin.setPosition(panSpinUpSecond);
+            pause(1);
+            leftPanSpin.setPosition(panSpinDown);
+            rightPanSpin.setPosition(panSpinDown);
+        }
+
+
+    }
+
+    public void getBlocks ()
+    {
+        while (sensorA.getDistance(DistanceUnit.CM) > 14)
+        {
+            leftIntakeMotor.setPower(intakePower);
+            rightIntakeMotor.setPower(intakePower);
+            leftMotor.setPower(.3);
+            rightMotor.setPower(.3);
+
+        }
+
+        while (sensorA.getDistance(DistanceUnit.CM) < 14 && !threeBlocks) {
+            leftIntakeMotor.setPower(intakePower);
+            rightIntakeMotor.setPower(intakePower);
+            leftMotor.setPower(-.3);
+            rightMotor.setPower(-.3);
+            if (sensorA.getDistance(DistanceUnit.CM) < 14 && sensorB.getDistance(DistanceUnit.CM) < 14 && sensorC.getDistance(DistanceUnit.CM) < 14) {
+                threeBlocks = true;
+            }
+        }
+
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
+
+        if (threeBlocks) {
+            while (sensorA.getDistance(DistanceUnit.CM) < 14) {
+                leftIntakeMotor.setPower(outtakePower);
+                rightIntakeMotor.setPower(outtakePower);
+            }
+
+            timeOne = this.getRuntime();
+            timeTwo = this.getRuntime();
+
+            while (timeTwo - timeOne < 1) {
+                leftIntakeMotor.setPower(outtakePower);
+                rightIntakeMotor.setPower(outtakePower);
+                timeTwo=this.getRuntime();
+            }
+        }
+
+    }
+
+
+
 
     public String detectVuMark( int timeToCheck ) {
 
@@ -911,4 +1042,3 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         }
     }
 }
-
