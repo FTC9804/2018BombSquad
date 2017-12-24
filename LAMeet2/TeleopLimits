@@ -94,6 +94,7 @@ public class TeleopLimits extends OpMode {
     DcMotor panLifterMotor;
     Servo leftPanSpin;
     Servo rightPanSpin;
+    Servo pan45;
 
     TouchSensor limitTop; //Touch sensor that tells us if we reach the top with the Pan
     TouchSensor limitBottom; //Touch sensor that tells us if we reach the bottom with the Pan
@@ -112,6 +113,7 @@ public class TeleopLimits extends OpMode {
         // Servo configurations in the hardware map
         leftPanSpin = hardwareMap.servo.get("leftPanSpin"); //leftPanSpin configuration
         rightPanSpin = hardwareMap.servo.get("rightPanSpin"); //rightPanSpin configuration
+        pan45 = hardwareMap.servo.get("pan45");
 
         // Touch sensor configuration in the hardware map
         limitTop = hardwareMap.touchSensor.get("limitTop"); //Top touchSensor configuration
@@ -129,6 +131,7 @@ public class TeleopLimits extends OpMode {
         // Servo directions
         leftPanSpin.setDirection(Servo.Direction.REVERSE); //Set leftPanSpin to REVERSE direction
         rightPanSpin.setDirection(Servo.Direction.FORWARD); //Set rightPanSpin to FORWARD direction
+        pan45.setDirection(Servo.Direction.FORWARD);
 
         //Init powers
         rightMotor.setPower(0); //Set rightMotor to 0 power
@@ -327,11 +330,11 @@ public class TeleopLimits extends OpMode {
         }
         else if (rightTrigger > .05)
         {
-            panSpinPosition = .3;
+            panSpinPosition = .7;
         }
         else if(rightBumper)
         {
-            panSpinPosition = .7;
+            panSpinPosition = .3;
         }
         else
         {
