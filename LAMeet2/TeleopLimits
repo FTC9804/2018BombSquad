@@ -344,19 +344,22 @@ public class TeleopLimits extends OpMode {
         leftPanSpin.setPosition(panSpinPosition);
         rightPanSpin.setPosition(panSpinPosition);
 
-
-        if (limitTop.isPressed() || limitBottom.isPressed())
+        //If both are pressed, do nothing
+        if (dpadUpPressed && dpadDownPressed)
         {
-            panLiftingPower = 0;
+            panLiftingPower = .0;
         }
-        else if (dpadUpPressed && !dpadDownPressed)
-        {
-            panLiftingPower = .4;
-        }
-        else if (dpadDownPressed && !dpadUpPressed)
+        //If you want to move down, and the bottom limit isn't pressed, move down
+        else if (!limitBottom.isPressed() && dpadDownPressed)
         {
             panLiftingPower = -.4;
         }
+        //If you want to move up, and the bottom limit isn't pressed, move up
+        else if (!limitTop.isPressed() && dpadUpPressed) 
+        {
+            panLiftingPower = .4;
+        }
+        //If nothing is being pressed, stop motion
         else
         {
             panLiftingPower = 0;
