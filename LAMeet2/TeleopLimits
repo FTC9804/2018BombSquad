@@ -347,7 +347,7 @@ public class TeleopLimits extends OpMode {
         //If both are pressed, do nothing
         if (dpadUpPressed && dpadDownPressed)
         {
-            panLiftingPower = .0;
+            panLiftingPower = 0;
         }
         //If you want to move down, and the bottom limit isn't pressed, move down
         else if (!limitBottom.isPressed() && dpadDownPressed)
