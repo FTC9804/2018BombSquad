@@ -8,9 +8,12 @@ package org.firstinspires.ftc.teamcode;
 
 // import statements
 
+// G R A V I T Y
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -57,6 +60,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     double timeOne;
     double timeTwo;
 
+    boolean hasStrafedLoop = false;
+
+    int loopCounter = 0;
+
     String allianceColor; //The alliance color of a given match
     String robotStartingPosition; //The starting position of the robot, either relicSide
     //or triangle Side, representing different places on the field
@@ -71,18 +78,18 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     /******************* T O U C H  S E R V O *******************/
 
-    Servo touchLift;
+    Servo touchLiftFeelerRaise;
     double touchLiftRetractPosition = .8;
     double touchLiftExtendPosition = .2;
 
     /******************* S E N S O R S *******************/
 
-    TouchSensor touchSensorFront; //  declare touch sensors for grabbers
-    TouchSensor touchSensorLeft;
-    TouchSensor touchSensorRight;
+    DigitalChannel touchSensorFront; //  declare touch sensors for grabbers
+    DigitalChannel touchSensorLeft;
+    DigitalChannel touchSensorRight;
 
-    TouchSensor limitTop; //Touch sensor that tells us if we reach the top with the Pan
-    TouchSensor limitBottom; //Touch sensor that tells us if we reach the bottom with the Pan
+    DigitalChannel limitTop; //Touch sensor that tells us if we reach the top with the Pan
+    DigitalChannel limitBottom; //Touch sensor that tells us if we reach the bottom with the Pan
 
     ColorSensor sensorColor; // Right color feeler for balls autonomous
 
@@ -90,16 +97,16 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     BNO055IMU imu;
 
     // State used for updating telemetry
-    Orientation angles;
-    Acceleration gravity;
+    Orientation lastAngles = new Orientation();
+    //Acceleration gravity = new Acceleration();
 
     /******************* D R I V I N G *******************/
 
     // DRIVE MOTORS
     DcMotor rightMotor;     // right drive motor front
     DcMotor leftMotor;      // left drive motor front
-    DcMotor frontMotor;       // right drive motor back
-    DcMotor backMotor;    // left drive motor back
+    DcMotor backLeftMotor;       // right drive motor back
+    DcMotor backRightMotor;    // left drive motor back
 
     // driving powers
     double rightPower;
@@ -108,8 +115,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     double bottomPower;
 
     // encoder variables to adequately sense the lines
-    final static double ENCODER_CPR = 1120;    // encoder counts per rotation (CPR)
-    final static double GEAR_RATIO = 0.727;     // Gear ratio used in Harvey in 22/16, so in code we multiply by 16/22
+    final static double ENCODER_CPR = 537.6;    // encoder counts per rotation (CPR)
+    final static double GEAR_RATIO = .727;     // Gear ratio used in Harvey in 22/16, so in code we multiply by 16/22
     final static double WHEEL_DIAMETER = 4; // wheel diameter in inches
 
     //Gyro/imu variables
@@ -119,6 +126,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     double gyroGain = .0099;
     double straightGyroGain = .025;
     double straightGyroAdjust;
+
+    double globalAngle;
+    double correction;
+
 
     // Driving variables
     double inches;  // Desired number of inches to drive
@@ -151,7 +162,6 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     /******************* F E E L E R S   S E R V O S *******************/
 
     // grabber
-    Servo feelerRaise;
     Servo feelerSwipe;
 
     double feelerRaiseUpPosition = 1;
@@ -165,10 +175,6 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     DistanceSensor sensorA;
     DistanceSensor sensorB;
     DistanceSensor sensorC;
-
-    double distanceA;
-    double distanceB;
-    double distanceC;
 
     boolean threeBlocks = false;
 
@@ -204,25 +210,46 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         // Motor configurations in the hardware map
         rightMotor = hardwareMap.dcMotor.get("rightMotor");
         leftMotor = hardwareMap.dcMotor.get("leftMotor");
-        frontMotor = hardwareMap.dcMotor.get("topMotor");
-        backMotor = hardwareMap.dcMotor.get("bottomMotor");
+        backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor");
+        backRightMotor = hardwareMap.dcMotor.get("backRightMotor");
 
         // Motor directions: set forward/reverse
         rightMotor.setDirection(REVERSE);
         leftMotor.setDirection(FORWARD);
-        frontMotor.setDirection(REVERSE);
-        backMotor.setDirection(FORWARD);
+        backLeftMotor.setDirection(REVERSE);
+        backRightMotor.setDirection(REVERSE);
 
+        /******************* I M U *******************/
+
+        BNO055IMU.Parameters IMUparameters = new BNO055IMU.Parameters();
+
+        IMUparameters.mode                = BNO055IMU.SensorMode.IMU;
+        IMUparameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        IMUparameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        IMUparameters.calibrationDataFile = "BNO055IMUCalibration.json";
+        IMUparameters.loggingEnabled      = true; //F A L S E???
+        IMUparameters.loggingTag          = "IMU";
+        IMUparameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(IMUparameters);
         /******************* P A N *******************/
 
         leftPanSpin = hardwareMap.servo.get("leftPanSpin"); //leftPanSpin configuration
         rightPanSpin = hardwareMap.servo.get("rightPanSpin"); //rightPanSpin configuration
 
-        limitTop = hardwareMap.touchSensor.get("limitTop"); //Top touchSensor configuration
-        limitBottom = hardwareMap.touchSensor.get("limitBottom");
+        limitTop = hardwareMap.get(DigitalChannel.class, "limitTop"); //Top touchSensor configuration
+        limitBottom = hardwareMap.get(DigitalChannel.class, "limitBottom");
 
         pan45 = hardwareMap.servo.get("pan45");
+
+        panLifterMotor = hardwareMap.dcMotor.get("elevator"); //panLifterMotor configuration
+
         pan45.setDirection(Servo.Direction.FORWARD);
+
+        rightIntakeMotor = hardwareMap.dcMotor.get("rightIntake"); //rightIntakeMotor configuration
+        leftIntakeMotor = hardwareMap.dcMotor.get("leftIntake"); //leftIntakeMotor configuration
+        panLifterMotor = hardwareMap.dcMotor.get("elevator"); //panLifterMotor configuration
 
         rightIntakeMotor.setDirection(FORWARD); //Set rightIntakeMotor to FORWARD direction
         leftIntakeMotor.setDirection(FORWARD); //Set leftIntakeMotor to FORWARD direction
@@ -233,8 +260,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         /******************* T O U C H  S E R V O *******************/
 
-        touchLift = hardwareMap.servo.get("touchLift");
-        touchLift.setDirection(Servo.Direction.FORWARD);
+        touchLiftFeelerRaise = hardwareMap.servo.get("touchLiftFeelerRaise");
+        touchLiftFeelerRaise.setDirection(Servo.Direction.FORWARD);
 
 
         /******************* S E N S O R S *******************/
@@ -246,51 +273,56 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         sensorB = hardwareMap.get(DistanceSensor.class, "sensor B");
         sensorC = hardwareMap.get(DistanceSensor.class, "sensor C");
 
-        BNO055IMU.Parameters parameters2 = new BNO055IMU.Parameters();
-        parameters2.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters2.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters2.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
-        parameters2.loggingEnabled      = true;
-        parameters2.loggingTag          = "IMU";
-
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters2);
-
-        touchSensorFront = hardwareMap.touchSensor.get("touchFront");
-        touchSensorLeft = hardwareMap.touchSensor.get("touchLeft");
-        touchSensorRight = hardwareMap.touchSensor.get("touchRight");
+        touchSensorFront = hardwareMap.get(DigitalChannel.class, "touchFront");
+        touchSensorLeft = hardwareMap.get(DigitalChannel.class, "touchLeft");
+        touchSensorRight = hardwareMap.get(DigitalChannel.class, "touchRight");
 
         /******************* B A L L   S E R V O S *******************/
 
-        feelerRaise = hardwareMap.servo.get("feeler raise");
         feelerSwipe = hardwareMap.servo.get("feeler swipe");
 
-        feelerRaise.setDirection(Servo.Direction.FORWARD);
         feelerSwipe.setDirection(Servo.Direction.REVERSE);
 
-        feelerRaise.setPosition(feelerRaiseUpPosition);
         feelerSwipe.setPosition(feelerSwipeNeutralPosition);
 
-        touchLift.setPosition(touchLiftRetractPosition);
+        touchLiftFeelerRaise.setPosition(touchLiftRetractPosition);
 
 
         /******************* P A N    S P I N *******************/
-        leftPanSpin.setPosition(.5);
-        rightPanSpin.setPosition(.5);
-
+        leftPanSpin.setPosition(.05);
+        rightPanSpin.setPosition(.05);
 
         pan45.setPosition(pan45Still);
 
     }
 
+    public void calibrateGyro ()
+    {
+        while (!isStopRequested() && !imu.isGyroCalibrated())
+        {
+            sleep(50);
+            idle();
+        }
+    }
+
+    public void introduceAngle ()
+    {
+        getAngleSimple();
+    }
+
     public void touchServoExtend ()
     {
-        touchLift.setPosition(touchLiftExtendPosition);
+        touchLiftFeelerRaise.setPosition(touchLiftExtendPosition);
     }
 
     public void touchServoRetract ()
     {
-        touchLift.setPosition(touchLiftRetractPosition);
+        touchLiftFeelerRaise.setPosition(touchLiftRetractPosition);
+    }
+
+    public void startAcceleration ()
+    {
+        imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
     }
 
 
@@ -311,10 +343,18 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         composeTelemetry();
     }
 
-    public void ScoreBlock (boolean bottom)
+    public void scoreBlock (boolean bottom)
     {
         if (bottom)
         {
+            timeOne = this.getRuntime();
+            timeTwo = this.getRuntime();
+            while (timeTwo-timeOne < .5)
+            {
+                timeTwo = this.getRuntime();
+                panLifterMotor.setPower(.4);
+            }
+            panLifterMotor.setPower(0);
             leftPanSpin.setPosition(panSpinUpFirst);
             rightPanSpin.setPosition(panSpinUpFirst);
             pause(.3);
@@ -329,7 +369,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         else
         {
             if (!liftHasGoneUp) {
-                while (!limitTop.isPressed()) {
+                while (limitTop.getState()) {
                     panLifterMotor.setPower(.4);
                 }
                 panLifterMotor.setPower(0);
@@ -347,7 +387,6 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             leftPanSpin.setPosition(panSpinDown);
             rightPanSpin.setPosition(panSpinDown);
         }
-
 
     }
 
@@ -392,9 +431,6 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         }
 
     }
-
-
-
 
     public String detectVuMark( int timeToCheck ) {
 
@@ -453,10 +489,25 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         return output;
     }
 
+    public void testIMUForDrive ()
+    {
+        telemetry.update();
+
+        initialHeading = Double.parseDouble(formatAngle(lastAngles.angleUnit, lastAngles.firstAngle));
+
+        while (this.opModeIsActive())
+        {
+            telemetry.addData("used value", Double.parseDouble(formatAngle(lastAngles.angleUnit, lastAngles.firstAngle)));
+            telemetry.update();
+        }
+    }
+
     // drive function for any direction
     public void drive(String direction, double distance, double speed, double time, double targetHeading) {
 
-        initialHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
+        telemetry.update();
+
+        initialHeading = Double.parseDouble(formatAngle(lastAngles.angleUnit, lastAngles.firstAngle));
 
         // math to calculate total counts robot should travel
         inches = distance;
@@ -464,8 +515,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         counts = ENCODER_CPR * rotations * GEAR_RATIO;
 
         if ( direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right") ) { // check should be tob and bottom motors instead
-            frontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
-            frontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//check should do right too?
+            backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
+            backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//check should do right too?
         }
         else {
             rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
@@ -479,9 +530,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         if ( direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right")) {
 
 
-            while ( Math.abs(frontMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time)) {//check here
+            while ( Math.abs(backLeftMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time)) {//check here
+                imu();
 
-                currentHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
+                currentHeading = Double.parseDouble(formatAngle(lastAngles.angleUnit, lastAngles.firstAngle));
 
                 straightGyroAdjust = (currentHeading - targetHeading) * straightGyroGain;
 
@@ -489,30 +541,32 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 if ( direction.equalsIgnoreCase("left") ) {
                     // Set motor powers based on paramater power
-                    frontMotor.setPower(-speed + straightGyroAdjust );
-                    backMotor.setPower(-speed - straightGyroAdjust );
+                    backLeftMotor.setPower(-speed + straightGyroAdjust );
+                    backRightMotor.setPower(-speed + straightGyroAdjust );
                 }
                 else if ( direction.equalsIgnoreCase("right") ){
                     // Set motor powers based on paramater power
-                    frontMotor.setPower(speed + straightGyroAdjust);
-                    backMotor.setPower(speed - straightGyroAdjust);
+                    backLeftMotor.setPower(speed + straightGyroAdjust);
+                    backRightMotor.setPower(speed + straightGyroAdjust);
                 }
 
 
                 // Telemetry for encoder position
-                telemetry.addData("Current", frontMotor.getCurrentPosition());
+                telemetry.addData("Current", backLeftMotor.getCurrentPosition());
                 telemetry.update();
                 // Set timeTwo to this.getRuntime ()
                 timeTwo = this.getRuntime();
             }
 
-            frontMotor.setPower(0);
-            backMotor.setPower(0);
+            backLeftMotor.setPower(0);
+            backRightMotor.setPower(0);
         }
         else {
             while ( Math.abs(rightMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) ) { //check here
 
-                currentHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
+                imu();
+
+                currentHeading = Double.parseDouble(formatAngle(lastAngles.angleUnit, lastAngles.firstAngle));
 
                 straightGyroAdjust = (currentHeading - targetHeading) * straightGyroGain;
 
@@ -557,79 +611,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     }
 
-    // drive function for any direction with time
-    public void driveForTime (String direction, double power, double time ) {
-
-        if ( direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right") ) { // check should be tob and bottom motors instead
-            leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
-            leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//check should do right too?
-        }
-        else {
-            frontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
-            frontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //check should to bottom too?
-        }
-
-        // Set timeOne and timeTwo to this.getRuntime();
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        if ( direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right") ) {
-            while ( (timeTwo - timeOne < time) ) { //check here
-                if ( direction.equalsIgnoreCase("left") ) {
-                    // Set motor powers based on paramater power
-                    frontMotor.setPower( -power );
-                    backMotor.setPower( -power );
-                }
-                else if ( direction.equalsIgnoreCase("right") ){
-                    // Set motor powers based on paramater power
-                    frontMotor.setPower( power );
-                    backMotor.setPower( power );
-                }
-
-                telemetry.update();
-                // Set timeTwo to this.getRuntime ()
-                timeTwo = this.getRuntime();
-            }
-
-            frontMotor.setPower( 0 );
-            backMotor.setPower( 0 );
-        }
-        else if (direction.equalsIgnoreCase( "forwards") || direction.equalsIgnoreCase("backwards")){
-            while ( (timeTwo - timeOne < time) ) { //check here
-                if ( direction.equalsIgnoreCase("backwards") ) {
-                    // Set motor powers based on paramater power
-                    leftMotor.setPower( power );
-                    rightMotor.setPower( power );
-                }
-                else if ( direction.equalsIgnoreCase("forwards") ) {
-                    // Set motor powers based on paramater power
-                    leftMotor.setPower( -power );
-                    rightMotor.setPower( -power );
-                }
-
-                // Telemetry for encoder position
-                //telemetry.addData("Current", leftMotor.getCurrentPosition());
-                telemetry.update();
-                // Set timeTwo to this.getRuntime ()
-                timeTwo = this.getRuntime();
-            }
-
-            leftMotor.setPower( 0 );
-            rightMotor.setPower(0);
-
-        }
-
-        // Execute stopDriving method
-        stopDriving();
-
-    }
-
     public void test(double power) {
-        frontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
-        frontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // check to change to bottom
+        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
+        backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // check to change to bottom
 
-        frontMotor.setPower( power );
-        backMotor.setPower( power );
+        backLeftMotor.setPower( power );
+        backRightMotor.setPower( power );
 
         pause(1);
     }
@@ -639,8 +626,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         leftMotor.setPower(0);
         rightMotor.setPower(0);
-        frontMotor.setPower(0);
-        backMotor.setPower(0);
+        backLeftMotor.setPower(0);
+        backRightMotor.setPower(0);
     }
 
     public void pause( double time ) {
@@ -651,58 +638,6 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         while (timeTwo - timeOne < time) {
             timeTwo = this.getRuntime();
         }
-    }
-
-    // Execute a robot spin using both sides of the drive train and the gyro
-    public void spinMove( String direction, double distance, double power, double time ) {
-
-        // math to calculate total counts robot should travel
-        inches = distance;
-        rotations = inches / (Math.PI * WHEEL_DIAMETER);
-        counts = ENCODER_CPR * rotations * GEAR_RATIO;
-
-        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
-        leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        // Set timeOne and timeTwo to this.getRuntime();
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        while ( Math.abs(leftMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time) )
-        {
-            if ( direction.equalsIgnoreCase("clockwise") || direction.equalsIgnoreCase("cw") ) {
-                leftPower = power;
-                rightPower = -power;
-                topPower = 0;
-                bottomPower = 0;
-            }
-            else if ( direction.equalsIgnoreCase("counterclockwise") || direction.equalsIgnoreCase("ccw") ) {
-                leftPower = -power;
-                rightPower = power;
-                topPower = 0;
-                bottomPower = 0;
-            }
-
-            // Telemetry for encoder position
-            telemetry.addData("Current", leftMotor.getCurrentPosition());
-            telemetry.update();
-            // Set timeTwo to this.getRuntime ()
-            timeTwo = this.getRuntime();
-        }
-
-        // Safety timeout based on if the loop above executed in under 4 seconds
-        // If it did not, do not execute the rest of the program
-        if (timeTwo - timeOne > time) {
-            while (this.opModeIsActive()) {
-                stopDriving();
-                timeTwo = this.getRuntime();
-                // Telemetry alerting drive team of safety timeout
-                telemetry.addLine("Timed out");
-                telemetry.update();
-            }
-        }
-        // Execute stopDriving method
-        stopDriving();
     }
 
     public void spin180( double power, double timeToRun)
@@ -740,7 +675,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     public void dropFeelerMoveBallOnlyNewRobot (){
 
-        feelerRaise.setPosition(feelerRaiseDownPosition);
+        touchLiftFeelerRaise.setPosition(feelerRaiseDownPosition);
 
         pause(1);
 
@@ -752,7 +687,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             pause(.2);
             feelerSwipe.setPosition(feelerSwipeCWPosition);
             pause(.2);
-            feelerRaise.setPosition(feelerRaiseUpPosition);
+            touchLiftFeelerRaise.setPosition(feelerRaiseUpPosition);
             pause(1);
             feelerSwipe.setPosition(feelerSwipeNeutralPosition);
         }
@@ -763,7 +698,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             pause(.2);
             feelerSwipe.setPosition(feelerSwipeCCWPosition);
             pause(.2);
-            feelerRaise.setPosition(feelerRaiseUpPosition);
+            touchLiftFeelerRaise.setPosition(feelerRaiseUpPosition);
             pause(1);
             feelerSwipe.setPosition(feelerSwipeNeutralPosition);
         }
@@ -774,7 +709,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             pause(.2);
             feelerSwipe.setPosition(feelerSwipeCCWPosition);
             pause(.2);
-            feelerRaise.setPosition(feelerRaiseUpPosition);
+            touchLiftFeelerRaise.setPosition(feelerRaiseUpPosition);
             pause(1);
             feelerSwipe.setPosition(feelerSwipeNeutralPosition);
         }
@@ -785,7 +720,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             pause(.2);
             feelerSwipe.setPosition(feelerSwipeCWPosition);
             pause(.2);
-            feelerRaise.setPosition(feelerRaiseUpPosition);
+            touchLiftFeelerRaise.setPosition(feelerRaiseUpPosition);
             pause(1);
             feelerSwipe.setPosition(feelerSwipeNeutralPosition);
         }
@@ -803,8 +738,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             // Acquiring the angles is relatively expensive; we don't want
             // to do that in each of the three items that need that info, as that's
             // three times the necessary expense.
-            angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            gravity  = imu.getGravity();
+            lastAngles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+            //gravity  = imu.getGravity();
         }
         });
 
@@ -823,17 +758,17 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         telemetry.addLine()
                 .addData("heading", new Func<String>() {
                     @Override public String value() {
-                        return formatAngle(angles.angleUnit, angles.firstAngle);
+                        return formatAngle(lastAngles.angleUnit, lastAngles.firstAngle);
                     }
                 })
                 .addData("roll", new Func<String>() {
                     @Override public String value() {
-                        return formatAngle(angles.angleUnit, angles.secondAngle);
+                        return formatAngle(lastAngles.angleUnit, lastAngles.secondAngle);
                     }
                 })
                 .addData("pitch", new Func<String>() {
                     @Override public String value() {
-                        return formatAngle(angles.angleUnit, angles.thirdAngle);
+                        return formatAngle(lastAngles.angleUnit, lastAngles.thirdAngle);
                     }
                 });
 
@@ -861,18 +796,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
 
-    public void driveToTouch (String direction, double distance, double speed, double time, double targetHeading, String touchDirection) {
 
-        initialHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
-
-        // math to calculate total counts robot should travel
-        inches = distance;
-        rotations = inches / (Math.PI * WHEEL_DIAMETER);
-        counts = ENCODER_CPR * rotations * GEAR_RATIO;
+    public void driveToTouch (String direction, double power, double time, double targetHeading, String touchDirection) {
 
         if (direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right")) { // check should be tob and bottom motors instead
-            frontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
-            frontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//check should do right too?
+            backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
+            backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//check should do right too?
         } else {
             rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
             rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //check should to bottom too?
@@ -885,160 +814,284 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         if (direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right")) {
 
             if (touchDirection.equalsIgnoreCase("front"))
-                while (!touchSensorFront.isPressed()) {//check here
+                while (touchSensorFront.getState()) {//check here
 
-                    currentHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
-                    straightGyroAdjust = (currentHeading - targetHeading) * straightGyroGain;
-                    straightGyroAdjust = Range.clip(straightGyroAdjust, -.5, .5);
+                    correction = this.getAngleSimple() * .082;
 
-                    if (direction.equalsIgnoreCase("left")) {
-                        // Set motor powers based on paramater power
-                        frontMotor.setPower(-speed + straightGyroAdjust);
-                        backMotor.setPower(-speed - straightGyroAdjust);
-                    } else if (direction.equalsIgnoreCase("right")) {
-                        // Set motor powers based on paramater power
-                        frontMotor.setPower(speed + straightGyroAdjust);
-                        backMotor.setPower(speed - straightGyroAdjust);
-                    }
+                    backLeftMotor.setPower(power);
+                    backRightMotor.setPower(power);
 
-                    // Telemetry for encoder position
-                    telemetry.addData("Current", frontMotor.getCurrentPosition());
-                    telemetry.update();
-                    // Set timeTwo to this.getRuntime ()
+                    leftMotor.setPower(correction);
+                    rightMotor.setPower(-correction);
+
                     timeTwo = this.getRuntime();
                 }
 
             if (touchDirection.equalsIgnoreCase("left"))
-                while (!touchSensorLeft.isPressed()) {//check here
+                while (touchSensorLeft.getState()) {//check here
 
-                    currentHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
-                    straightGyroAdjust = (currentHeading - targetHeading) * straightGyroGain;
-                    straightGyroAdjust = Range.clip(straightGyroAdjust, -.5, .5);
+                    correction = this.getAngleSimple() * .082;
 
-                    if (direction.equalsIgnoreCase("left")) {
-                        // Set motor powers based on paramater power
-                        frontMotor.setPower(-speed + straightGyroAdjust);
-                        backMotor.setPower(-speed - straightGyroAdjust);
-                    } else if (direction.equalsIgnoreCase("right")) {
-                        // Set motor powers based on paramater power
-                        frontMotor.setPower(speed + straightGyroAdjust);
-                        backMotor.setPower(speed - straightGyroAdjust);
-                    }
+                    backLeftMotor.setPower(power);
+                    backRightMotor.setPower(power);
 
-                    // Telemetry for encoder position
-                    telemetry.addData("Current", frontMotor.getCurrentPosition());
-                    telemetry.update();
-                    // Set timeTwo to this.getRuntime ()
+                    leftMotor.setPower(correction);
+                    rightMotor.setPower(-correction);
+
                     timeTwo = this.getRuntime();
                 }
 
             if (touchDirection.equalsIgnoreCase("right"))
-                while (!touchSensorRight.isPressed()) {//check here
+                while (touchSensorRight.getState()) {//check here
 
-                    currentHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
-                    straightGyroAdjust = (currentHeading - targetHeading) * straightGyroGain;
-                    straightGyroAdjust = Range.clip(straightGyroAdjust, -.5, .5);
+                    correction = this.getAngleSimple() * .082;
 
-                    if (direction.equalsIgnoreCase("left")) {
-                        // Set motor powers based on paramater power
-                        frontMotor.setPower(-speed + straightGyroAdjust);
-                        backMotor.setPower(-speed - straightGyroAdjust);
-                    } else if (direction.equalsIgnoreCase("right")) {
-                        // Set motor powers based on paramater power
-                        frontMotor.setPower(speed + straightGyroAdjust);
-                        backMotor.setPower(speed - straightGyroAdjust);
-                    }
+                    backLeftMotor.setPower(power);
+                    backRightMotor.setPower(power);
 
-                    // Telemetry for encoder position
-                    telemetry.addData("Current", frontMotor.getCurrentPosition());
-                    telemetry.update();
-                    // Set timeTwo to this.getRuntime ()
+                    leftMotor.setPower(correction);
+                    rightMotor.setPower(-correction);
+
                     timeTwo = this.getRuntime();
+
                 }
 
-            frontMotor.setPower(0);
-            backMotor.setPower(0);
+            backLeftMotor.setPower(0);
+            backRightMotor.setPower(0);
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
+
         }
 
         else {
 
             if (touchDirection.equalsIgnoreCase("front")) {
-                while (!touchSensorFront.isPressed()) { //check here
+                while (touchSensorFront.getState()) { //check here
 
-                    currentHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
-                    straightGyroAdjust = (currentHeading - targetHeading) * straightGyroGain;
-                    straightGyroAdjust = Range.clip(straightGyroAdjust, -.5, .5);
+                    correction = this.getAngleSimple() * .082;
 
-                    if (direction.equalsIgnoreCase("backwards")) {
-                        // Set motor powers based on paramater power
-                        leftMotor.setPower(speed + straightGyroAdjust);
-                        rightMotor.setPower(speed - straightGyroAdjust);
-                    } else if (direction.equalsIgnoreCase("forwards")) {
-                        // Set motor powers based on paramater power
-                        leftMotor.setPower(-speed + straightGyroAdjust);
-                        rightMotor.setPower(-speed - straightGyroAdjust);
-                    }
+                    backLeftMotor.setPower(power);
+                    backRightMotor.setPower(power);
 
-                    // Telemetry for encoder position
-                    telemetry.addData("Current", rightMotor.getCurrentPosition());
-                    telemetry.update();
-                    // Set timeTwo to this.getRuntime ()
+                    leftMotor.setPower(correction);
+                    rightMotor.setPower(-correction);
+
                     timeTwo = this.getRuntime();
+
                 }
             }
 
             if (touchDirection.equalsIgnoreCase("left")) {
-                while (!touchSensorLeft.isPressed()) { //check here
+                while (touchSensorLeft.getState()) { //check here
 
-                    currentHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
-                    straightGyroAdjust = (currentHeading - targetHeading) * straightGyroGain;
-                    straightGyroAdjust = Range.clip(straightGyroAdjust, -.5, .5);
+                    correction = this.getAngleSimple() * .082;
 
-                    if (direction.equalsIgnoreCase("backwards")) {
-                        // Set motor powers based on paramater power
-                        leftMotor.setPower(speed + straightGyroAdjust);
-                        rightMotor.setPower(speed - straightGyroAdjust);
-                    } else if (direction.equalsIgnoreCase("forwards")) {
-                        // Set motor powers based on paramater power
-                        leftMotor.setPower(-speed + straightGyroAdjust);
-                        rightMotor.setPower(-speed - straightGyroAdjust);
-                    }
+                    backLeftMotor.setPower(power);
+                    backRightMotor.setPower(power);
 
-                    // Telemetry for encoder position
-                    telemetry.addData("Current", rightMotor.getCurrentPosition());
-                    telemetry.update();
-                    // Set timeTwo to this.getRuntime ()
+                    leftMotor.setPower(correction);
+                    rightMotor.setPower(-correction);
+
                     timeTwo = this.getRuntime();
                 }
             }
 
             if (touchDirection.equalsIgnoreCase("right")) {
-                while (!touchSensorRight.isPressed()) { //check here
+                while (touchSensorRight.getState()) { //check here
 
-                    currentHeading = Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
-                    straightGyroAdjust = (currentHeading - targetHeading) * straightGyroGain;
-                    straightGyroAdjust = Range.clip(straightGyroAdjust, -.5, .5);
+                    correction = this.getAngleSimple() * .082;
 
-                    if (direction.equalsIgnoreCase("backwards")) {
-                        // Set motor powers based on paramater power
-                        leftMotor.setPower(speed + straightGyroAdjust);
-                        rightMotor.setPower(speed - straightGyroAdjust);
-                    } else if (direction.equalsIgnoreCase("forwards")) {
-                        // Set motor powers based on paramater power
-                        leftMotor.setPower(-speed + straightGyroAdjust);
-                        rightMotor.setPower(-speed - straightGyroAdjust);
-                    }
+                    backLeftMotor.setPower(power);
+                    backRightMotor.setPower(power);
 
-                    // Telemetry for encoder position
-                    telemetry.addData("Current", rightMotor.getCurrentPosition());
-                    telemetry.update();
-                    // Set timeTwo to this.getRuntime ()
+                    leftMotor.setPower(correction);
+                    rightMotor.setPower(-correction);
+
                     timeTwo = this.getRuntime();
                 }
             }
 
+            backLeftMotor.setPower(0);
+            backRightMotor.setPower(0);
             leftMotor.setPower(0);
             rightMotor.setPower(0);
         }
     }
+
+    public void strafeNewIMU (double distance, double time, double power, boolean forwards)
+    {
+        inches = distance;
+        rotations = inches / (Math.PI * WHEEL_DIAMETER);
+        counts = ENCODER_CPR * rotations * GEAR_RATIO;
+
+        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
+        backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //check should to bottom too?
+//
+        //Set timeOne and timeTwo to this.getRuntime();
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (Math.abs(rightMotor.getCurrentPosition())<counts && timeTwo-timeOne<time) {
+
+            // Use gyro to drive in a straight line.
+            correction = this.getAngleSimple() * .082;
+
+            if (!hasStrafedLoop)
+            {
+                pause(.5);
+                hasStrafedLoop = true;
+            }
+
+            telemetry.addData("1 imu heading", lastAngles.firstAngle);
+            telemetry.addData("2 global heading", globalAngle);
+            telemetry.addData("3 correction", correction);
+            telemetry.addData("Angle", this.getAngleSimple());
+            telemetry.addData("inches", inches);
+            telemetry.addData("power", power);
+            telemetry.update();
+
+            backLeftMotor.setPower(power);
+            backRightMotor.setPower(power);
+
+            leftMotor.setPower(correction);
+            rightMotor.setPower(-correction);
+
+            timeTwo = this.getRuntime();
+        }
+
+        backLeftMotor.setPower(0);
+        backRightMotor.setPower(0);
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
+
+        }
+
+    public void driveNewIMU (double distance, double time, double power, boolean forwards)
+    {
+
+        //math to calculate total counts robot should travel
+        inches = distance;
+        rotations = inches / (Math.PI * WHEEL_DIAMETER);
+        counts = ENCODER_CPR * rotations * GEAR_RATIO;
+
+        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
+        rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //check should to bottom too?
+//
+        //Set timeOne and timeTwo to this.getRuntime();
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        //while (Math.abs(rightMotor.getCurrentPosition())<counts && timeTwo-timeOne<time) {
+
+        while (Math.abs(rightMotor.getCurrentPosition())<counts && timeTwo-timeOne<time) {
+            // Use gyro to drive in a straight line.
+            correction = this.getAngleSimple() * .022;
+
+            telemetry.addData("1 imu heading", lastAngles.firstAngle);
+            telemetry.addData("2 global heading", globalAngle);
+            telemetry.addData("3 correction", correction);
+            telemetry.addData("Angle", this.getAngleSimple());
+            telemetry.addData("inches", inches);
+            telemetry.addData("power", power);
+            telemetry.update();
+
+            loopCounter++;
+
+            leftMotor.setPower(power + correction);
+            rightMotor.setPower(power - correction);
+
+            timeTwo=this.getRuntime();
+
+            if (forwards) {
+                if (Math.abs(rightMotor.getCurrentPosition()) > Math.abs(counts - 700) && loopCounter < 100) {
+                    power -= loopCounter * .01; //adjust here
+                    power = Range.clip(power, .27, 1);
+                }
+            }
+            else
+            {
+                if (Math.abs(rightMotor.getCurrentPosition()) > Math.abs(counts - 700) && loopCounter < 100) {
+                    power += loopCounter * .01; //adjust here
+                    power = Range.clip(power, -1, -.27);
+                }
+            }
+
+        }
+
+            // We record the sensor values because we will test them in more than
+            // one place with time passing between those places. See the lesson on
+            // Timing Considerations to know why.
+
+            // stop.
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
+
+    }
+
+    /**
+     * Resets the cumulative angle tracking to zero.
+     */
+    private void resetAngle()
+    {
+        lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+        globalAngle = 0;
+    }
+
+    /**
+     * Get current cumulative angle rotation from last reset.
+     * @return Angle in degrees. + = left, - = right.
+     */
+    private double getAngle()
+    {
+        // We experimentally determined the Z axis is the axis we want to use for heading angle.
+        // We have to process the angle because the imu works in euler angles so the Z axis is
+        // returned as 0 to +180 or 0 to -180 rolling back to -179 or +179 when rotation passes
+        // 180 degrees. We detect this transition and track the total cumulative angle of rotation.
+
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+        double deltaAngle = angles.firstAngle - lastAngles.firstAngle;
+
+        if (deltaAngle < -180)
+            deltaAngle += 360;
+        else if (deltaAngle > 180)
+            deltaAngle -= 360;
+
+        globalAngle += deltaAngle;
+
+        lastAngles = angles;
+
+        return globalAngle;
+    }
+
+    private double getAngleSimple ()
+    {
+        lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        return Double.parseDouble(formatAngle(lastAngles.angleUnit, lastAngles.firstAngle));
+    }
+
+    /**
+     * See if we are moving in a straight line and if not return a power correction value.
+     * @return Power adjustment, + is adjust left - is adjust right.
+     */
+    private double checkDirection()
+    {
+        // The gain value determines how sensitive the correction is to direction changes.
+        // You will have to experiment with your robot to get small smooth direction changes
+        // to stay on a straight line.
+        double correction, angle, gain = .10;
+
+        angle = getAngle();
+
+        if (angle == 0)
+            correction = 0;             // no adjustment.
+        else
+            correction = -angle;        // reverse sign of angle for correction.
+
+        correction = correction * gain;
+
+        return correction;
+    }
 }
+
