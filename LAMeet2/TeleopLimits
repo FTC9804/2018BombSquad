@@ -88,6 +88,9 @@ public class TeleopLimits extends OpMode {
     double rightIntakePower;
     double panLiftingPower;
 
+    double pan45Still = .5;
+    double pan45Redirect = .75;
+
     // Motor and servo configurations
     DcMotor rightIntakeMotor; //Dc motor that controls the right intake/right wheel of the intake
     DcMotor leftIntakeMotor; //Dc motor that controls the left intake/left wheel of the intake
@@ -96,15 +99,15 @@ public class TeleopLimits extends OpMode {
     Servo rightPanSpin;
     Servo pan45;
 
-    TouchSensor limitTop; //Touch sensor that tells us if we reach the top with the Pan
-    TouchSensor limitBottom; //Touch sensor that tells us if we reach the bottom with the Pan
+    DigitalChannel limitTop; //Touch sensor that tells us if we reach the top with the Pan
+    DigitalChannel limitBottom; //Touch sensor that tells us if we reach the bottom with the Pan
 
     /* Initialize standard Hardware interfaces */
     public void init() { // use hardwaremap here instead of hwmap or ahwmap provided in sample code
         // Motor configurations in the hardware map
         rightMotor = hardwareMap.dcMotor.get("rightMotor"); //RightMotor configuration
         leftMotor = hardwareMap.dcMotor.get("leftMotor"); //LeftMotor configuration
-        backLeftMotor = hardwareMap.dcMotor.get("backLeftMoter"); //BackLeftMotor configuration
+        backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor"); //BackLeftMotor configuration
         backRightMotor = hardwareMap.dcMotor.get("backRightMotor"); //BackRightMotor configuration
         rightIntakeMotor = hardwareMap.dcMotor.get("rightIntake"); //rightIntakeMotor configuration
         leftIntakeMotor = hardwareMap.dcMotor.get("leftIntake"); //leftIntakeMotor configuration
@@ -116,17 +119,17 @@ public class TeleopLimits extends OpMode {
         pan45 = hardwareMap.servo.get("pan45");
 
         // Touch sensor configuration in the hardware map
-        limitTop = hardwareMap.touchSensor.get("limitTop"); //Top touchSensor configuration
-        limitBottom = hardwareMap.touchSensor.get("limitBottom");
+        limitTop = hardwareMap.get(DigitalChannel.class, "limitTop"); //Top touchSensor configuration
+        limitBottom = hardwareMap.get(DigitalChannel.class, "limitBottom");
 
         // Motor directions
-        rightMotor.setDirection(FORWARD); //Set rightMotor to FORWARD direction
-        leftMotor.setDirection(REVERSE); //Set leftMotor to REVERSE direction
+        rightMotor.setDirection(REVERSE); //Set rightMotor to FORWARD direction
+        leftMotor.setDirection(FORWARD); //Set leftMotor to REVERSE direction
         backRightMotor.setDirection(REVERSE); //Set backRightMotor to REVERSE direcion
         backLeftMotor.setDirection(REVERSE); //Set backLeftMotor to REVERSE direction
-        rightIntakeMotor.setDirection(FORWARD); //Set rightIntakeMotor to FORWARD direction
+        rightIntakeMotor.setDirection(REVERSE); //Set rightIntakeMotor to FORWARD direction
         leftIntakeMotor.setDirection(FORWARD); //Set leftIntakeMotor to FORWARD direction
-        panLifterMotor.setDirection(FORWARD); //Set panLifterMotor to FORWARD direction
+        panLifterMotor.setDirection(REVERSE); //Set panLifterMotor to FORWARD direction
 
         // Servo directions
         leftPanSpin.setDirection(Servo.Direction.REVERSE); //Set leftPanSpin to REVERSE direction
@@ -141,6 +144,10 @@ public class TeleopLimits extends OpMode {
         rightIntakeMotor.setPower(0); //Set rightIntakeMotor to 0 power
         leftIntakeMotor.setPower(0); //Set leftIntakeMotor to 0 power
         panLifterMotor.setPower(0); //Set panLifterMotor to 0 power
+
+        pan45.setPosition(pan45Still);
+        leftPanSpin.setPosition(.05);
+        rightPanSpin.setPosition(.05);
     }
 
     public void loop () {
@@ -308,8 +315,8 @@ public class TeleopLimits extends OpMode {
         }
         else if(leftTrigger > .05)
         {
-            leftIntakePower = Math.pow(rightTrigger, 2);
-            rightIntakePower = Math.pow(rightTrigger, 2);
+            leftIntakePower = Math.pow(leftTrigger, 2);
+            rightIntakePower = Math.pow(leftTrigger, 2);
         }
         else if(leftBumper)
         {
@@ -323,7 +330,6 @@ public class TeleopLimits extends OpMode {
         }
 
         //Setting LT and RB to score or intake positions of pan
-
         if(rightTrigger > .05 && rightBumper)
         {
             panSpinPosition = .5;
@@ -334,35 +340,45 @@ public class TeleopLimits extends OpMode {
         }
         else if(rightBumper)
         {
-            panSpinPosition = .3;
+            panSpinPosition = .05;
         }
         else
         {
-            panSpinPosition = .5;
+            panSpinPosition = .05;
         }
 
         leftPanSpin.setPosition(panSpinPosition);
         rightPanSpin.setPosition(panSpinPosition);
 
-        //If both are pressed, do nothing
-        if (dpadUpPressed && dpadDownPressed)
+
+        if (!limitTop.getState() && dpadUpPressed || !limitBottom.getState() && dpadDownPressed)
         {
-            panLiftingPower = 0;
+            panLiftingPower = .0;
         }
-        //If you want to move down, and the bottom limit isn't pressed, move down
-        else if (!limitBottom.isPressed() && dpadDownPressed)
+        else if (dpadUpPressed && !dpadDownPressed)
         {
-            panLiftingPower = -.4;
+            panLiftingPower = -.8;
         }
-        //If you want to move up, and the bottom limit isn't pressed, move up
-        else if (!limitTop.isPressed() && dpadUpPressed) 
+        else if (dpadDownPressed && !dpadUpPressed)
         {
             panLiftingPower = .4;
         }
-        //If nothing is being pressed, stop motion
         else
         {
             panLiftingPower = 0;
+        }
+
+        telemetry.addData("panLifting", panLiftingPower);
+        telemetry.addData("limitTop", limitTop.getState());
+        telemetry.addData("limitBottom", limitBottom.getState());
+
+        if (leftPanSpin.getPosition() > .55 || rightPanSpin.getPosition() > .55)
+        {
+            pan45.setPosition(pan45Redirect);
+        }
+        else
+        {
+            pan45.setPosition(pan45Still);
         }
 
         //Setting dpad to panPosition
@@ -382,6 +398,8 @@ public class TeleopLimits extends OpMode {
         rightMotor.setPower(finRightPower);
         backLeftMotor.setPower(finBackPower);
         backRightMotor.setPower(finBackPower);
+
+        telemetry.update();
 
 
     } // end loop
