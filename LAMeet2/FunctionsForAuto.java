@@ -241,7 +241,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         limitTop = hardwareMap.get(DigitalChannel.class, "limitTop"); //Top touchSensor configuration
         limitBottom = hardwareMap.get(DigitalChannel.class, "limitBottom");
 
-        pan45 = hardwareMap.servo.get("pan45");
+        pan45 = hardwareMap.servo.get("panKicker");
 
         panLifterMotor = hardwareMap.dcMotor.get("elevator"); //panLifterMotor configuration
 
@@ -285,7 +285,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         feelerSwipe.setPosition(feelerSwipeNeutralPosition);
 
-        touchLiftFeelerRaise.setPosition(touchLiftRetractPosition);
+        touchLiftFeelerRaise.setPosition(.5);
 
 
         /******************* P A N    S P I N *******************/
@@ -675,9 +675,29 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     public void dropFeelerMoveBallOnlyNewRobot (){
 
-        touchLiftFeelerRaise.setPosition(feelerRaiseDownPosition);
+        touchLiftFeelerRaise.setPosition(.5);
 
         pause(1);
+
+        timeOne = this.getRuntime();
+        timeTwo=this.getRuntime();
+
+        while (timeTwo-timeOne < .5)
+        {
+            timeTwo=this.getRuntime();
+            touchLiftFeelerRaise.setPosition(1);
+        }
+
+        touchLiftFeelerRaise.setPosition(.5);
+
+        feelerSwipe.setPosition(.5);
+
+        while (touchSensorFront.getState())
+        {
+            touchLiftFeelerRaise.setPosition(1);
+        }
+
+        touchLiftFeelerRaise.setPosition(.5);
 
 
         if (allianceColor.equalsIgnoreCase("red") && sensorColor.blue() >=  sensorColor.red()) {
@@ -918,8 +938,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         }
     }
 
-    public void strafeNewIMU (double distance, double time, double power, boolean forwards)
-    {
+    public void strafeNewIMU (double distance, double time, double power, boolean forwards) {
         inches = distance;
         rotations = inches / (Math.PI * WHEEL_DIAMETER);
         counts = ENCODER_CPR * rotations * GEAR_RATIO;
@@ -931,40 +950,91 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
-        while (Math.abs(rightMotor.getCurrentPosition())<counts && timeTwo-timeOne<time) {
 
-            // Use gyro to drive in a straight line.
-            correction = this.getAngleSimple() * .082;
 
-            if (!hasStrafedLoop)
-            {
-                pause(.5);
-                hasStrafedLoop = true;
+        if (power > 0) {
+
+            while (Math.abs(backLeftMotor.getCurrentPosition()) < counts && timeTwo - timeOne < time) {
+                // Use gyro to drive in a straight line.
+                correction = (this.getAngleSimple() + 6) * .047;
+
+                if (!hasStrafedLoop) {
+                    pause(.5);
+                    hasStrafedLoop = true;
+                }
+
+                telemetry.addData("1 imu heading", lastAngles.firstAngle);
+                telemetry.addData("2 global heading", globalAngle);
+                telemetry.addData("3 correction", correction);
+                telemetry.addData("Angle", this.getAngleSimple());
+                telemetry.addData("inches", inches);
+                telemetry.addData("power", power);
+                telemetry.addData("pos", backLeftMotor.getCurrentPosition());
+                telemetry.addData("counts", counts);
+                telemetry.update();
+
+                backLeftMotor.setPower(power);
+                backRightMotor.setPower(power);
+
+                if (Math.abs(correction) > .08) {
+                    leftMotor.setPower(correction);
+                    rightMotor.setPower(-correction);
+                } else {
+                    leftMotor.setPower(0);
+                    rightMotor.setPower(0);
+                }
+
+                timeTwo = this.getRuntime();
+
             }
 
-            telemetry.addData("1 imu heading", lastAngles.firstAngle);
-            telemetry.addData("2 global heading", globalAngle);
-            telemetry.addData("3 correction", correction);
-            telemetry.addData("Angle", this.getAngleSimple());
-            telemetry.addData("inches", inches);
-            telemetry.addData("power", power);
-            telemetry.update();
-
-            backLeftMotor.setPower(power);
-            backRightMotor.setPower(power);
-
-            leftMotor.setPower(correction);
-            rightMotor.setPower(-correction);
-
-            timeTwo = this.getRuntime();
         }
 
-        backLeftMotor.setPower(0);
-        backRightMotor.setPower(0);
-        leftMotor.setPower(0);
-        rightMotor.setPower(0);
+        else {
+
+            while (Math.abs(backLeftMotor.getCurrentPosition()) < counts && timeTwo - timeOne < time) {
+
+                // Use gyro to drive in a straight line.
+                correction = (this.getAngleSimple() - 6) * .047;
+
+                if (!hasStrafedLoop) {
+                    pause(.5);
+                    hasStrafedLoop = true;
+                }
+
+                telemetry.addData("1 imu heading", lastAngles.firstAngle);
+                telemetry.addData("2 global heading", globalAngle);
+                telemetry.addData("3 correction", correction);
+                telemetry.addData("Angle", this.getAngleSimple());
+                telemetry.addData("inches", inches);
+                telemetry.addData("power", power);
+                telemetry.addData("pos", backLeftMotor.getCurrentPosition());
+                telemetry.addData("counts", counts);
+                telemetry.update();
+
+                backLeftMotor.setPower(power);
+                backRightMotor.setPower(power);
+
+                if (Math.abs(correction) > .08) {
+                    leftMotor.setPower(correction);
+                    rightMotor.setPower(-correction);
+                } else {
+                    leftMotor.setPower(0);
+                    rightMotor.setPower(0);
+                }
+
+                timeTwo = this.getRuntime();
+
+
+            }
+
+            backLeftMotor.setPower(0);
+            backRightMotor.setPower(0);
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
 
         }
+    }
 
     public void driveNewIMU (double distance, double time, double power, boolean forwards)
     {
