@@ -45,6 +45,9 @@ public class TeleopLimits extends OpMode {
     int backOverOne;
     int direction;
     int over;
+    int mode = 0; //end game or normal mode, init to normal
+    int longArmAngle;
+    int shortArmAngle;
 
     double linLeftPower;
     double linRightPower;
@@ -84,12 +87,13 @@ public class TeleopLimits extends OpMode {
     boolean dpadLeftPressed; //boolean for dpadLeft.  Set to true if dpadLeft is pressed and set to false otherwise
     boolean dpadUpPressed; //boolean for dpadUp.  Set to true if dpadUp is pressed and set to false otherwise
 
+    boolean backPressed;
+    boolean startPressed;
+
     double leftIntakePower;
     double rightIntakePower;
     double panLiftingPower;
 
-    double pan45Still = .5;
-    double pan45Redirect = .75;
 
     // Motor and servo configurations
     DcMotor rightIntakeMotor; //Dc motor that controls the right intake/right wheel of the intake
@@ -97,7 +101,9 @@ public class TeleopLimits extends OpMode {
     DcMotor panLifterMotor;
     Servo leftPanSpin;
     Servo rightPanSpin;
-    Servo pan45;
+    Servo panKick;
+    Servo relicLongArm;
+    Servo relicShortArm;
 
     DigitalChannel limitTop; //Touch sensor that tells us if we reach the top with the Pan
     DigitalChannel limitBottom; //Touch sensor that tells us if we reach the bottom with the Pan
@@ -116,7 +122,9 @@ public class TeleopLimits extends OpMode {
         // Servo configurations in the hardware map
         leftPanSpin = hardwareMap.servo.get("leftPanSpin"); //leftPanSpin configuration
         rightPanSpin = hardwareMap.servo.get("rightPanSpin"); //rightPanSpin configuration
-        pan45 = hardwareMap.servo.get("pan45");
+        relicLongArm = hardwareMap.servo.get("relicLongArm");
+        relicShortArm = hardwareMap.servo.get("relicShortArm");
+        panKick = hardwareMap.servo.get("panKicker");
 
         // Touch sensor configuration in the hardware map
         limitTop = hardwareMap.get(DigitalChannel.class, "limitTop"); //Top touchSensor configuration
@@ -134,7 +142,7 @@ public class TeleopLimits extends OpMode {
         // Servo directions
         leftPanSpin.setDirection(Servo.Direction.REVERSE); //Set leftPanSpin to REVERSE direction
         rightPanSpin.setDirection(Servo.Direction.FORWARD); //Set rightPanSpin to FORWARD direction
-        pan45.setDirection(Servo.Direction.FORWARD);
+        panKick.setDirection(Servo.Direction.FORWARD);
 
         //Init powers
         rightMotor.setPower(0); //Set rightMotor to 0 power
@@ -145,7 +153,6 @@ public class TeleopLimits extends OpMode {
         leftIntakeMotor.setPower(0); //Set leftIntakeMotor to 0 power
         panLifterMotor.setPower(0); //Set panLifterMotor to 0 power
 
-        pan45.setPosition(pan45Still);
         leftPanSpin.setPosition(.05);
         rightPanSpin.setPosition(.05);
     }
@@ -283,12 +290,11 @@ public class TeleopLimits extends OpMode {
         finRightPower = Range.clip(finRightPower, -1, 1);
         finLeftPower = Range.clip(finLeftPower, -1, 1);
 
-        if ((finBackPower<0&&finRightPower>0)||(finBackPower>0&&finRightPower<0))
-        {
-            finRightPower/=4;
-            finLeftPower/=4;
-
-        }
+        //if ((finBackPower<0&&finRightPower>0)||(finBackPower>0&&finRightPower<0))
+        //{
+        //finRightPower/=4;
+        //finLeftPower/=4;
+        //}
 
         //TRANSPORTING
         //TRANSPORTING
@@ -307,78 +313,223 @@ public class TeleopLimits extends OpMode {
         dpadUpPressed = gamepad1.dpad_up;
         dpadDownPressed = gamepad1.dpad_down;
 
-        //Setting LT to power of suck
-        if (leftTrigger > .05 && leftBumper)
+        if(mode == 0)
         {
+            //Setting LT to power of suck
+           if (leftTrigger > .05 && leftBumper)
+           {
             leftIntakePower = 0;
             rightIntakePower = 0;
-        }
-        else if(leftTrigger > .05)
-        {
+          }
+           else if(leftTrigger > .05)
+          {
             leftIntakePower = Math.pow(leftTrigger, 2);
             rightIntakePower = Math.pow(leftTrigger, 2);
+             }
+            else if(leftBumper)
+             {
+                leftIntakePower = -.7;
+                rightIntakePower = -.7;
+            }
+            else
+            {
+                leftIntakePower = 0;
+                rightIntakePower = 0;
+            }
+
+            //Setting LT and RB to score or intake positions of pan
+            if(rightTrigger > .05 && rightBumper)
+            {
+                panSpinPosition = .5;
+            }
+            else if (rightTrigger > .05)
+            {
+                panSpinPosition = .7;
+            }
+            else if(rightBumper)
+            {
+                panSpinPosition = .05;
+            }
+            else
+            {
+                panSpinPosition = .05;
+            }
+
+            leftPanSpin.setPosition(panSpinPosition);
+            rightPanSpin.setPosition(panSpinPosition);
+
+
+            if (!limitTop.getState() && dpadUpPressed || !limitBottom.getState() && dpadDownPressed)
+            {
+                panLiftingPower = .0;
+            }
+            else if (dpadUpPressed && !dpadDownPressed)
+            {
+                panLiftingPower = -.8;
+            }
+            else if (dpadDownPressed && !dpadUpPressed)
+            {
+                panLiftingPower = .4;
+            }
+            else
+            {
+                panLiftingPower = 0;
+            }
+
+            telemetry.addData("panLifting", panLiftingPower);
+            telemetry.addData("limitTop", limitTop.getState());
+            telemetry.addData("limitBottom", limitBottom.getState());
+
+            if (leftPanSpin.getPosition() > .55 || rightPanSpin.getPosition() > .55)
+            {
+                panKick.setPosition(.5);
+            }
+            else
+            {
+                panKick.setPosition(0);
+            }
         }
-        else if(leftBumper)
-        {
-            leftIntakePower = -.7;
-            rightIntakePower = -.7;
-        }
+        //When in end game mode
         else
         {
-            leftIntakePower = 0;
-            rightIntakePower = 0;
-        }
+            //While dpad right is pressed
+            if(dpadRightPressed)
+            {
+                //If relicLongArmAngle is in the right spot, do nothing
+                if(longArmAngle <= 185 && longArmAngle >= 175)
+                {
+                    relicLongArm.setPosition(0);
+                }
+                //If the long arm  is below, move up
+                else if(longArmAngle < 175)
+                {
+                    relicLongArm.setPosition(.5);
+                }
+                //if the long arm is above, move down
+                else if(longArmAngle > 185)
+                {
+                    relicLongArm.setPosition(-.5);
+                }
+                //just being safe, this should never happen
+                else
+                {
+                    relicLongArm.setPosition(0);
+                }
 
-        //Setting LT and RB to score or intake positions of pan
-        if(rightTrigger > .05 && rightBumper)
-        {
-            panSpinPosition = .5;
-        }
-        else if (rightTrigger > .05)
-        {
-            panSpinPosition = .7;
-        }
-        else if(rightBumper)
-        {
-            panSpinPosition = .05;
-        }
-        else
-        {
-            panSpinPosition = .05;
-        }
+                //If short arm is in the right place, do nothing
+                if(shortArmAngle <= 275 && shortArmAngle >= 265)
+                {
+                    relicShortArm.setPosition(0);
+                }
+                //If short arm is above, move down
+                else if(shortArmAngle > 275)
+                {
+                    relicShortArm.setPosition(-.5);
+                }
+                //If short arm is below, move up
+                else if(shortArmAngle < 265)
+                {
+                    relicShortArm.setPosition(.5);
+                }
+                //Being safe
+                else
+                {
+                    relicShortArm.setPosition(0);
+                }
 
-        leftPanSpin.setPosition(panSpinPosition);
-        rightPanSpin.setPosition(panSpinPosition);
+            }
+
+            else if(dpadRightPressed)
+            {
+                //If relicLongArmAngle is in the right spot, do nothing
+                if(longArmAngle <= 95 && longArmAngle >= 85)
+                {
+                    relicLongArm.setPosition(0);
+                }
+                //If the long arm  is below, move up
+                else if(longArmAngle < 85)
+                {
+                    relicLongArm.setPosition(.5);
+                }
+                //if the long arm is above, move down
+                else if(longArmAngle > 95)
+                {
+                    relicLongArm.setPosition(-.5);
+                }
+                //just being safe, this should never happen
+                else
+                {
+                    relicLongArm.setPosition(0);
+                }
+
+                //If short arm is in the right place, do nothing
+                if(shortArmAngle <= 275 && shortArmAngle >= 265)
+                {
+                    relicShortArm.setPosition(0);
+                }
+                //If short arm is above, move down
+                else if(shortArmAngle > 275)
+                {
+                    relicShortArm.setPosition(-.5);
+                }
+                //If short arm is below, move up
+                else if(shortArmAngle < 265)
+                {
+                    relicShortArm.setPosition(.5);
+                }
+                //Being safe
+                else
+                {
+                    relicShortArm.setPosition(0);
+                }
+            }
+
+            else if(dpadDownPressed)
+            {
+                //If relicLongArmAngle is in the right spot, do nothing
+                if(longArmAngle <= 245 && longArmAngle >= 235)
+                {
+                    relicLongArm.setPosition(0);
+                }
+                //If the long arm  is below, move up
+                else if(longArmAngle < 235)
+                {
+                    relicLongArm.setPosition(.5);
+                }
+                //if the long arm is above, move down
+                else if(longArmAngle > 245)
+                {
+                    relicLongArm.setPosition(-.5);
+                }
+                //just being safe, this should never happen
+                else
+                {
+                    relicLongArm.setPosition(0);
+                }
+
+                //If short arm is in the right place, do nothing
+                if(shortArmAngle <= 125 && shortArmAngle >= 115)
+                {
+                    relicShortArm.setPosition(0);
+                }
+                //If short arm is above, move down
+                else if(shortArmAngle > 125)
+                {
+                    relicShortArm.setPosition(-.5);
+                }
+                //If short arm is below, move up
+                else if(shortArmAngle < 115)
+                {
+                    relicShortArm.setPosition(.5);
+                }
+                //Being safe
+                else
+                {
+                    relicShortArm.setPosition(0);
+                }
+            }
 
 
-        if (!limitTop.getState() && dpadUpPressed || !limitBottom.getState() && dpadDownPressed)
-        {
-            panLiftingPower = .0;
-        }
-        else if (dpadUpPressed && !dpadDownPressed)
-        {
-            panLiftingPower = -.8;
-        }
-        else if (dpadDownPressed && !dpadUpPressed)
-        {
-            panLiftingPower = .4;
-        }
-        else
-        {
-            panLiftingPower = 0;
-        }
-
-        telemetry.addData("panLifting", panLiftingPower);
-        telemetry.addData("limitTop", limitTop.getState());
-        telemetry.addData("limitBottom", limitBottom.getState());
-
-        if (leftPanSpin.getPosition() > .55 || rightPanSpin.getPosition() > .55)
-        {
-            pan45.setPosition(pan45Redirect);
-        }
-        else
-        {
-            pan45.setPosition(pan45Still);
         }
 
         //Setting dpad to panPosition
@@ -399,8 +550,11 @@ public class TeleopLimits extends OpMode {
         backLeftMotor.setPower(finBackPower);
         backRightMotor.setPower(finBackPower);
 
-        telemetry.update();
-
-
     } // end loop
 } // end class
+
+
+
+
+
+
