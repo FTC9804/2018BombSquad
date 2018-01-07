@@ -324,18 +324,19 @@ public class TeleopLimits extends OpMode {
                 leftIntakePower = 0;
                 rightIntakePower = 0;
             }
+
             //Setting LT and RB to score or intake positions of pan
-            if (rightTrigger > .05 && panLifterMotor.getPower()<=.11)
+            if (rightTrigger > .05)
             {
                 panSpinPosition = .6;
             }
-            else if (panLifterMotor.getPower()<-.11)
+            else if (!limitBottom.getState())
             {
-                panSpinPosition = .2;
+                panSpinPosition = .05;
             }
             else
             {
-                panSpinPosition = .05;
+                panSpinPosition = .15;
             }
 
             if (rightBumper)
