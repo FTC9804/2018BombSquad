@@ -1,11 +1,8 @@
 /**
  * TeleopV2 Made Saturday December 9 by Isaac, Marcus, and Steve
  */
-
-
 //Import Statements
 package org.firstinspires.ftc.teamcode;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,27 +13,19 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
-
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import static com.qualcomm.robotcore.util.Range.clip;
-
 import java.util.concurrent.TimeUnit;
 
-
 @TeleOp(name = "TeleOpLimits", group = "LAMeets")
-
-
 public class TeleopLimits extends OpMode {
-
     //Controls and Variables
-
-    //Driving controls
+//Driving controls
     double leftStickX1; //Adjusted value taken from the raw value of the left X stick on gamepad 1
     double rightStickX1; //Adjusted value taken from the raw value of the right X stick on gamepad 1
     double rightStickY1; //Adjusted value taken from the raw value of the right Y stick on gamepad 1
-
     //Driving variables
     boolean single = true;
     int leftOverOne;
@@ -48,52 +37,42 @@ public class TeleopLimits extends OpMode {
     int mode = 0; //end game or normal mode, init to normal
     int longArmAngle;
     int shortArmAngle;
-
     double linLeftPower;
     double linRightPower;
     double linFrontPower;
     double linBackPower;
-
     double rotLeftPower;
     double rotRightPower;
     double rotBackPower;
     double rotFrontPower;
-
     double testLeftPower;
     double testRightPower;
     double testBackPower;
     double testFrontPower;
-
     double finLeftPower;
     double finRightPower;
     double finFrontPower;
     double finBackPower;
-
     //Driving Dc Motors
     DcMotor rightMotor;
     DcMotor leftMotor;
     DcMotor backRightMotor;
     DcMotor backLeftMotor;
-
-
     //Cube movement variables
-    double rightTrigger; //double for the extent to which rightTrigger is pressed.  No press is 0, full press is 1
-    boolean rightBumper; //boolean for rightBumper.  Set to true if rightBumper is pressed and set to false otherwise
-    double leftTrigger; //double for the extent to which leftTrigger is pressed.  No press is 0, full press is 1
-    boolean leftBumper; //boolean for leftBumper.  Set to true if leftBumper is pressed and set to false otherwise
+    double rightTrigger; //double for the extent to which rightTrigger is pressed. No press is 0, full press is 1
+    boolean rightBumper; //boolean for rightBumper. Set to true if rightBumper is pressed and set to false otherwise
+    double leftTrigger; //double for the extent to which leftTrigger is pressed. No press is 0, full press is 1
+    boolean leftBumper; //boolean for leftBumper. Set to true if leftBumper is pressed and set to false otherwise
     double panSpinPosition; //boolean that represents whether the pan is in intake or scoring position
-    boolean dpadDownPressed; //boolean for dpadDown.  Set to true if dpadDown is pressed and set to false otherwise
-    boolean dpadRightPressed; //boolean for dpadRight.  Set to true if dpadRight is pressed and set to false otherwise
-    boolean dpadLeftPressed; //boolean for dpadLeft.  Set to true if dpadLeft is pressed and set to false otherwise
-    boolean dpadUpPressed; //boolean for dpadUp.  Set to true if dpadUp is pressed and set to false otherwise
-
+    boolean dpadDownPressed; //boolean for dpadDown. Set to true if dpadDown is pressed and set to false otherwise
+    boolean dpadRightPressed; //boolean for dpadRight. Set to true if dpadRight is pressed and set to false otherwise
+    boolean dpadLeftPressed; //boolean for dpadLeft. Set to true if dpadLeft is pressed and set to false otherwise
+    boolean dpadUpPressed; //boolean for dpadUp. Set to true if dpadUp is pressed and set to false otherwise
     boolean backPressed;
     boolean startPressed;
-
     double leftIntakePower;
     double rightIntakePower;
     double panLiftingPower;
-
 
     // Motor and servo configurations
     DcMotor rightIntakeMotor; //Dc motor that controls the right intake/right wheel of the intake
@@ -108,6 +87,11 @@ public class TeleopLimits extends OpMode {
     DigitalChannel limitTop; //Touch sensor that tells us if we reach the top with the Pan
     DigitalChannel limitBottom; //Touch sensor that tells us if we reach the bottom with the Pan
 
+    boolean endGame;
+    boolean previousStatus;
+    boolean currentStatus;
+
+
     /* Initialize standard Hardware interfaces */
     public void init() { // use hardwaremap here instead of hwmap or ahwmap provided in sample code
         // Motor configurations in the hardware map
@@ -118,18 +102,15 @@ public class TeleopLimits extends OpMode {
         rightIntakeMotor = hardwareMap.dcMotor.get("rightIntake"); //rightIntakeMotor configuration
         leftIntakeMotor = hardwareMap.dcMotor.get("leftIntake"); //leftIntakeMotor configuration
         panLifterMotor = hardwareMap.dcMotor.get("elevator"); //panLifterMotor configuration
-
         // Servo configurations in the hardware map
         leftPanSpin = hardwareMap.servo.get("leftPanSpin"); //leftPanSpin configuration
         rightPanSpin = hardwareMap.servo.get("rightPanSpin"); //rightPanSpin configuration
         relicLongArm = hardwareMap.servo.get("relicLongArm");
         relicShortArm = hardwareMap.servo.get("relicShortArm");
         panKick = hardwareMap.servo.get("panKicker");
-
         // Touch sensor configuration in the hardware map
         limitTop = hardwareMap.get(DigitalChannel.class, "limitTop"); //Top touchSensor configuration
         limitBottom = hardwareMap.get(DigitalChannel.class, "limitBottom");
-
         // Motor directions
         rightMotor.setDirection(REVERSE); //Set rightMotor to FORWARD direction
         leftMotor.setDirection(FORWARD); //Set leftMotor to REVERSE direction
@@ -138,12 +119,10 @@ public class TeleopLimits extends OpMode {
         rightIntakeMotor.setDirection(REVERSE); //Set rightIntakeMotor to FORWARD direction
         leftIntakeMotor.setDirection(FORWARD); //Set leftIntakeMotor to FORWARD direction
         panLifterMotor.setDirection(REVERSE); //Set panLifterMotor to FORWARD direction
-
         // Servo directions
         leftPanSpin.setDirection(Servo.Direction.REVERSE); //Set leftPanSpin to REVERSE direction
         rightPanSpin.setDirection(Servo.Direction.FORWARD); //Set rightPanSpin to FORWARD direction
         panKick.setDirection(Servo.Direction.FORWARD);
-
         //Init powers
         rightMotor.setPower(0); //Set rightMotor to 0 power
         leftMotor.setPower(0); //Set leftMotor to 0 power
@@ -155,8 +134,15 @@ public class TeleopLimits extends OpMode {
 
         leftPanSpin.setPosition(.05);
         rightPanSpin.setPosition(.05);
-    }
 
+
+
+        panKick.setPosition(1);
+
+        endGame = false;
+        previousStatus = false;
+        currentStatus = false;
+    }
     public void loop () {
 
         //DRIVING
@@ -165,41 +151,41 @@ public class TeleopLimits extends OpMode {
         //DRIVING
         //DRIVING
 
-
         telemetry.addData("Left X Joy Raw: ", gamepad1.left_stick_x); //The raw value of left stick x
         telemetry.addData("Right X Joy Raw: ", gamepad1.right_stick_x); //The raw value of right stick x
         telemetry.addData("Right Y Joy Raw: ", gamepad1.right_stick_y); //The raw value of right stick y
-
         leftStickX1 = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x);
         //Set rightStickX1 to the left stick x value of gamepad 1 times the absolute value of this left stick x value
         rightStickX1 = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x);
         //Set rightStickX1 to the right stick x value of gamepad 1 times the absolute value of this right stick x value
         rightStickY1 = gamepad1.right_stick_y * Math.abs(gamepad1.right_stick_y);
         //Set rightStickY1 to the right stick x value of gamepad 1 times the absolute value of this right stick y value
+
         backPressed = gamepad1.back;
-        startPressed = gamepad1.start;
-        
-        if(backPressed && startPressed)
+        //startPressed = gamepad1.start;
+
+        if(backPressed)
         {
-            if(mode == 0)
+            if (!previousStatus)
             {
-                mode++;
+                currentStatus = true;
             }
-            else
+            if (previousStatus)
             {
-                mode--;
+                currentStatus = false;
             }
+        }
+        else
+        {
+            previousStatus = currentStatus;
         }
 
         linLeftPower = leftStickX1;
         linRightPower = -leftStickX1;
         linFrontPower = -rightStickX1;
         linBackPower = rightStickX1;
-
         rotLeftPower = -rightStickY1;
         rotRightPower = -rightStickY1;
-        //rotBackPower = -rightStickX1 * rotRatio;
-        //rotFrontPower = -rightStickX1 * rotRatio;
 
         testLeftPower = linLeftPower + rotLeftPower;
         testRightPower = linRightPower + rotRightPower;
@@ -231,7 +217,6 @@ public class TeleopLimits extends OpMode {
         } else {
             backOverOne = 0;
         }
-
         if ((leftOverOne + rightOverOne + frontOverOne + backOverOne) > 1) //Test if more than one testDirectionPower is over 1 i true, set single to false
         {
             single = false;
@@ -242,9 +227,7 @@ public class TeleopLimits extends OpMode {
         } else {
             over = 0;
         }
-
         switch (over) {
-
             case 0:
                 finLeftPower = testLeftPower;
                 finRightPower = testRightPower;
@@ -253,9 +236,7 @@ public class TeleopLimits extends OpMode {
                 break;
             case 1:
                 if (single == true) {
-
                     switch (direction) {
-
                         case 1:
                             finLeftPower = testLeftPower / Math.abs(testLeftPower);
                             finRightPower = testRightPower / Math.abs(testLeftPower);
@@ -274,14 +255,12 @@ public class TeleopLimits extends OpMode {
                             finFrontPower = testFrontPower / Math.abs(testFrontPower);
                             finBackPower = testBackPower / Math.abs(testFrontPower);
                             break;
-
                         case 4:
                             finLeftPower = testLeftPower / Math.abs(testBackPower);
                             finRightPower = testRightPower / Math.abs(testBackPower);
                             finFrontPower = testFrontPower / Math.abs(testBackPower);
                             finBackPower = testBackPower / Math.abs(testBackPower);
                             break;
-
                         default:
                             telemetry.addData("Return", "Less than 1");
                             break;
@@ -294,54 +273,49 @@ public class TeleopLimits extends OpMode {
                     finBackPower = testBackPower / maxPower;
                 }
                 break;
-
             default:
                 telemetry.addData("Something", "Messed up");
                 break;
         }
-
         finBackPower = Range.clip(finBackPower, -1, 1);
         finRightPower = Range.clip(finRightPower, -1, 1);
         finLeftPower = Range.clip(finLeftPower, -1, 1);
-
         //if ((finBackPower<0&&finRightPower>0)||(finBackPower>0&&finRightPower<0))
         //{
         //finRightPower/=4;
         //finLeftPower/=4;
         //}
-
         //TRANSPORTING
         //TRANSPORTING
         //TRANSPORTING
         //TRANSPORTING
         //TRANSPORTING
-
         //Controller Inputs
+
         rightTrigger = gamepad1.right_trigger; //Set variable rightTrigger to the raw double value of the right trigger
         rightBumper = gamepad1.right_bumper; //Set variable rightBumper to the raw boolean value of the right bumper
         leftTrigger = gamepad1.left_trigger;
         leftBumper = gamepad1.left_bumper;
-
         dpadLeftPressed = gamepad1.dpad_left;
         dpadRightPressed = gamepad1.dpad_right;
         dpadUpPressed = gamepad1.dpad_up;
         dpadDownPressed = gamepad1.dpad_down;
 
-        if(mode == 0)
+        if(!currentStatus)
         {
             //Setting LT to power of suck
-           if (leftTrigger > .05 && leftBumper)
-           {
-            leftIntakePower = 0;
-            rightIntakePower = 0;
-          }
-           else if(leftTrigger > .05)
-          {
-            leftIntakePower = Math.pow(leftTrigger, 2);
-            rightIntakePower = Math.pow(leftTrigger, 2);
-             }
+            if (leftTrigger > .05 && leftBumper)
+            {
+                leftIntakePower = 0;
+                rightIntakePower = 0;
+            }
+            else if(leftTrigger > .05)
+            {
+                leftIntakePower = Math.pow(leftTrigger, 2);
+                rightIntakePower = Math.pow(leftTrigger, 2);
+            }
             else if(leftBumper)
-             {
+            {
                 leftIntakePower = -.7;
                 rightIntakePower = -.7;
             }
@@ -350,7 +324,6 @@ public class TeleopLimits extends OpMode {
                 leftIntakePower = 0;
                 rightIntakePower = 0;
             }
-
             //Setting LT and RB to score or intake positions of pan
             if(rightTrigger > .05 && rightBumper)
             {
@@ -368,11 +341,8 @@ public class TeleopLimits extends OpMode {
             {
                 panSpinPosition = .05;
             }
-
             leftPanSpin.setPosition(panSpinPosition);
             rightPanSpin.setPosition(panSpinPosition);
-
-
             if (!limitTop.getState() && dpadUpPressed || !limitBottom.getState() && dpadDownPressed)
             {
                 panLiftingPower = .0;
@@ -389,7 +359,6 @@ public class TeleopLimits extends OpMode {
             {
                 panLiftingPower = 0;
             }
-
             telemetry.addData("panLifting", panLiftingPower);
             telemetry.addData("limitTop", limitTop.getState());
             telemetry.addData("limitBottom", limitBottom.getState());
@@ -400,21 +369,21 @@ public class TeleopLimits extends OpMode {
             }
             else
             {
-                panKick.setPosition(0);
+                panKick.setPosition(1);
             }
         }
         //When in end game mode
         else
         {
-            //While dpad right is pressed
+        //While dpad right is pressed
             if(dpadRightPressed)
             {
                 //If relicLongArmAngle is in the right spot, do nothing
-                if(longArmAngle <= 185 && longArmAngle >= 175)
+                if (longArmAngle <= 185 && longArmAngle >= 175)
                 {
                     relicLongArm.setPosition(0);
                 }
-                //If the long arm  is below, move up
+                //If the long arm is below, move up
                 else if(longArmAngle < 175)
                 {
                     relicLongArm.setPosition(.5);
@@ -429,7 +398,6 @@ public class TeleopLimits extends OpMode {
                 {
                     relicLongArm.setPosition(0);
                 }
-
                 //If short arm is in the right place, do nothing
                 if(shortArmAngle <= 275 && shortArmAngle >= 265)
                 {
@@ -450,9 +418,7 @@ public class TeleopLimits extends OpMode {
                 {
                     relicShortArm.setPosition(0);
                 }
-
             }
-
             else if(dpadRightPressed)
             {
                 //If relicLongArmAngle is in the right spot, do nothing
@@ -460,7 +426,7 @@ public class TeleopLimits extends OpMode {
                 {
                     relicLongArm.setPosition(0);
                 }
-                //If the long arm  is below, move up
+                //If the long arm is below, move up
                 else if(longArmAngle < 85)
                 {
                     relicLongArm.setPosition(.5);
@@ -475,7 +441,6 @@ public class TeleopLimits extends OpMode {
                 {
                     relicLongArm.setPosition(0);
                 }
-
                 //If short arm is in the right place, do nothing
                 if(shortArmAngle <= 275 && shortArmAngle >= 265)
                 {
@@ -497,7 +462,6 @@ public class TeleopLimits extends OpMode {
                     relicShortArm.setPosition(0);
                 }
             }
-
             else if(dpadDownPressed)
             {
                 //If relicLongArmAngle is in the right spot, do nothing
@@ -505,7 +469,7 @@ public class TeleopLimits extends OpMode {
                 {
                     relicLongArm.setPosition(0);
                 }
-                //If the long arm  is below, move up
+                //If the long arm is below, move up
                 else if(longArmAngle < 235)
                 {
                     relicLongArm.setPosition(.5);
@@ -520,7 +484,6 @@ public class TeleopLimits extends OpMode {
                 {
                     relicLongArm.setPosition(0);
                 }
-
                 //If short arm is in the right place, do nothing
                 if(shortArmAngle <= 125 && shortArmAngle >= 115)
                 {
@@ -542,33 +505,20 @@ public class TeleopLimits extends OpMode {
                     relicShortArm.setPosition(0);
                 }
             }
-
-
         }
 
         //Setting dpad to panPosition
-
-
         //SET CONTROLS
         //SET CONTROLS
         //SET CONTROLS
         //SET CONTROLS
         //SET CONTROLS
-
         panLifterMotor.setPower(panLiftingPower);
         leftIntakeMotor.setPower(leftIntakePower);
         rightIntakeMotor.setPower(rightIntakePower);
-
         leftMotor.setPower(finLeftPower);
         rightMotor.setPower(finRightPower);
         backLeftMotor.setPower(finBackPower);
         backRightMotor.setPower(finBackPower);
-
     } // end loop
 } // end class
-
-
-
-
-
-
