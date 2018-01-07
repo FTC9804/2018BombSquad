@@ -176,6 +176,20 @@ public class TeleopLimits extends OpMode {
         //Set rightStickX1 to the right stick x value of gamepad 1 times the absolute value of this right stick x value
         rightStickY1 = gamepad1.right_stick_y * Math.abs(gamepad1.right_stick_y);
         //Set rightStickY1 to the right stick x value of gamepad 1 times the absolute value of this right stick y value
+        backPressed = gamepad1.back;
+        startPressed = gamepad1.start;
+        
+        if(backPressed && startPressed)
+        {
+            if(mode == 0)
+            {
+                mode++;
+            }
+            else
+            {
+                mode--;
+            }
+        }
 
         linLeftPower = leftStickX1;
         linRightPower = -leftStickX1;
