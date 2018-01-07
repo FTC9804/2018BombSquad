@@ -161,16 +161,16 @@ public class TeleopLimits extends OpMode {
         rightStickY1 = gamepad1.right_stick_y * Math.abs(gamepad1.right_stick_y);
         //Set rightStickY1 to the right stick x value of gamepad 1 times the absolute value of this right stick y value
 
-        backPressed = gamepad1.back;
+        startPressed = gamepad1.start;
         //startPressed = gamepad1.start;
 
-        if(backPressed)
+        if(startPressed)
         {
             if (!previousStatus)
             {
                 currentStatus = true;
             }
-            if (previousStatus)
+            else
             {
                 currentStatus = false;
             }
@@ -325,27 +325,32 @@ public class TeleopLimits extends OpMode {
                 rightIntakePower = 0;
             }
             //Setting LT and RB to score or intake positions of pan
-            if(rightTrigger > .05 && rightBumper)
+            if (rightTrigger > .05 && panLifterMotor.getPower()<=.11)
             {
-                panSpinPosition = .5;
+                panSpinPosition = .6;
             }
-            else if (rightTrigger > .05)
+            else if (panLifterMotor.getPower()<-.11)
             {
-                panSpinPosition = .7;
-            }
-            else if(rightBumper)
-            {
-                panSpinPosition = .05;
+                panSpinPosition = .2;
             }
             else
             {
                 panSpinPosition = .05;
             }
-            leftPanSpin.setPosition(panSpinPosition);
-            rightPanSpin.setPosition(panSpinPosition);
+
+            if (rightBumper)
+            {
+                panKick.setPosition(.5);
+            }
+            else
+            {
+                panKick.setPosition(1);
+            }
+
+
             if (!limitTop.getState() && dpadUpPressed || !limitBottom.getState() && dpadDownPressed)
             {
-                panLiftingPower = .0;
+                panLiftingPower = .05;
             }
             else if (dpadUpPressed && !dpadDownPressed)
             {
@@ -363,14 +368,7 @@ public class TeleopLimits extends OpMode {
             telemetry.addData("limitTop", limitTop.getState());
             telemetry.addData("limitBottom", limitBottom.getState());
 
-            if (leftPanSpin.getPosition() > .55 || rightPanSpin.getPosition() > .55)
-            {
-                panKick.setPosition(.5);
-            }
-            else
-            {
-                panKick.setPosition(1);
-            }
+
         }
         //When in end game mode
         else
@@ -507,12 +505,20 @@ public class TeleopLimits extends OpMode {
             }
         }
 
+        telemetry.addData("end", currentStatus);
+        telemetry.addData("startpress", startPressed);
+        telemetry.addData("previous", previousStatus);
+
+
+
         //Setting dpad to panPosition
         //SET CONTROLS
         //SET CONTROLS
         //SET CONTROLS
         //SET CONTROLS
         //SET CONTROLS
+        leftPanSpin.setPosition(panSpinPosition);
+        rightPanSpin.setPosition(panSpinPosition);
         panLifterMotor.setPower(panLiftingPower);
         leftIntakeMotor.setPower(leftIntakePower);
         rightIntakeMotor.setPower(rightIntakePower);
@@ -520,5 +526,7 @@ public class TeleopLimits extends OpMode {
         rightMotor.setPower(finRightPower);
         backLeftMotor.setPower(finBackPower);
         backRightMotor.setPower(finBackPower);
+
+        telemetry.update();
     } // end loop
 } // end class
