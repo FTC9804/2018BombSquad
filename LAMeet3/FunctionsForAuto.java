@@ -643,15 +643,15 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     }
 
-    //    public void test(double power) {
-//        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
-//        backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // check to change to bottom
-//
-//        backLeftMotor.setPower( power );
-//        backRightMotor.setPower( power );
-//
-//        pause(1);
-//    }
+    //public void test(double power) {
+    //    backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
+    //    backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // check to change to bottom
+    //
+    //    backLeftMotor.setPower( power );
+    //    backRightMotor.setPower( power );
+    //
+    //    pause(1);
+    //}
 
     // Sets all drive train motors to 0 power
     public void stopDriving() {
