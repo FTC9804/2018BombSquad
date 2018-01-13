@@ -2,7 +2,9 @@
  * TeleopV2 Made Saturday December 9 by Isaac, Marcus, and Steve
  */
 //Import Statements
+
 package org.firstinspires.ftc.teamcode;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -21,11 +23,13 @@ import java.util.concurrent.TimeUnit;
 
 @TeleOp(name = "TeleOpLimits", group = "LAMeets")
 public class TeleopLimits extends OpMode {
+
     //Controls and Variables
-//Driving controls
+    //Driving controls
     double leftStickX1; //Adjusted value taken from the raw value of the left X stick on gamepad 1
     double rightStickX1; //Adjusted value taken from the raw value of the right X stick on gamepad 1
     double rightStickY1; //Adjusted value taken from the raw value of the right Y stick on gamepad 1
+
     //Driving variables
     boolean single = true;
     int leftOverOne;
@@ -53,11 +57,13 @@ public class TeleopLimits extends OpMode {
     double finRightPower;
     double finFrontPower;
     double finBackPower;
+
     //Driving Dc Motors
     DcMotor rightMotor;
     DcMotor leftMotor;
     DcMotor backRightMotor;
     DcMotor backLeftMotor;
+
     //Cube movement variables
     double rightTrigger; //double for the extent to which rightTrigger is pressed. No press is 0, full press is 1
     boolean rightBumper; //boolean for rightBumper. Set to true if rightBumper is pressed and set to false otherwise
@@ -94,6 +100,7 @@ public class TeleopLimits extends OpMode {
 
     /* Initialize standard Hardware interfaces */
     public void init() { // use hardwaremap here instead of hwmap or ahwmap provided in sample code
+
         // Motor configurations in the hardware map
         rightMotor = hardwareMap.dcMotor.get("rightMotor"); //RightMotor configuration
         leftMotor = hardwareMap.dcMotor.get("leftMotor"); //LeftMotor configuration
@@ -102,15 +109,18 @@ public class TeleopLimits extends OpMode {
         rightIntakeMotor = hardwareMap.dcMotor.get("rightIntake"); //rightIntakeMotor configuration
         leftIntakeMotor = hardwareMap.dcMotor.get("leftIntake"); //leftIntakeMotor configuration
         panLifterMotor = hardwareMap.dcMotor.get("elevator"); //panLifterMotor configuration
+
         // Servo configurations in the hardware map
         leftPanSpin = hardwareMap.servo.get("leftPanSpin"); //leftPanSpin configuration
         rightPanSpin = hardwareMap.servo.get("rightPanSpin"); //rightPanSpin configuration
         relicLongArm = hardwareMap.servo.get("relicLongArm");
         relicShortArm = hardwareMap.servo.get("relicShortArm");
         panKick = hardwareMap.servo.get("panKicker");
+
         // Touch sensor configuration in the hardware map
         limitTop = hardwareMap.get(DigitalChannel.class, "limitTop"); //Top touchSensor configuration
         limitBottom = hardwareMap.get(DigitalChannel.class, "limitBottom");
+
         // Motor directions
         rightMotor.setDirection(REVERSE); //Set rightMotor to FORWARD direction
         leftMotor.setDirection(FORWARD); //Set leftMotor to REVERSE direction
@@ -119,10 +129,12 @@ public class TeleopLimits extends OpMode {
         rightIntakeMotor.setDirection(REVERSE); //Set rightIntakeMotor to FORWARD direction
         leftIntakeMotor.setDirection(FORWARD); //Set leftIntakeMotor to FORWARD direction
         panLifterMotor.setDirection(REVERSE); //Set panLifterMotor to FORWARD direction
+
         // Servo directions
         leftPanSpin.setDirection(Servo.Direction.REVERSE); //Set leftPanSpin to REVERSE direction
         rightPanSpin.setDirection(Servo.Direction.FORWARD); //Set rightPanSpin to FORWARD direction
         panKick.setDirection(Servo.Direction.FORWARD);
+
         //Init powers
         rightMotor.setPower(0); //Set rightMotor to 0 power
         leftMotor.setPower(0); //Set leftMotor to 0 power
@@ -146,14 +158,11 @@ public class TeleopLimits extends OpMode {
     public void loop () {
 
         //DRIVING
-        //DRIVING
-        //DRIVING
-        //DRIVING
-        //DRIVING
 
         telemetry.addData("Left X Joy Raw: ", gamepad1.left_stick_x); //The raw value of left stick x
         telemetry.addData("Right X Joy Raw: ", gamepad1.right_stick_x); //The raw value of right stick x
         telemetry.addData("Right Y Joy Raw: ", gamepad1.right_stick_y); //The raw value of right stick y
+
         leftStickX1 = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x);
         //Set rightStickX1 to the left stick x value of gamepad 1 times the absolute value of this left stick x value
         rightStickX1 = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x);
@@ -199,24 +208,28 @@ public class TeleopLimits extends OpMode {
         } else {
             leftOverOne = 0;
         }
+
         if (Math.abs(testRightPower) > 1) {
             rightOverOne = 1;
             direction = 2;
         } else {
             rightOverOne = 0;
         }
+
         if (Math.abs(testFrontPower) > 1) {
             frontOverOne = 1;
             direction = 3;
         } else {
             frontOverOne = 0;
         }
+
         if (Math.abs(testBackPower) > 1) {
             backOverOne = 1;
             direction = 4;
         } else {
             backOverOne = 0;
         }
+
         if ((leftOverOne + rightOverOne + frontOverOne + backOverOne) > 1) //Test if more than one testDirectionPower is over 1 i true, set single to false
         {
             single = false;
@@ -227,6 +240,7 @@ public class TeleopLimits extends OpMode {
         } else {
             over = 0;
         }
+
         switch (over) {
             case 0:
                 finLeftPower = testLeftPower;
@@ -277,9 +291,11 @@ public class TeleopLimits extends OpMode {
                 telemetry.addData("Something", "Messed up");
                 break;
         }
+
         finBackPower = Range.clip(finBackPower, -1, 1);
         finRightPower = Range.clip(finRightPower, -1, 1);
         finLeftPower = Range.clip(finLeftPower, -1, 1);
+
         //if ((finBackPower<0&&finRightPower>0)||(finBackPower>0&&finRightPower<0))
         //{
         //finRightPower/=4;
@@ -374,7 +390,7 @@ public class TeleopLimits extends OpMode {
         //When in end game mode
         else
         {
-        //While dpad right is pressed
+            //While dpad right is pressed
             if(dpadRightPressed)
             {
                 //If relicLongArmAngle is in the right spot, do nothing
@@ -513,10 +529,6 @@ public class TeleopLimits extends OpMode {
 
 
         //Setting dpad to panPosition
-        //SET CONTROLS
-        //SET CONTROLS
-        //SET CONTROLS
-        //SET CONTROLS
         //SET CONTROLS
         leftPanSpin.setPosition(panSpinPosition);
         rightPanSpin.setPosition(panSpinPosition);

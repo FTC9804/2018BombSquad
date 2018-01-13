@@ -307,8 +307,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     }
 
-    public void calibrateGyro ()
-    {
+    public void calibrateGyro() {
         while (!isStopRequested() && !imu.isGyroCalibrated())
         {
             sleep(50);
@@ -316,29 +315,26 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         }
     }
 
-    public void introduceAngle ()
+    public void introduceAngle()
     {
         getAngleSimple();
     }
 
-    public void touchServoExtend ()
+    public void touchServoExtend()
     {
         touchLiftFeelerRaise.setPosition(touchLiftExtendPosition);
     }
 
-    public void touchServoRetract ()
+    public void touchServoRetract()
     {
         touchLiftFeelerRaise.setPosition(touchLiftRetractPosition);
     }
 
-    public void startAcceleration ()
-    {
+    public void startAcceleration() {
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
     }
 
-
-    public void encoders ()
-    {
+    public void encoders() {
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //check should to bottom too?
         while (this.opModeIsActive())
@@ -348,14 +344,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         }
     }
 
-    public void imu ()
-    {
+    public void imu() {
         // Set up our telemetry dashboard
         composeTelemetry();
     }
 
-    public void scoreBlock (boolean bottom)
-    {
+    public void scoreBlock(boolean bottom) {
         if (bottom)
         {
             timeOne = this.getRuntime();
@@ -433,10 +427,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             pan45.setPosition(pan45Still);
         }
     }
-
-
-    public void getBlocks ()
-    {
+    
+    public void getBlocks() {
         while (sensorA.getDistance(DistanceUnit.CM) > 14)
         {
             leftIntakeMotor.setPower(intakePower);
@@ -521,21 +513,17 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         return vuMarkChecker;
     }
 
-
     String format(OpenGLMatrix transformationMatrix) {
         return (transformationMatrix != null) ? transformationMatrix.formatAsTransform() : "null";
     }
 
-
-    public String vumarkToString()
-    {
+    public String vumarkToString() {
         String output = new String();
         output = "" + vuMark;
         return output;
     }
 
-    public void testIMUForDrive ()
-    {
+    public void testIMUForDrive() {
         telemetry.update();
 
         initialHeading = Double.parseDouble(formatAngle(lastAngles.angleUnit, lastAngles.firstAngle));
@@ -684,8 +672,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         }
     }
 
-    public void spin180( double power, double timeToRun)
-    {
+    public void spin180( double power, double timeToRun) {
         rotations = inches / (Math.PI * WHEEL_DIAMETER);
         counts = 1440; // per Wilder's testing 12-1-17 at midnight
 
@@ -717,7 +704,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         stopDriving();
     }
 
-    public void dropFeelerMoveBallOnlyNewRobot (){
+    public void dropFeelerMoveBallOnlyNewRobot() {
 
         touchLiftFeelerRaise.setPosition(.5);
 
@@ -908,12 +895,11 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
     }
 
-    public String formatDegrees(double degrees){
+    public String formatDegrees(double degrees) {
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
 
-
-    public void driveToTouch (String direction, double power, double time, double targetHeading, String touchDirection) {
+    public void driveToTouch(String direction, double power, double time, double targetHeading, String touchDirection) {
 
         if (direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right")) { // check should be tob and bottom motors instead
             backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
@@ -1034,7 +1020,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         }
     }
 
-    public void strafeNewIMU (double distance, double time, double power, boolean forwards) {
+    public void strafeNewIMU(double distance, double time, double power, boolean forwards) {
         inches = distance;
         rotations = inches / (Math.PI * WHEEL_DIAMETER);
         counts = ENCODER_CPR * rotations * GEAR_RATIO;
@@ -1132,8 +1118,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         }
     }
 
-    public void wiringTest ()
-    {
+    public void wiringTest() {
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //check should to bottom too?
 
@@ -1148,8 +1133,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 //
     }
 
-    public void driveNewIMU (double distance, double time, double power, boolean forwards)
-    {
+    public void driveNewIMU(double distance, double time, double power, boolean forwards) {
         //math to calculate total counts robot should travel
         inches = distance;
         rotations = inches / (Math.PI * WHEEL_DIAMETER);
@@ -1232,18 +1216,17 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
 
         arrList.clear();
-            // We record the sensor values because we will test them in more than
-            // one place with time passing between those places. See the lesson on
-            // Timing Considerations to know why.
+        // We record the sensor values because we will test them in more than
+        // one place with time passing between those places. See the lesson on
+        // Timing Considerations to know why.
 
-            // stop.
+        // stop.
     }
 
     /**
      * Resets the cumulative angle tracking to zero.
      */
-    private void resetAngle()
-    {
+    private void resetAngle() {
         lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
         globalAngle = 0;
@@ -1253,8 +1236,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
      * Get current cumulative angle rotation from last reset.
      * @return Angle in degrees. + = left, - = right.
      */
-    private double getAngle()
-    {
+    private double getAngle() {
         // We experimentally determined the Z axis is the axis we want to use for heading angle.
         // We have to process the angle because the imu works in euler angles so the Z axis is
         // returned as 0 to +180 or 0 to -180 rolling back to -179 or +179 when rotation passes
@@ -1276,8 +1258,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         return globalAngle;
     }
 
-    private double getAngleSimple ()
-    {
+    private double getAngleSimple() {
         lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         return Double.parseDouble(formatAngle(lastAngles.angleUnit, lastAngles.firstAngle));
     }
@@ -1286,8 +1267,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
      * See if we are moving in a straight line and if not return a power correction value.
      * @return Power adjustment, + is adjust left - is adjust right.
      */
-    private double checkDirection()
-    {
+    private double checkDirection() {
         // The gain value determines how sensitive the correction is to direction changes.
         // You will have to experiment with your robot to get small smooth direction changes
         // to stay on a straight line.
