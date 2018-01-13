@@ -89,6 +89,12 @@ public class TeleopLimits extends OpMode {
     Servo panKick;
     Servo relicLongArm;
     Servo relicShortArm;
+    Servo grab;
+    Servo relicRotate;
+    double grabPosition = 0;
+    double relicLongArmPosition;
+    double relicShortArmPosition;
+    double relicRotatePosition = 0;
 
     DigitalChannel limitTop; //Touch sensor that tells us if we reach the top with the Pan
     DigitalChannel limitBottom; //Touch sensor that tells us if we reach the bottom with the Pan
@@ -116,6 +122,8 @@ public class TeleopLimits extends OpMode {
         relicLongArm = hardwareMap.servo.get("relicLongArm");
         relicShortArm = hardwareMap.servo.get("relicShortArm");
         panKick = hardwareMap.servo.get("panKicker");
+        grab = hardwareMap.servo.get("grab");
+        relicRotate = hardwareMap.servo.get("relicRotate");
 
         // Touch sensor configuration in the hardware map
         limitTop = hardwareMap.get(DigitalChannel.class, "limitTop"); //Top touchSensor configuration
@@ -134,6 +142,8 @@ public class TeleopLimits extends OpMode {
         leftPanSpin.setDirection(Servo.Direction.REVERSE); //Set leftPanSpin to REVERSE direction
         rightPanSpin.setDirection(Servo.Direction.FORWARD); //Set rightPanSpin to FORWARD direction
         panKick.setDirection(Servo.Direction.FORWARD);
+        grab.setDirection(Servo.Direction.FORWARD);
+        relicRotate.setDirection(Servo.Direction.FORWARD);
 
         //Init powers
         rightMotor.setPower(0); //Set rightMotor to 0 power
@@ -143,6 +153,9 @@ public class TeleopLimits extends OpMode {
         rightIntakeMotor.setPower(0); //Set rightIntakeMotor to 0 power
         leftIntakeMotor.setPower(0); //Set leftIntakeMotor to 0 power
         panLifterMotor.setPower(0); //Set panLifterMotor to 0 power
+
+        grab.setPosition(0);
+        relicRotate.setPosition( 0 );
 
         leftPanSpin.setPosition(.05);
         rightPanSpin.setPosition(.05);
@@ -301,10 +314,7 @@ public class TeleopLimits extends OpMode {
         //finRightPower/=4;
         //finLeftPower/=4;
         //}
-        //TRANSPORTING
-        //TRANSPORTING
-        //TRANSPORTING
-        //TRANSPORTING
+
         //TRANSPORTING
         //Controller Inputs
 
@@ -327,7 +337,7 @@ public class TeleopLimits extends OpMode {
             }
             else if(leftTrigger > .05)
             {
-                leftIntakePower = Math.pow(leftTrigger, 2);
+                leftIntakePower = Math.pow(leftTrigger, 2) * .69;
                 rightIntakePower = Math.pow(leftTrigger, 2);
             }
             else if(leftBumper)
@@ -367,7 +377,7 @@ public class TeleopLimits extends OpMode {
 
             if (!limitTop.getState() && dpadUpPressed || !limitBottom.getState() && dpadDownPressed)
             {
-                panLiftingPower = .05;
+                panLiftingPower = 0;
             }
             else if (dpadUpPressed && !dpadDownPressed)
             {
@@ -390,136 +400,187 @@ public class TeleopLimits extends OpMode {
         //When in end game mode
         else
         {
-            //While dpad right is pressed
-            if(dpadRightPressed)
-            {
-                //If relicLongArmAngle is in the right spot, do nothing
-                if (longArmAngle <= 185 && longArmAngle >= 175)
-                {
-                    relicLongArm.setPosition(0);
-                }
-                //If the long arm is below, move up
-                else if(longArmAngle < 175)
-                {
-                    relicLongArm.setPosition(.5);
-                }
-                //if the long arm is above, move down
-                else if(longArmAngle > 185)
-                {
-                    relicLongArm.setPosition(-.5);
-                }
-                //just being safe, this should never happen
-                else
-                {
-                    relicLongArm.setPosition(0);
-                }
-                //If short arm is in the right place, do nothing
-                if(shortArmAngle <= 275 && shortArmAngle >= 265)
-                {
-                    relicShortArm.setPosition(0);
-                }
-                //If short arm is above, move down
-                else if(shortArmAngle > 275)
-                {
-                    relicShortArm.setPosition(-.5);
-                }
-                //If short arm is below, move up
-                else if(shortArmAngle < 265)
-                {
-                    relicShortArm.setPosition(.5);
-                }
-                //Being safe
-                else
-                {
-                    relicShortArm.setPosition(0);
-                }
+//            //While dpad right is pressed
+//            if(dpadRightPressed)
+//            {
+//                //If relicLongArmAngle is in the right spot, do nothing
+//                if (longArmAngle <= 185 && longArmAngle >= 175)
+//                {
+//                    relicLongArm.setPosition(0);
+//                }
+//                //If the long arm is below, move up
+//                else if(longArmAngle < 175)
+//                {
+//                    relicLongArm.setPosition(.5);
+//                }
+//                //if the long arm is above, move down
+//                else if(longArmAngle > 185)
+//                {
+//                    relicLongArm.setPosition(-.5);
+//                }
+//                //just being safe, this should never happen
+//                else
+//                {
+//                    relicLongArm.setPosition(0);
+//                }
+//                //If short arm is in the right place, do nothing
+//                if(shortArmAngle <= 275 && shortArmAngle >= 265)
+//                {
+//                    relicShortArm.setPosition(0);
+//                }
+//                //If short arm is above, move down
+//                else if(shortArmAngle > 275)
+//                {
+//                    relicShortArm.setPosition(-.5);
+//                }
+//                //If short arm is below, move up
+//                else if(shortArmAngle < 265)
+//                {
+//                    relicShortArm.setPosition(.5);
+//                }
+//                //Being safe
+//                else
+//                {
+//                    relicShortArm.setPosition(0);
+//                }
+//            }
+//            else if(dpadRightPressed)
+//            {
+//                //If relicLongArmAngle is in the right spot, do nothing
+//                if(longArmAngle <= 95 && longArmAngle >= 85)
+//                {
+//                    relicLongArm.setPosition(0);
+//                }
+//                //If the long arm is below, move up
+//                else if(longArmAngle < 85)
+//                {
+//                    relicLongArm.setPosition(.5);
+//                }
+//                //if the long arm is above, move down
+//                else if(longArmAngle > 95)
+//                {
+//                    relicLongArm.setPosition(-.5);
+//                }
+//                //just being safe, this should never happen
+//                else
+//                {
+//                    relicLongArm.setPosition(0);
+//                }
+//                //If short arm is in the right place, do nothing
+//                if(shortArmAngle <= 275 && shortArmAngle >= 265)
+//                {
+//                    relicShortArm.setPosition(0);
+//                }
+//                //If short arm is above, move down
+//                else if(shortArmAngle > 275)
+//                {
+//                    relicShortArm.setPosition(-.5);
+//                }
+//                //If short arm is below, move up
+//                else if(shortArmAngle < 265)
+//                {
+//                    relicShortArm.setPosition(.5);
+//                }
+//                //Being safe
+//                else
+//                {
+//                    relicShortArm.setPosition(0);
+//                }
+//            }
+//            else if(dpadDownPressed)
+//            {
+//                //If relicLongArmAngle is in the right spot, do nothing
+//                if(longArmAngle <= 245 && longArmAngle >= 235)
+//                {
+//                    relicLongArm.setPosition(0);
+//                }
+//                //If the long arm is below, move up
+//                else if(longArmAngle < 235)
+//                {
+//                    relicLongArm.setPosition(.5);
+//                }
+//                //if the long arm is above, move down
+//                else if(longArmAngle > 245)
+//                {
+//                    relicLongArm.setPosition(-.5);
+//                }
+//                //just being safe, this should never happen
+//                else
+//                {
+//                    relicLongArm.setPosition(0);
+//                }
+//                //If short arm is in the right place, do nothing
+//                if(shortArmAngle <= 125 && shortArmAngle >= 115)
+//                {
+//                    relicShortArm.setPosition(0);
+//                }
+//                //If short arm is above, move down
+//                else if(shortArmAngle > 125)
+//                {
+//                    relicShortArm.setPosition(-.5);
+//                }
+//                //If short arm is below, move up
+//                else if(shortArmAngle < 115)
+//                {
+//                    relicShortArm.setPosition(.5);
+//                }
+//                //Being safe
+//                else
+//                {
+//                    relicShortArm.setPosition(0);
+//                }
+//            }
+
+            if (gamepad1.left_trigger > 0.3) {
+                relicLongArmPosition = (gamepad1.left_trigger + .5) * (2/3);
+                relicLongArm.setPosition( relicLongArmPosition );
             }
-            else if(dpadRightPressed)
-            {
-                //If relicLongArmAngle is in the right spot, do nothing
-                if(longArmAngle <= 95 && longArmAngle >= 85)
-                {
-                    relicLongArm.setPosition(0);
-                }
-                //If the long arm is below, move up
-                else if(longArmAngle < 85)
-                {
-                    relicLongArm.setPosition(.5);
-                }
-                //if the long arm is above, move down
-                else if(longArmAngle > 95)
-                {
-                    relicLongArm.setPosition(-.5);
-                }
-                //just being safe, this should never happen
-                else
-                {
-                    relicLongArm.setPosition(0);
-                }
-                //If short arm is in the right place, do nothing
-                if(shortArmAngle <= 275 && shortArmAngle >= 265)
-                {
-                    relicShortArm.setPosition(0);
-                }
-                //If short arm is above, move down
-                else if(shortArmAngle > 275)
-                {
-                    relicShortArm.setPosition(-.5);
-                }
-                //If short arm is below, move up
-                else if(shortArmAngle < 265)
-                {
-                    relicShortArm.setPosition(.5);
-                }
-                //Being safe
-                else
-                {
-                    relicShortArm.setPosition(0);
-                }
+            else if (gamepad1.left_bumper) {
+                relicLongArm.setPosition( 0 );
             }
-            else if(dpadDownPressed)
+            else
             {
-                //If relicLongArmAngle is in the right spot, do nothing
-                if(longArmAngle <= 245 && longArmAngle >= 235)
-                {
-                    relicLongArm.setPosition(0);
-                }
-                //If the long arm is below, move up
-                else if(longArmAngle < 235)
-                {
-                    relicLongArm.setPosition(.5);
-                }
-                //if the long arm is above, move down
-                else if(longArmAngle > 245)
-                {
-                    relicLongArm.setPosition(-.5);
-                }
-                //just being safe, this should never happen
-                else
-                {
-                    relicLongArm.setPosition(0);
-                }
-                //If short arm is in the right place, do nothing
-                if(shortArmAngle <= 125 && shortArmAngle >= 115)
-                {
-                    relicShortArm.setPosition(0);
-                }
-                //If short arm is above, move down
-                else if(shortArmAngle > 125)
-                {
-                    relicShortArm.setPosition(-.5);
-                }
-                //If short arm is below, move up
-                else if(shortArmAngle < 115)
-                {
-                    relicShortArm.setPosition(.5);
-                }
-                //Being safe
-                else
-                {
-                    relicShortArm.setPosition(0);
-                }
+                relicLongArm.setPosition( .5 );
             }
+
+            if (gamepad1.right_trigger > 0.3) {
+                relicShortArmPosition = (gamepad1.right_trigger + .5) * (2/3);
+                relicShortArm.setPosition( relicShortArmPosition );
+            }
+            else if (gamepad1.right_bumper) {
+                relicShortArm.setPosition( 0 );
+            }
+            else
+            {
+                relicShortArm.setPosition( .5 );
+            }
+
+            if (gamepad1.a)
+            {
+                grabPosition += .001;
+                grabPosition = Range.clip(grabPosition, 0, 1);
+                grab.setPosition( grabPosition );
+            }
+            else if (gamepad1.y)
+            {
+                grabPosition -= .001;
+                grabPosition = Range.clip(grabPosition, 0, 1);
+                grab.setPosition( grabPosition );
+            }
+
+            if (gamepad1.x)
+            {
+                relicRotatePosition += .001;
+                relicRotatePosition = Range.clip(relicRotatePosition, 0, 1);
+                relicRotate.setPosition( relicRotatePosition );
+            }
+            else if (gamepad1.b)
+            {
+                relicRotatePosition -= .001;
+                relicRotatePosition = Range.clip(relicRotatePosition, 0, 1);
+                relicRotate.setPosition( relicRotatePosition );
+            }
+
         }
 
         telemetry.addData("end", currentStatus);
