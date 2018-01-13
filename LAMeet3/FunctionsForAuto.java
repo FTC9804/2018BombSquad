@@ -70,6 +70,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     String robotStartingPosition; //The starting position of the robot, either relicSide
     //or triangle Side, representing different places on the field
 
+    DcMotor relicMotor;
+
     /******************* V U F O R I A *******************/
 
     VuforiaLocalizer vuforia;
@@ -304,6 +306,27 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         pan45.setPosition(pan45Still);
 
         arrList = new ArrayList<Double>();
+
+        relicMotor = hardwareMap.dcMotor.get("relicMotor");
+
+    }
+
+    public void relicMotorForTime( double time, double power ){
+
+        power = Math.abs(power);
+
+        relicMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//check should do right too?
+
+        // Set timeOne and timeTwo to this.getRuntime();
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo - timeOne < time) {
+            timeTwo = this.getRuntime();
+            relicMotor.setPower(power);
+        }
+
+        relicMotor.setPower(0);
 
     }
 
@@ -1227,7 +1250,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     // drive function for any direction with time
     public void driveForTime ( double power, double time, boolean forwards ) {
 
-        power = Math.abs( power );
+        power = Math.abs(power);
 
         leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//check should do right too?
 

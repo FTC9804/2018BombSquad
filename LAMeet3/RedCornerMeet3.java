@@ -36,6 +36,7 @@ public class RedCornerMeet3 extends FunctionsForAuto {
          * 8. Forward 6 inches --> DONE
          */
 
+        relicMotorForTime( .5, .5 );
         dropFeelerMoveBallOnlyNewRobot();
 
         vuMarkOutput = detectVuMark( 5 );
