@@ -427,15 +427,15 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             pan45.setPosition(pan45Still);
         }
     }
-    
+
     public void getBlocks() {
+
         while (sensorA.getDistance(DistanceUnit.CM) > 14)
         {
             leftIntakeMotor.setPower(intakePower);
             rightIntakeMotor.setPower(intakePower);
             leftMotor.setPower(.3);
             rightMotor.setPower(.3);
-
         }
 
         while (sensorA.getDistance(DistanceUnit.CM) < 14 && !threeBlocks) {
@@ -643,7 +643,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     }
 
-//    public void test(double power) {
+    //    public void test(double power) {
 //        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
 //        backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // check to change to bottom
 //
@@ -870,7 +870,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                     }
                 })
                 .addData("pitch", new Func<String>() {
-                    @Override public String value() {
+                    @Override
+                    public String value() {
                         return formatAngle(lastAngles.angleUnit, lastAngles.thirdAngle);
                     }
                 });
@@ -1221,6 +1222,37 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         // Timing Considerations to know why.
 
         // stop.
+    }
+
+    // drive function for any direction with time
+    public void driveForTime ( double power, double time, boolean forwards ) {
+
+        power = Math.abs( power );
+
+        leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//check should do right too?
+
+        // Set timeOne and timeTwo to this.getRuntime();
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        if ( forwards ) {
+            while (timeTwo - timeOne < time) {
+                timeTwo = this.getRuntime();
+                leftMotor.setPower(power);
+                rightMotor.setPower(power);
+            }
+        }
+        else {
+            while (timeTwo - timeOne < time) {
+                timeTwo = this.getRuntime();
+                leftMotor.setPower(-power);
+                rightMotor.setPower(-power);
+            }
+        }
+
+        // Execute stopDriving method
+        stopDriving();
+
     }
 
     /**
