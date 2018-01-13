@@ -51,6 +51,8 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import java.util.Locale;
 
+import java.util.ArrayList;
+
 
 public abstract class FunctionsForAuto extends LinearOpMode {
 
@@ -105,7 +107,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     // DRIVE MOTORS
     DcMotor rightMotor;     // right drive motor front
     DcMotor leftMotor;      // left drive motor front
-    DcMotor backLeftMotor;       // right drive motor back
+    //DcMotor backLeftMotor;       // right drive motor back
     DcMotor backRightMotor;    // left drive motor back
 
     // driving powers
@@ -130,11 +132,19 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     double globalAngle;
     double correction;
 
+    double initialAngle;
+    double currentAngle;
+    double angleError;
+    double finalAngle;
 
     // Driving variables
     double inches;  // Desired number of inches to drive
     double rotations;       // Wheel rotations necessary to drive the above amount of inches
     double counts;// Encoder counts necessary to drive the above amount of inches/rotations
+
+    double strafeDistanceDrive;
+    ArrayList <Double> arrList;
+
 
     /******************* P A N *******************/
 
@@ -150,13 +160,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     double panLiftingPower;
 
-    double panSpinUpFirst = .7;
-    double panSpinUpSecond = .8;
-    double panSpinDown = .3;
+    double panSpinUpFirst = .1;
+    double panSpinUpSecond = .6;
+    double panSpinDown = .2;
 
-    double pan45Still = .5;
-    double pan45Redirect = .75;
-
+    double pan45Still = .9;
+    double pan45Redirect = .5;
     boolean liftHasGoneUp = false;
 
     /******************* F E E L E R S   S E R V O S *******************/
@@ -210,13 +219,13 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         // Motor configurations in the hardware map
         rightMotor = hardwareMap.dcMotor.get("rightMotor");
         leftMotor = hardwareMap.dcMotor.get("leftMotor");
-        backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor");
+        //backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor");
         backRightMotor = hardwareMap.dcMotor.get("backRightMotor");
 
         // Motor directions: set forward/reverse
         rightMotor.setDirection(REVERSE);
         leftMotor.setDirection(FORWARD);
-        backLeftMotor.setDirection(REVERSE);
+        //backLeftMotor.setDirection(REVERSE);
         backRightMotor.setDirection(REVERSE);
 
         /******************* I M U *******************/
@@ -294,6 +303,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         pan45.setPosition(pan45Still);
 
+        arrList = new ArrayList<Double>();
+
     }
 
     public void calibrateGyro ()
@@ -353,19 +364,39 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             {
                 timeTwo = this.getRuntime();
                 panLifterMotor.setPower(.4);
+                leftPanSpin.setPosition(.2);
+                rightPanSpin.setPosition(.2);
             }
             panLifterMotor.setPower(0);
+
             leftPanSpin.setPosition(panSpinUpFirst);
             rightPanSpin.setPosition(panSpinUpFirst);
-            pause(.3);
+
             pan45.setPosition(pan45Redirect);
-            pause(.3);
+
             leftPanSpin.setPosition(panSpinUpSecond);
             rightPanSpin.setPosition(panSpinUpSecond);
             pause(1);
+
             leftPanSpin.setPosition(panSpinDown);
             rightPanSpin.setPosition(panSpinDown);
+
+            pause(1);
+
+            while (limitBottom.getState())
+            {
+                panLifterMotor.setPower(-.5);
+                telemetry.addData("bottom not seen", limitBottom.getState());
+            }
+
+            panLifterMotor.setPower(0);
+            leftPanSpin.setPosition(.05);
+            rightPanSpin.setPosition(.05);
+
+            pause(.5);
+            pan45.setPosition(pan45Still);
         }
+
         else
         {
             if (!liftHasGoneUp) {
@@ -378,17 +409,31 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
             leftPanSpin.setPosition(panSpinUpFirst);
             rightPanSpin.setPosition(panSpinUpFirst);
-            pause(.3);
+
             pan45.setPosition(pan45Redirect);
-            pause(.3);
+
             leftPanSpin.setPosition(panSpinUpSecond);
             rightPanSpin.setPosition(panSpinUpSecond);
             pause(1);
+
             leftPanSpin.setPosition(panSpinDown);
             rightPanSpin.setPosition(panSpinDown);
-        }
+            pause(1);
 
+            while (limitBottom.getState())
+            {
+                panLifterMotor.setPower(-.5);
+            }
+
+            panLifterMotor.setPower(0);
+            leftPanSpin.setPosition(.05);
+            rightPanSpin.setPosition(.05);
+
+            pause(.5);
+            pan45.setPosition(pan45Still);
+        }
     }
+
 
     public void getBlocks ()
     {
@@ -515,8 +560,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         counts = ENCODER_CPR * rotations * GEAR_RATIO;
 
         if ( direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right") ) { // check should be tob and bottom motors instead
-            backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
-            backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//check should do right too?
+            backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
+            backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//check should do right too?
         }
         else {
             rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
@@ -530,7 +575,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         if ( direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right")) {
 
 
-            while ( Math.abs(backLeftMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time)) {//check here
+            while ( Math.abs(backRightMotor.getCurrentPosition()) < counts && (timeTwo - timeOne < time)) {//check here
                 imu();
 
                 currentHeading = Double.parseDouble(formatAngle(lastAngles.angleUnit, lastAngles.firstAngle));
@@ -541,24 +586,23 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 if ( direction.equalsIgnoreCase("left") ) {
                     // Set motor powers based on paramater power
-                    backLeftMotor.setPower(-speed + straightGyroAdjust );
+                    //backLeftMotor.setPower(-speed + straightGyroAdjust );
                     backRightMotor.setPower(-speed + straightGyroAdjust );
                 }
                 else if ( direction.equalsIgnoreCase("right") ){
                     // Set motor powers based on paramater power
-                    backLeftMotor.setPower(speed + straightGyroAdjust);
+                    //backLeftMotor.setPower(speed + straightGyroAdjust);
                     backRightMotor.setPower(speed + straightGyroAdjust);
                 }
 
 
                 // Telemetry for encoder position
-                telemetry.addData("Current", backLeftMotor.getCurrentPosition());
+                telemetry.addData("Current", backRightMotor.getCurrentPosition());
                 telemetry.update();
                 // Set timeTwo to this.getRuntime ()
                 timeTwo = this.getRuntime();
             }
 
-            backLeftMotor.setPower(0);
             backRightMotor.setPower(0);
         }
         else {
@@ -611,22 +655,22 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     }
 
-    public void test(double power) {
-        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
-        backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // check to change to bottom
-
-        backLeftMotor.setPower( power );
-        backRightMotor.setPower( power );
-
-        pause(1);
-    }
+//    public void test(double power) {
+//        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
+//        backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // check to change to bottom
+//
+//        backLeftMotor.setPower( power );
+//        backRightMotor.setPower( power );
+//
+//        pause(1);
+//    }
 
     // Sets all drive train motors to 0 power
     public void stopDriving() {
 
         leftMotor.setPower(0);
         rightMotor.setPower(0);
-        backLeftMotor.setPower(0);
+        //backLeftMotor.setPower(0);
         backRightMotor.setPower(0);
     }
 
@@ -677,7 +721,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         touchLiftFeelerRaise.setPosition(.5);
 
-        pause(1);
+        pause(.2);
 
         timeOne = this.getRuntime();
         timeTwo=this.getRuntime();
@@ -690,14 +734,34 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         touchLiftFeelerRaise.setPosition(.5);
 
+        pause (.2);
+
         feelerSwipe.setPosition(.5);
 
-        while (touchSensorFront.getState())
+        pause(.2);
+
+        timeOne = this.getRuntime();
+        timeTwo=this.getRuntime();
+
+        while (timeTwo-timeOne < 1.9)
         {
+            timeTwo=this.getRuntime();
             touchLiftFeelerRaise.setPosition(1);
         }
 
         touchLiftFeelerRaise.setPosition(.5);
+
+        timeOne = this.getRuntime();
+        timeTwo=this.getRuntime();
+
+        while (timeTwo-timeOne < .2)
+        {
+            timeTwo=this.getRuntime();
+            touchLiftFeelerRaise.setPosition(0);
+        }
+
+        touchLiftFeelerRaise.setPosition(.5);
+
 
 
         if (allianceColor.equalsIgnoreCase("red") && sensorColor.blue() >=  sensorColor.red()) {
@@ -707,8 +771,16 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             pause(.2);
             feelerSwipe.setPosition(feelerSwipeCWPosition);
             pause(.2);
-            touchLiftFeelerRaise.setPosition(feelerRaiseUpPosition);
-            pause(1);
+            timeOne = this.getRuntime();
+            timeTwo=this.getRuntime();
+
+            while (timeTwo-timeOne < 1.7)
+            {
+                timeTwo=this.getRuntime();
+                touchLiftFeelerRaise.setPosition(0);
+            }
+
+            touchLiftFeelerRaise.setPosition(.5);
             feelerSwipe.setPosition(feelerSwipeNeutralPosition);
         }
         else if ( allianceColor.equalsIgnoreCase("red") && sensorColor.red() >= sensorColor.blue()) {
@@ -718,8 +790,16 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             pause(.2);
             feelerSwipe.setPosition(feelerSwipeCCWPosition);
             pause(.2);
-            touchLiftFeelerRaise.setPosition(feelerRaiseUpPosition);
-            pause(1);
+            timeOne = this.getRuntime();
+            timeTwo=this.getRuntime();
+
+            while (timeTwo-timeOne < 1.7)
+            {
+                timeTwo=this.getRuntime();
+                touchLiftFeelerRaise.setPosition(0);
+            }
+
+            touchLiftFeelerRaise.setPosition(.5);
             feelerSwipe.setPosition(feelerSwipeNeutralPosition);
         }
         else if ( allianceColor.equalsIgnoreCase("blue") && sensorColor.blue() >= sensorColor.red()) {
@@ -729,8 +809,16 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             pause(.2);
             feelerSwipe.setPosition(feelerSwipeCCWPosition);
             pause(.2);
-            touchLiftFeelerRaise.setPosition(feelerRaiseUpPosition);
-            pause(1);
+            timeOne = this.getRuntime();
+            timeTwo=this.getRuntime();
+
+            while (timeTwo-timeOne < 1.7)
+            {
+                timeTwo=this.getRuntime();
+                touchLiftFeelerRaise.setPosition(0);
+            }
+
+            touchLiftFeelerRaise.setPosition(.5);
             feelerSwipe.setPosition(feelerSwipeNeutralPosition);
         }
         else if ( allianceColor.equalsIgnoreCase("blue") && sensorColor.red() >= sensorColor.blue()) {
@@ -740,8 +828,16 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             pause(.2);
             feelerSwipe.setPosition(feelerSwipeCWPosition);
             pause(.2);
-            touchLiftFeelerRaise.setPosition(feelerRaiseUpPosition);
-            pause(1);
+            timeOne = this.getRuntime();
+            timeTwo=this.getRuntime();
+
+            while (timeTwo-timeOne < 1.7)
+            {
+                timeTwo=this.getRuntime();
+                touchLiftFeelerRaise.setPosition(0);
+            }
+
+            touchLiftFeelerRaise.setPosition(.5);
             feelerSwipe.setPosition(feelerSwipeNeutralPosition);
         }
 
@@ -820,8 +916,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     public void driveToTouch (String direction, double power, double time, double targetHeading, String touchDirection) {
 
         if (direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right")) { // check should be tob and bottom motors instead
-            backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
-            backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//check should do right too?
+            backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
+            backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//check should do right too?
         } else {
             rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
             rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //check should to bottom too?
@@ -838,7 +934,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                     correction = this.getAngleSimple() * .082;
 
-                    backLeftMotor.setPower(power);
+                    //backLeftMotor.setPower(power);
                     backRightMotor.setPower(power);
 
                     leftMotor.setPower(correction);
@@ -852,7 +948,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                     correction = this.getAngleSimple() * .082;
 
-                    backLeftMotor.setPower(power);
+                    //backLeftMotor.setPower(power);
                     backRightMotor.setPower(power);
 
                     leftMotor.setPower(correction);
@@ -866,7 +962,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                     correction = this.getAngleSimple() * .082;
 
-                    backLeftMotor.setPower(power);
+                    //backLeftMotor.setPower(power);
                     backRightMotor.setPower(power);
 
                     leftMotor.setPower(correction);
@@ -876,7 +972,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 }
 
-            backLeftMotor.setPower(0);
+            //backLeftMotor.setPower(0);
             backRightMotor.setPower(0);
             leftMotor.setPower(0);
             rightMotor.setPower(0);
@@ -890,7 +986,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                     correction = this.getAngleSimple() * .082;
 
-                    backLeftMotor.setPower(power);
+                    //backLeftMotor.setPower(power);
                     backRightMotor.setPower(power);
 
                     leftMotor.setPower(correction);
@@ -906,7 +1002,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                     correction = this.getAngleSimple() * .082;
 
-                    backLeftMotor.setPower(power);
+                    //backLeftMotor.setPower(power);
                     backRightMotor.setPower(power);
 
                     leftMotor.setPower(correction);
@@ -921,7 +1017,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                     correction = this.getAngleSimple() * .082;
 
-                    backLeftMotor.setPower(power);
+                    //backLeftMotor.setPower(power);
                     backRightMotor.setPower(power);
 
                     leftMotor.setPower(correction);
@@ -931,7 +1027,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                 }
             }
 
-            backLeftMotor.setPower(0);
+            //backLeftMotor.setPower(0);
             backRightMotor.setPower(0);
             leftMotor.setPower(0);
             rightMotor.setPower(0);
@@ -943,8 +1039,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         rotations = inches / (Math.PI * WHEEL_DIAMETER);
         counts = ENCODER_CPR * rotations * GEAR_RATIO;
 
-        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
-        backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //check should to bottom too?
+        backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
+        backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //check should to bottom too?
 //
         //Set timeOne and timeTwo to this.getRuntime();
         timeOne = this.getRuntime();
@@ -954,7 +1050,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         if (power > 0) {
 
-            while (Math.abs(backLeftMotor.getCurrentPosition()) < counts && timeTwo - timeOne < time) {
+            while (Math.abs(backRightMotor.getCurrentPosition()) < counts && timeTwo - timeOne < time) {
                 // Use gyro to drive in a straight line.
                 correction = (this.getAngleSimple() + 6) * .047;
 
@@ -969,11 +1065,11 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                 telemetry.addData("Angle", this.getAngleSimple());
                 telemetry.addData("inches", inches);
                 telemetry.addData("power", power);
-                telemetry.addData("pos", backLeftMotor.getCurrentPosition());
+                telemetry.addData("pos", backRightMotor.getCurrentPosition());
                 telemetry.addData("counts", counts);
                 telemetry.update();
 
-                backLeftMotor.setPower(power);
+                //backLeftMotor.setPower(power);
                 backRightMotor.setPower(power);
 
                 if (Math.abs(correction) > .08) {
@@ -992,7 +1088,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         else {
 
-            while (Math.abs(backLeftMotor.getCurrentPosition()) < counts && timeTwo - timeOne < time) {
+            while (Math.abs(backRightMotor.getCurrentPosition()) < counts && timeTwo - timeOne < time) {
 
                 // Use gyro to drive in a straight line.
                 correction = (this.getAngleSimple() - 6) * .047;
@@ -1008,11 +1104,11 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                 telemetry.addData("Angle", this.getAngleSimple());
                 telemetry.addData("inches", inches);
                 telemetry.addData("power", power);
-                telemetry.addData("pos", backLeftMotor.getCurrentPosition());
+                telemetry.addData("pos", backRightMotor.getCurrentPosition());
                 telemetry.addData("counts", counts);
                 telemetry.update();
 
-                backLeftMotor.setPower(power);
+                //backLeftMotor.setPower(power);
                 backRightMotor.setPower(power);
 
                 if (Math.abs(correction) > .08) {
@@ -1028,7 +1124,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
             }
 
-            backLeftMotor.setPower(0);
+            //backLeftMotor.setPower(0);
             backRightMotor.setPower(0);
             leftMotor.setPower(0);
             rightMotor.setPower(0);
@@ -1036,9 +1132,24 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         }
     }
 
+    public void wiringTest ()
+    {
+        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
+        rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //check should to bottom too?
+
+        while (rightMotor.getCurrentPosition() < 1000)
+        {
+            leftMotor.setPower(.3);
+            rightMotor.setPower(.3);
+        }
+
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
+//
+    }
+
     public void driveNewIMU (double distance, double time, double power, boolean forwards)
     {
-
         //math to calculate total counts robot should travel
         inches = distance;
         rotations = inches / (Math.PI * WHEEL_DIAMETER);
@@ -1051,10 +1162,17 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
+        initialAngle = this.getAngleSimple();
+        telemetry.addData("init angle", initialAngle);
+        telemetry.update();
+
         //while (Math.abs(rightMotor.getCurrentPosition())<counts && timeTwo-timeOne<time) {
 
         while (Math.abs(rightMotor.getCurrentPosition())<counts && timeTwo-timeOne<time) {
             // Use gyro to drive in a straight line.
+            currentAngle= this.getAngleSimple();
+            arrList.add(currentAngle);
+
             correction = this.getAngleSimple() * .022;
 
             telemetry.addData("1 imu heading", lastAngles.firstAngle);
@@ -1087,15 +1205,38 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             }
 
         }
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
 
+        finalAngle = calculateAverage(arrList);
+        angleError = finalAngle;
+
+        if (power > 0) {
+            strafeDistanceDrive = distance * Math.sin(finalAngle / 180 * Math.PI);
+        }
+        else
+        {
+            strafeDistanceDrive = -distance * Math.sin(finalAngle / 180 * Math.PI);
+        }
+
+        pause(5);
+        telemetry.addData("strafe", strafeDistanceDrive);
+        telemetry.update();
+
+        if (strafeDistanceDrive > 0 && (Math.abs(strafeDistanceDrive) > .5)) {
+            strafeNewIMU(strafeDistanceDrive, 10, .4, true);
+        }
+        if (strafeDistanceDrive < 0 && (Math.abs(strafeDistanceDrive) > .5)) {
+            strafeNewIMU(strafeDistanceDrive, 10, .4, false);
+        }
+
+
+        arrList.clear();
             // We record the sensor values because we will test them in more than
             // one place with time passing between those places. See the lesson on
             // Timing Considerations to know why.
 
             // stop.
-            leftMotor.setPower(0);
-            rightMotor.setPower(0);
-
     }
 
     /**
@@ -1162,6 +1303,14 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         correction = correction * gain;
 
         return correction;
+    }
+
+    private double calculateAverage(ArrayList <Double> marks) {
+        int sum = 0;
+        for (int i=0; i< marks.size(); i++) {
+            sum += i;
+        }
+        return sum / marks.size();
     }
 }
 
