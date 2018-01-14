@@ -108,26 +108,26 @@ public class TeleopLimits extends OpMode {
     public void init() { // use hardwaremap here instead of hwmap or ahwmap provided in sample code
 
         // Motor configurations in the hardware map
-        rightMotor = hardwareMap.dcMotor.get("rightMotor"); //RightMotor configuration
-        leftMotor = hardwareMap.dcMotor.get("leftMotor"); //LeftMotor configuration
+        rightMotor = hardwareMap.dcMotor.get("m1"); //RightMotor configuration
+        leftMotor = hardwareMap.dcMotor.get("m2"); //LeftMotor configuration
         //backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor"); //BackLeftMotor configuration
-        backRightMotor = hardwareMap.dcMotor.get("backRightMotor"); //BackRightMotor configuration
-        rightIntakeMotor = hardwareMap.dcMotor.get("rightIntake"); //rightIntakeMotor configuration
-        leftIntakeMotor = hardwareMap.dcMotor.get("leftIntake"); //leftIntakeMotor configuration
-        panLifterMotor = hardwareMap.dcMotor.get("elevator"); //panLifterMotor configuration
+        backRightMotor = hardwareMap.dcMotor.get("m3"); //BackRightMotor configuration
+        rightIntakeMotor = hardwareMap.dcMotor.get("m4"); //rightIntakeMotor configuration
+        leftIntakeMotor = hardwareMap.dcMotor.get("m5"); //leftIntakeMotor configuration
+        panLifterMotor = hardwareMap.dcMotor.get("m6"); //panLifterMotor configuration
 
         // Servo configurations in the hardware map
-        leftPanSpin = hardwareMap.servo.get("leftPanSpin"); //leftPanSpin configuration
-        rightPanSpin = hardwareMap.servo.get("rightPanSpin"); //rightPanSpin configuration
-        relicLongArm = hardwareMap.servo.get("relicLongArm");
-        relicShortArm = hardwareMap.servo.get("relicShortArm");
-        panKick = hardwareMap.servo.get("panKicker");
-        grab = hardwareMap.servo.get("grab");
-        relicRotate = hardwareMap.servo.get("relicRotate");
+        leftPanSpin = hardwareMap.servo.get("s1"); //leftPanSpin configuration
+        rightPanSpin = hardwareMap.servo.get("s2"); //rightPanSpin configuration
+        relicLongArm = hardwareMap.servo.get("s3");
+        relicShortArm = hardwareMap.servo.get("s4");
+        panKick = hardwareMap.servo.get("s5");
+        grab = hardwareMap.servo.get("s6");
+        relicRotate = hardwareMap.servo.get("s7");
 
         // Touch sensor configuration in the hardware map
-        limitTop = hardwareMap.get(DigitalChannel.class, "limitTop"); //Top touchSensor configuration
-        limitBottom = hardwareMap.get(DigitalChannel.class, "limitBottom");
+        limitTop = hardwareMap.get(DigitalChannel.class, "d1"); //Top touchSensor configuration
+        limitBottom = hardwareMap.get(DigitalChannel.class, "d2");
 
         // Motor directions
         rightMotor.setDirection(REVERSE); //Set rightMotor to FORWARD direction
@@ -142,8 +142,8 @@ public class TeleopLimits extends OpMode {
         leftPanSpin.setDirection(Servo.Direction.REVERSE); //Set leftPanSpin to REVERSE direction
         rightPanSpin.setDirection(Servo.Direction.FORWARD); //Set rightPanSpin to FORWARD direction
         panKick.setDirection(Servo.Direction.FORWARD);
-        grab.setDirection(Servo.Direction.FORWARD);
-        relicRotate.setDirection(Servo.Direction.FORWARD);
+        grab.setDirection(Servo.Direction.REVERSE);
+        relicRotate.setDirection(Servo.Direction.REVERSE);
 
         //Init powers
         rightMotor.setPower(0); //Set rightMotor to 0 power
@@ -399,7 +399,7 @@ public class TeleopLimits extends OpMode {
         }
         //When in end game mode
         else
-        {
+        {   
 //            //While dpad right is pressed
 //            if(dpadRightPressed)
 //            {
