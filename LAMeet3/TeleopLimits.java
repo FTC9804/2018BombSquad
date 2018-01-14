@@ -62,7 +62,7 @@ public class TeleopLimits extends OpMode {
     DcMotor rightMotor;
     DcMotor leftMotor;
     DcMotor backRightMotor;
-    DcMotor backLeftMotor;
+    //DcMotor backLeftMotor;
 
     //Cube movement variables
     double rightTrigger; //double for the extent to which rightTrigger is pressed. No press is 0, full press is 1
@@ -110,7 +110,7 @@ public class TeleopLimits extends OpMode {
         // Motor configurations in the hardware map
         rightMotor = hardwareMap.dcMotor.get("rightMotor"); //RightMotor configuration
         leftMotor = hardwareMap.dcMotor.get("leftMotor"); //LeftMotor configuration
-        backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor"); //BackLeftMotor configuration
+        //backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor"); //BackLeftMotor configuration
         backRightMotor = hardwareMap.dcMotor.get("backRightMotor"); //BackRightMotor configuration
         rightIntakeMotor = hardwareMap.dcMotor.get("rightIntake"); //rightIntakeMotor configuration
         leftIntakeMotor = hardwareMap.dcMotor.get("leftIntake"); //leftIntakeMotor configuration
@@ -133,7 +133,7 @@ public class TeleopLimits extends OpMode {
         rightMotor.setDirection(REVERSE); //Set rightMotor to FORWARD direction
         leftMotor.setDirection(FORWARD); //Set leftMotor to REVERSE direction
         backRightMotor.setDirection(REVERSE); //Set backRightMotor to REVERSE direcion
-        backLeftMotor.setDirection(REVERSE); //Set backLeftMotor to REVERSE direction
+        //backLeftMotor.setDirection(REVERSE); //Set backLeftMotor to REVERSE direction
         rightIntakeMotor.setDirection(REVERSE); //Set rightIntakeMotor to FORWARD direction
         leftIntakeMotor.setDirection(FORWARD); //Set leftIntakeMotor to FORWARD direction
         panLifterMotor.setDirection(REVERSE); //Set panLifterMotor to FORWARD direction
@@ -149,7 +149,7 @@ public class TeleopLimits extends OpMode {
         rightMotor.setPower(0); //Set rightMotor to 0 power
         leftMotor.setPower(0); //Set leftMotor to 0 power
         backRightMotor.setPower(0); //Set backRightMotor to 0 power
-        backLeftMotor.setPower(0); //Set backLeftMotor to 0 power
+        //backLeftMotor.setPower(0); //Set backLeftMotor to 0 power
         rightIntakeMotor.setPower(0); //Set rightIntakeMotor to 0 power
         leftIntakeMotor.setPower(0); //Set leftIntakeMotor to 0 power
         panLifterMotor.setPower(0); //Set panLifterMotor to 0 power
@@ -598,7 +598,7 @@ public class TeleopLimits extends OpMode {
         rightIntakeMotor.setPower(rightIntakePower);
         leftMotor.setPower(finLeftPower);
         rightMotor.setPower(finRightPower);
-        backLeftMotor.setPower(finBackPower);
+        //backLeftMotor.setPower(finBackPower);
         backRightMotor.setPower(finBackPower);
 
         telemetry.update();
