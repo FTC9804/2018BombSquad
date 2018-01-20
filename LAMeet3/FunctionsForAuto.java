@@ -72,6 +72,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     DcMotor relicMotor;
 
+    double touchDown = 0;
+    double touchUp = 1;
+    double feelerSwipeNeutralPosition = .5;
+    double feelerSwipeCWPosition = .25; //tentative, cw
+    double feelerSwipeCCWPosition = .75; //tentative, ccw
+
     /******************* V U F O R I A *******************/
 
     VuforiaLocalizer vuforia;
@@ -95,7 +101,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     DigitalChannel limitTop; //Touch sensor that tells us if we reach the top with the Pan
     DigitalChannel limitBottom; //Touch sensor that tells us if we reach the bottom with the Pan
 
-    ColorSensor sensorColor; // Right color feeler for balls autonomous
+    ColorSensor sensorColorFeeler; // Right color feeler for balls autonomous
 
     // The IMU sensor object
     BNO055IMU imu;
@@ -147,6 +153,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     double strafeDistanceDrive;
     ArrayList <Double> arrList;
 
+    double spinPower;
+
 
     /******************* P A N *******************/
 
@@ -170,6 +178,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     double pan45Redirect = .5;
     boolean liftHasGoneUp = false;
 
+    boolean vuMarkDetected = false;
+
     /******************* F E E L E R S   S E R V O S *******************/
 
     // grabber
@@ -177,15 +187,15 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     double feelerRaiseUpPosition = 1;
     double feelerRaiseDownPosition = .25;
-    double feelerSwipeNeutralPosition = .5;
-    double feelerSwipeCWPosition = .25; //tentative, cw
-    double feelerSwipeCCWPosition = .75; //tentative, ccw
 
     /******************* B L O C K    D I S T A N C E *******************/
 
     DistanceSensor sensorA;
     DistanceSensor sensorB;
     DistanceSensor sensorC;
+    ColorSensor colorBlockA;
+    ColorSensor colorBlockB;
+    ColorSensor colorBlockC;
 
     boolean threeBlocks = false;
 
@@ -277,12 +287,15 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         /******************* S E N S O R S *******************/
 
-        sensorColor = hardwareMap.get(ColorSensor.class, "sensor_color_distance");
-        sensorColor.enableLed(true);
+        sensorColorFeeler = hardwareMap.get(ColorSensor.class, "sensor_color_distance");
+        sensorColorFeeler.enableLed(true);
 
         sensorA = hardwareMap.get(DistanceSensor.class, "sensor A");
         sensorB = hardwareMap.get(DistanceSensor.class, "sensor B");
         sensorC = hardwareMap.get(DistanceSensor.class, "sensor C");
+        colorBlockA = hardwareMap.get(ColorSensor.class, "sensor A");
+        colorBlockB = hardwareMap.get(ColorSensor.class, "sensor B");
+        colorBlockC = hardwareMap.get(ColorSensor.class, "sensor C");
 
         touchSensorFront = hardwareMap.get(DigitalChannel.class, "touchFront");
         touchSensorLeft = hardwareMap.get(DigitalChannel.class, "touchLeft");
@@ -296,7 +309,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         feelerSwipe.setPosition(feelerSwipeNeutralPosition);
 
-        touchLiftFeelerRaise.setPosition(.5);
+        touchLiftFeelerRaise.setPosition(1);
 
 
         /******************* P A N    S P I N *******************/
@@ -492,6 +505,47 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     }
 
+    public String detectVuMarkMoving ( ) {
+
+        relicTrackables.activate();
+
+        while (!vuMarkDetected) {
+
+            vuMark = RelicRecoveryVuMark.from(relicTemplate);
+
+            if (vumarkToString().equalsIgnoreCase("LEFT")) {
+                vuMarkChecker = "left";
+                vuMarkDetected = true;
+            } else if (vumarkToString().equalsIgnoreCase("RIGHT")) {
+                vuMarkChecker = "right";
+                vuMarkDetected = true;
+            } else if (vumarkToString().equalsIgnoreCase("CENTER")) {
+                vuMarkChecker = "center";
+                vuMarkDetected = true;
+            } else if (vumarkToString().equals("UNKOWN")){
+                vuMarkChecker = "unknown as answer";
+            }
+            else {
+                vuMarkChecker = "novalue";
+            }
+
+            if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
+
+                    /* Found an instance of the template. In the actual game, you will probably
+                     * loop until this condition occurs, then move on to act accordingly depending
+                     * on which VuMark was visible. */
+                telemetry.addData("VuMark", "%s visible", vuMark);
+
+            } else {
+                telemetry.addData("VuMark", "not visible");
+            }
+
+            telemetry.addData("Vu mark detector: ", vuMarkChecker);
+            telemetry.update();
+        }
+        return vuMarkChecker;
+    }
+
     public String detectVuMark( int timeToCheck ) {
 
         relicTrackables.activate();
@@ -685,6 +739,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         backRightMotor.setPower(0);
     }
 
+
     public void pause( double time ) {
         //Set timeOne and timeTwo to this.getRuntime()
         timeOne = this.getRuntime();
@@ -729,129 +784,55 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     public void dropFeelerMoveBallOnlyNewRobot() {
 
-        touchLiftFeelerRaise.setPosition(.5);
+        touchLiftFeelerRaise.setPosition(feelerRaiseDownPosition);
 
-        pause(.2);
-
-        timeOne = this.getRuntime();
-        timeTwo=this.getRuntime();
-
-        while (timeTwo-timeOne < .5)
-        {
-            timeTwo=this.getRuntime();
-            touchLiftFeelerRaise.setPosition(1);
-        }
-
-        touchLiftFeelerRaise.setPosition(.5);
-
-        pause (.2);
-
-        feelerSwipe.setPosition(.5);
-
-        pause(.2);
-
-        timeOne = this.getRuntime();
-        timeTwo=this.getRuntime();
-
-        while (timeTwo-timeOne < 1.9)
-        {
-            timeTwo=this.getRuntime();
-            touchLiftFeelerRaise.setPosition(1);
-        }
-
-        touchLiftFeelerRaise.setPosition(.5);
-
-        timeOne = this.getRuntime();
-        timeTwo=this.getRuntime();
-
-        while (timeTwo-timeOne < .2)
-        {
-            timeTwo=this.getRuntime();
-            touchLiftFeelerRaise.setPosition(0);
-        }
-
-        touchLiftFeelerRaise.setPosition(.5);
+        pause(1);
 
 
-
-        if (allianceColor.equalsIgnoreCase("red") && sensorColor.blue() >=  sensorColor.red()) {
-            telemetry.addData( "Value of RED: ", sensorColor.red() );
-            telemetry.addData( "Value of BLUE: ", sensorColor.blue() );
+        if (allianceColor.equalsIgnoreCase("red") && sensorColorFeeler.blue() >=  sensorColorFeeler.red()) {
+            telemetry.addData( "Value of RED: ", sensorColorFeeler.red() );
+            telemetry.addData( "Value of BLUE: ", sensorColorFeeler.blue() );
             telemetry.update();
             pause(.2);
             feelerSwipe.setPosition(feelerSwipeCWPosition);
             pause(.2);
-            timeOne = this.getRuntime();
-            timeTwo=this.getRuntime();
-
-            while (timeTwo-timeOne < 1.7)
-            {
-                timeTwo=this.getRuntime();
-                touchLiftFeelerRaise.setPosition(0);
-            }
-
-            touchLiftFeelerRaise.setPosition(.5);
+            touchLiftFeelerRaise.setPosition(feelerRaiseUpPosition);
+            pause(.2);
             feelerSwipe.setPosition(feelerSwipeNeutralPosition);
         }
-        else if ( allianceColor.equalsIgnoreCase("red") && sensorColor.red() >= sensorColor.blue()) {
-            telemetry.addData( "Value of RED: ", sensorColor.red() );
-            telemetry.addData( "Value of BLUE: ", sensorColor.blue() );
+        else if ( allianceColor.equalsIgnoreCase("red") && sensorColorFeeler.red() >= sensorColorFeeler.blue()) {
+            telemetry.addData( "Value of RED: ", sensorColorFeeler.red() );
+            telemetry.addData( "Value of BLUE: ", sensorColorFeeler.blue() );
             telemetry.update();
             pause(.2);
             feelerSwipe.setPosition(feelerSwipeCCWPosition);
             pause(.2);
-            timeOne = this.getRuntime();
-            timeTwo=this.getRuntime();
-
-            while (timeTwo-timeOne < 1.7)
-            {
-                timeTwo=this.getRuntime();
-                touchLiftFeelerRaise.setPosition(0);
-            }
-
-            touchLiftFeelerRaise.setPosition(.5);
+            touchLiftFeelerRaise.setPosition(feelerRaiseUpPosition);
+            pause(.2);
             feelerSwipe.setPosition(feelerSwipeNeutralPosition);
         }
-        else if ( allianceColor.equalsIgnoreCase("blue") && sensorColor.blue() >= sensorColor.red()) {
-            telemetry.addData( "Value of RED: ", sensorColor.red() );
-            telemetry.addData( "Value of BLUE: ", sensorColor.blue() );
+        else if ( allianceColor.equalsIgnoreCase("blue") && sensorColorFeeler.blue() >= sensorColorFeeler.red()) {
+            telemetry.addData( "Value of RED: ", sensorColorFeeler.red() );
+            telemetry.addData( "Value of BLUE: ", sensorColorFeeler.blue() );
             telemetry.update();
             pause(.2);
             feelerSwipe.setPosition(feelerSwipeCCWPosition);
             pause(.2);
-            timeOne = this.getRuntime();
-            timeTwo=this.getRuntime();
-
-            while (timeTwo-timeOne < 1.7)
-            {
-                timeTwo=this.getRuntime();
-                touchLiftFeelerRaise.setPosition(0);
-            }
-
-            touchLiftFeelerRaise.setPosition(.5);
+            touchLiftFeelerRaise.setPosition(feelerRaiseUpPosition);
+            pause(.2);
             feelerSwipe.setPosition(feelerSwipeNeutralPosition);
         }
-        else if ( allianceColor.equalsIgnoreCase("blue") && sensorColor.red() >= sensorColor.blue()) {
-            telemetry.addData( "Value of RED: ", sensorColor.red() );
-            telemetry.addData( "Value of BLUE: ", sensorColor.blue() );
+        else if ( allianceColor.equalsIgnoreCase("blue") && sensorColorFeeler.red() >= sensorColorFeeler.blue()) {
+            telemetry.addData( "Value of RED: ", sensorColorFeeler.red() );
+            telemetry.addData( "Value of BLUE: ", sensorColorFeeler.blue() );
             telemetry.update();
             pause(.2);
             feelerSwipe.setPosition(feelerSwipeCWPosition);
             pause(.2);
-            timeOne = this.getRuntime();
-            timeTwo=this.getRuntime();
-
-            while (timeTwo-timeOne < 1.7)
-            {
-                timeTwo=this.getRuntime();
-                touchLiftFeelerRaise.setPosition(0);
-            }
-
-            touchLiftFeelerRaise.setPosition(.5);
+            touchLiftFeelerRaise.setPosition(feelerRaiseUpPosition);
+            pause(.2);
             feelerSwipe.setPosition(feelerSwipeNeutralPosition);
         }
-
-        stopDriving();
 
     }
 
@@ -1044,7 +1025,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         }
     }
 
-    public void strafeNewIMU(double distance, double time, double power, boolean forwards) {
+    public void strafeNewIMU(double distance, double time, double power, boolean forwards, double desiredAngle) {
         inches = distance;
         rotations = inches / (Math.PI * WHEEL_DIAMETER);
         counts = ENCODER_CPR * rotations * GEAR_RATIO;
@@ -1062,7 +1043,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
             while (Math.abs(backRightMotor.getCurrentPosition()) < counts && timeTwo - timeOne < time) {
                 // Use gyro to drive in a straight line.
-                correction = (this.getAngleSimple() + 6) * .047;
+                correction = ((this.getAngleSimple()-desiredAngle) + 6) * .047;
 
                 if (!hasStrafedLoop) {
                     pause(.5);
@@ -1101,7 +1082,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             while (Math.abs(backRightMotor.getCurrentPosition()) < counts && timeTwo - timeOne < time) {
 
                 // Use gyro to drive in a straight line.
-                correction = (this.getAngleSimple() - 6) * .047;
+                correction = ((this.getAngleSimple()-desiredAngle) - 6) * .047;
 
                 if (!hasStrafedLoop) {
                     pause(.5);
@@ -1157,7 +1138,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 //
     }
 
-    public void driveNewIMU(double distance, double time, double power, boolean forwards) {
+    public void driveNewIMU(double distance, double time, double power, boolean forwards, boolean vuMark) {
         //math to calculate total counts robot should travel
         inches = distance;
         rotations = inches / (Math.PI * WHEEL_DIAMETER);
@@ -1177,11 +1158,13 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         //while (Math.abs(rightMotor.getCurrentPosition())<counts && timeTwo-timeOne<time) {
 
         while (Math.abs(rightMotor.getCurrentPosition())<counts && timeTwo-timeOne<time) {
+
+
             // Use gyro to drive in a straight line.
-            currentAngle= this.getAngleSimple();
+            currentAngle = this.getAngleSimple();
             arrList.add(currentAngle);
 
-            correction = this.getAngleSimple() * .022;
+            correction = this.getAngleSimple() * .032;
 
             telemetry.addData("1 imu heading", lastAngles.firstAngle);
             telemetry.addData("2 global heading", globalAngle);
@@ -1227,19 +1210,21 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             strafeDistanceDrive = -distance * Math.sin(finalAngle / 180 * Math.PI);
         }
 
-        pause(5);
-        telemetry.addData("strafe", strafeDistanceDrive);
-        telemetry.update();
-
-        if (strafeDistanceDrive > 0 && (Math.abs(strafeDistanceDrive) > .5)) {
-            strafeNewIMU(strafeDistanceDrive, 10, .4, true);
-        }
-        if (strafeDistanceDrive < 0 && (Math.abs(strafeDistanceDrive) > .5)) {
-            strafeNewIMU(strafeDistanceDrive, 10, .4, false);
-        }
+//        pause(5);
+//        telemetry.addData("strafe", strafeDistanceDrive);
+//        telemetry.update();
+//
+//        if (strafeDistanceDrive > 0 && (Math.abs(strafeDistanceDrive) > .5)) {
+//            strafeNewIMU(strafeDistanceDrive, 10, .4, true);
+//        }
+//        if (strafeDistanceDrive < 0 && (Math.abs(strafeDistanceDrive) > .5)) {
+//            strafeNewIMU(strafeDistanceDrive, 10, .4, false);
+//        }
 
 
         arrList.clear();
+
+        loopCounter = 0;
         // We record the sensor values because we will test them in more than
         // one place with time passing between those places. See the lesson on
         // Timing Considerations to know why.
@@ -1340,12 +1325,53 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         return correction;
     }
 
+    public void spinMove (double desiredAngle)
+    {
+        spinPower = .3;
+        //Set timeOne and timeTwo to this.getRuntime();
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        initialAngle = this.getAngleSimple();
+        telemetry.addData("init angle", initialAngle);
+        telemetry.update();
+
+        //while (Math.abs(rightMotor.getCurrentPosition())<counts && timeTwo-timeOne<time) {
+
+        if (desiredAngle<initialAngle) {
+            while (this.getAngleSimple() > desiredAngle) {
+                if (Math.abs(this.getAngleSimple() - desiredAngle) < 80) {
+                    loopCounter++;
+                    spinPower -= loopCounter * .0085;
+                }
+                spinPower = Range.clip(spinPower, .24, 1);
+                leftMotor.setPower(spinPower);
+                rightMotor.setPower(-spinPower);
+            }
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
+        }
+        else {
+            while (this.getAngleSimple() < desiredAngle) {
+                if (Math.abs(this.getAngleSimple() - desiredAngle) < 40) {
+                    loopCounter++;
+                    spinPower -= loopCounter * .0035;
+                }
+                spinPower = Range.clip(spinPower, .24, 1);
+                leftMotor.setPower(-spinPower);
+                rightMotor.setPower(spinPower);
+            }
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
+        }
+        loopCounter = 0;
+    }
+
     private double calculateAverage(ArrayList <Double> marks) {
-        int sum = 0;
+        double sum = 0;
         for (int i=0; i< marks.size(); i++) {
             sum += i;
         }
         return sum / marks.size();
     }
 }
-
