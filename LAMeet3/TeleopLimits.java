@@ -8,6 +8,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
@@ -15,11 +16,23 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import static com.qualcomm.robotcore.util.Range.clip;
 import java.util.concurrent.TimeUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import org.firstinspires.ftc.robotcore.external.Func;
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 @TeleOp(name = "TeleOpLimits", group = "LAMeets")
 public class TeleopLimits extends OpMode {
@@ -29,6 +42,16 @@ public class TeleopLimits extends OpMode {
     double leftStickX1; //Adjusted value taken from the raw value of the left X stick on gamepad 1
     double rightStickX1; //Adjusted value taken from the raw value of the right X stick on gamepad 1
     double rightStickY1; //Adjusted value taken from the raw value of the right Y stick on gamepad 1
+
+    double timeOne;
+    double timeTwo;
+
+    // The IMU sensor object
+    BNO055IMU imu;
+
+    DistanceSensor sensorA;
+    DistanceSensor sensorB;
+    DistanceSensor sensorC;
 
     //Driving variables
     boolean single = true;
@@ -58,6 +81,10 @@ public class TeleopLimits extends OpMode {
     double finFrontPower;
     double finBackPower;
 
+    double outtakePower = -.5;
+
+    boolean threeBlocks = false;
+
     //Driving Dc Motors
     DcMotor rightMotor;
     DcMotor leftMotor;
@@ -80,6 +107,10 @@ public class TeleopLimits extends OpMode {
     double rightIntakePower;
     double panLiftingPower;
 
+    boolean yPressed;
+    boolean aPressed;
+    boolean xPressed;
+    boolean bPressed;
     // Motor and servo configurations
     DcMotor rightIntakeMotor; //Dc motor that controls the right intake/right wheel of the intake
     DcMotor leftIntakeMotor; //Dc motor that controls the left intake/left wheel of the intake
@@ -107,6 +138,20 @@ public class TeleopLimits extends OpMode {
     /* Initialize standard Hardware interfaces */
     public void init() { // use hardwaremap here instead of hwmap or ahwmap provided in sample code
 
+
+        BNO055IMU.Parameters IMUparameters = new BNO055IMU.Parameters();
+
+        IMUparameters.mode                = BNO055IMU.SensorMode.IMU;
+        IMUparameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        IMUparameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        IMUparameters.calibrationDataFile = "BNO055IMUCalibration.json";
+        IMUparameters.loggingEnabled      = true; //F A L S E???
+        IMUparameters.loggingTag          = "IMU";
+        IMUparameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
+        imu = hardwareMap.get(BNO055IMU.class, "i0");
+        imu.initialize(IMUparameters);
+
         // Motor configurations in the hardware map
         rightMotor = hardwareMap.dcMotor.get("m1"); //RightMotor configuration
         leftMotor = hardwareMap.dcMotor.get("m2"); //LeftMotor configuration
@@ -124,6 +169,10 @@ public class TeleopLimits extends OpMode {
         panKick = hardwareMap.servo.get("s5");
         grab = hardwareMap.servo.get("s6");
         relicRotate = hardwareMap.servo.get("s7");
+
+        sensorA = hardwareMap.get(DistanceSensor.class, "i1");
+        sensorB = hardwareMap.get(DistanceSensor.class, "i2");
+        sensorC = hardwareMap.get(DistanceSensor.class, "i3");
 
         // Touch sensor configuration in the hardware map
         limitTop = hardwareMap.get(DigitalChannel.class, "d1"); //Top touchSensor configuration
@@ -155,14 +204,13 @@ public class TeleopLimits extends OpMode {
         panLifterMotor.setPower(0); //Set panLifterMotor to 0 power
 
         grab.setPosition(0);
-        relicRotate.setPosition( 0 );
+        relicRotate.setPosition(0);
 
-        leftPanSpin.setPosition(.05);
-        rightPanSpin.setPosition(.05);
+        leftPanSpin.setPosition(.1875);
+        rightPanSpin.setPosition(.1875);
 
 
 
-        panKick.setPosition(1);
 
         endGame = false;
         previousStatus = false;
@@ -182,6 +230,11 @@ public class TeleopLimits extends OpMode {
         //Set rightStickX1 to the right stick x value of gamepad 1 times the absolute value of this right stick x value
         rightStickY1 = gamepad1.right_stick_y * Math.abs(gamepad1.right_stick_y);
         //Set rightStickY1 to the right stick x value of gamepad 1 times the absolute value of this right stick y value
+
+        yPressed = gamepad1.y;
+        aPressed = gamepad1.a;
+        xPressed = gamepad1.x;
+        bPressed = gamepad1.b;
 
         startPressed = gamepad1.start;
         //startPressed = gamepad1.start;
@@ -305,9 +358,25 @@ public class TeleopLimits extends OpMode {
                 break;
         }
 
+        if (Math.abs(gamepad1.right_stick_x) > 0.05)
+        {
+            finLeftPower = finLeftPower+ .3*gamepad1.right_stick_x;
+            finRightPower = finRightPower - .3*gamepad1.right_stick_x;
+
+        }
+
+        if (Math.abs(gamepad1.left_stick_x) > 0.05)
+        {
+            finLeftPower /= 1.75;
+            finRightPower /= 1.75;
+        }
+
+
+
         finBackPower = Range.clip(finBackPower, -1, 1);
         finRightPower = Range.clip(finRightPower, -1, 1);
         finLeftPower = Range.clip(finLeftPower, -1, 1);
+
 
         //if ((finBackPower<0&&finRightPower>0)||(finBackPower>0&&finRightPower<0))
         //{
@@ -329,77 +398,82 @@ public class TeleopLimits extends OpMode {
 
         if(!currentStatus)
         {
-            //Setting LT to power of suck
-            if (leftTrigger > .05 && leftBumper)
+            if (sensorA.getDistance(DistanceUnit.CM) < 14 && sensorB.getDistance(DistanceUnit.CM) < 14 && sensorC.getDistance(DistanceUnit.CM) < 14)
             {
-                leftIntakePower = 0;
-                rightIntakePower = 0;
+                leftIntakePower = -.5;
+                rightIntakePower = -.5;
             }
-            else if(leftTrigger > .05)
-            {
-                leftIntakePower = Math.pow(leftTrigger, 2) * .69;
-                rightIntakePower = Math.pow(leftTrigger, 2);
-            }
-            else if(leftBumper)
-            {
-                leftIntakePower = -.7;
-                rightIntakePower = -.7;
-            }
-            else
-            {
-                leftIntakePower = 0;
-                rightIntakePower = 0;
-            }
-
-            //Setting LT and RB to score or intake positions of pan
-            if (rightTrigger > .05)
-            {
-                panSpinPosition = .6;
-            }
-            else if (!limitBottom.getState())
-            {
-                panSpinPosition = .05;
-            }
-            else
-            {
-                panSpinPosition = .15;
+            else {
+                //Setting LT to power of suck
+                if (leftTrigger > .05 && leftBumper) {
+                    leftIntakePower = 0;
+                    rightIntakePower = 0;
+                } else if (leftTrigger > .05) {
+                    leftIntakePower = Math.pow(leftTrigger, 2) * .69;
+                    rightIntakePower = Math.pow(leftTrigger, 2);
+                } else if (leftBumper) {
+                    leftIntakePower = -.7;
+                    rightIntakePower = -.7;
+                } else {
+                    leftIntakePower = 0;
+                    rightIntakePower = 0;
+                }
             }
 
-            if (rightBumper)
-            {
-                panKick.setPosition(.5);
-            }
-            else
-            {
-                panKick.setPosition(1);
-            }
-
-
-            if (!limitTop.getState() && dpadUpPressed || !limitBottom.getState() && dpadDownPressed)
+            if(dpadDownPressed && dpadUpPressed)
             {
                 panLiftingPower = 0;
             }
-            else if (dpadUpPressed && !dpadDownPressed)
+            else if(dpadUpPressed)
             {
-                panLiftingPower = -.8;
+                panLiftingPower = -1;
             }
-            else if (dpadDownPressed && !dpadUpPressed)
+            else if(dpadDownPressed)
             {
-                panLiftingPower = .4;
+                panLiftingPower = 1;
             }
             else
             {
                 panLiftingPower = 0;
             }
+
+            if(yPressed && aPressed)
+            {
+
+            }
+            else if(yPressed)
+            {
+                panSpinPosition = panSpinPosition + .05;
+            }
+            else if(aPressed)
+            {
+                panSpinPosition = panSpinPosition - .05;
+            }
+            else if(xPressed)
+            {
+                panSpinPosition = .3;
+            }
+            else if(bPressed)
+            {
+                panSpinPosition = .1875;
+            }
+
+            if (dpadLeftPressed)
+            {
+                score();
+            }
+
             telemetry.addData("panLifting", panLiftingPower);
             telemetry.addData("limitTop", limitTop.getState());
             telemetry.addData("limitBottom", limitBottom.getState());
+
+            panSpinPosition = Range.clip(panSpinPosition,.1875,.6);
 
 
         }
         //When in end game mode
         else
-        {   
+        {
 //            //While dpad right is pressed
 //            if(dpadRightPressed)
 //            {
@@ -588,6 +662,9 @@ public class TeleopLimits extends OpMode {
         telemetry.addData("previous", previousStatus);
 
 
+        // finLeftPower = Math.pow(finLeftPower,2);
+        //finRightPower = Math.pow(finRightPower,2);
+        //finBackPower = Math.pow(finBackPower,2);
 
         //Setting dpad to panPosition
         //SET CONTROLS
@@ -603,4 +680,39 @@ public class TeleopLimits extends OpMode {
 
         telemetry.update();
     } // end loop
+
+    public void score ()
+    {
+        while (limitTop.getState())
+        {
+            panLifterMotor.setPower(-.8);
+        }
+        panLifterMotor.setPower(0);
+        panLifterMotor.setPower(0);
+        leftPanSpin.setPosition(.6);
+        rightPanSpin.setPosition(.6);
+        pause(.8);
+        leftPanSpin.setPosition(.15);
+        rightPanSpin.setPosition(.15);
+        while (limitBottom.getState())
+        {
+            panLifterMotor.setPower(.4);
+        }
+        panLifterMotor.setPower(0);
+        leftPanSpin.setPosition(.05);
+        rightPanSpin.setPosition(.05);
+    }
+
+    public void pause( double time ) {
+        //Set timeOne and timeTwo to this.getRuntime()
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo - timeOne < time) {
+            timeTwo = this.getRuntime();
+        }
+    }
+
+
+
 } // end class
