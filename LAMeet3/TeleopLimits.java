@@ -358,6 +358,34 @@ public class TeleopLimits extends OpMode {
                 break;
         }
 
+        if (finBackPower<-.01)
+        {
+            finBackPower= -1* finBackPower * finBackPower;
+        }
+        if (finBackPower>.01)
+        {
+            finBackPower= finBackPower* finBackPower;
+        }
+
+        if (finLeftPower<-.01)
+        {
+            finLeftPower= -1* finLeftPower * finLeftPower;
+        }
+        if (finLeftPower>.01)
+        {
+            finLeftPower= finLeftPower* finLeftPower;
+        }
+
+        if (finRightPower<-.01)
+        {
+            finRightPower= -1* finRightPower * finRightPower;
+        }
+        if (finRightPower>.01)
+        {
+            finRightPower= finRightPower* finRightPower;
+        }
+
+
         if (Math.abs(gamepad1.right_stick_x) > 0.05)
         {
             finLeftPower = finLeftPower+ .3*gamepad1.right_stick_x;
@@ -367,8 +395,8 @@ public class TeleopLimits extends OpMode {
 
         if (Math.abs(gamepad1.left_stick_x) > 0.05)
         {
-            finLeftPower /= 1.75;
-            finRightPower /= 1.75;
+            finLeftPower /= 1.6;
+            finRightPower /= 1.6;
         }
 
 
@@ -398,19 +426,19 @@ public class TeleopLimits extends OpMode {
 
         if(!currentStatus)
         {
-            if (sensorA.getDistance(DistanceUnit.CM) < 14 && sensorB.getDistance(DistanceUnit.CM) < 14 && sensorC.getDistance(DistanceUnit.CM) < 14)
+            if (sensorA.getDistance(DistanceUnit.CM) < 14 && sensorA.getDistance(DistanceUnit.CM) > 14)
             {
                 leftIntakePower = -.5;
                 rightIntakePower = -.5;
             }
             else {
                 //Setting LT to power of suck
-                if (leftTrigger > .05 && leftBumper) {
+                if (rightTrigger > .05 && leftBumper) {
                     leftIntakePower = 0;
                     rightIntakePower = 0;
-                } else if (leftTrigger > .05) {
-                    leftIntakePower = Math.pow(leftTrigger, 2) * .69;
-                    rightIntakePower = Math.pow(leftTrigger, 2);
+                } else if (rightTrigger > .05) {
+                    leftIntakePower = Math.pow(rightTrigger, 2) * .6;
+                    rightIntakePower = Math.pow(rightTrigger, 2) * .8;
                 } else if (leftBumper) {
                     leftIntakePower = -.7;
                     rightIntakePower = -.7;
