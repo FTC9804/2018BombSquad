@@ -1,0 +1,97 @@
+//Package declaration
+package org.firstinspires.ftc.teamcode;
+
+//Import statements
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
+/**
+ * Created by MarcusLeher on 30/12/2017.
+ */
+
+@Autonomous(name = "blueNOTcorner", group = "VuforiaAuto")
+//@Disabled
+
+//Autonomous to score ball and a block from the blue non-corner position
+public class BLUEAUTONOTCORNER extends FunctionsForAuto {
+    String vuMarkOutput = ""; //Set vuMarkOutput to the empty string
+
+    public void runOpMode() throws InterruptedException { //runOpMode() method
+
+        configure("blue", "relicSide"); //Configure with parameters blue and relicSide
+
+        pause(.05); //pause for .05 seconds
+
+        calibrateGyro(); //Calibrate the gyro
+
+        //Telemetry
+        telemetry.addData("calibrated", true);
+        telemetry.update();
+
+        pause(1.5); //pause for 1.5 seconds
+
+        introduceAngle(); //Introduce the angle
+
+        pause(1.5); //pause for 1.5 seconds
+
+        waitForStart(); //Wait for start
+
+        pause(1.5); //pause for 1.5 seconds
+
+        //Telemetry
+        telemetry.addData("here", true);
+        telemetry.update();
+
+        dropFeelerMoveBallOnlyNewRobot(); //Run dropFeelerMoveBallOnlyNewRobot to score the ball
+
+        pause(.15); //pause for .15 seconds
+
+        vuMarkOutput = detectVuMark(3); //Run vuforia detection for 3 seconds
+
+        pause(.15); //pause for .15 seconds
+
+        driveNewIMU(18, 10, -.45, false, 0); //Drive backwards 18 inches at -.45 power keeping a 0 degree heading with a 10 second limit
+
+        pause(.45);  //pause for .45 seconds
+
+        spinMove(0, true); //Spin to 0 degrees starting at .33 power
+
+        pause(.45); //pause for .45 seconds
+
+        if (vuMarkOutput.equalsIgnoreCase("left")) //If vuforia reads left
+        {
+            strafeNewIMU(7, 5, -.65, 0); //Strafe to the left for 7 inches at -.65 power keeping a 0 degree heading with a 5 second limit
+        } else if (vuMarkOutput.equalsIgnoreCase("right")) //If vuforia reads right
+        {
+            strafeNewIMU(23.7, 5, -.65, 0); //Strafe to the left for 25 inches at -.65 power keeping a 0 degree heading with a 5 second limit
+        } else //Else
+        {
+            strafeNewIMU(16, 5, -.65, 0); //Strafe to the left for 16 inches at -.65 power keeping a 0 degree heading with a 5 second limit
+        }
+
+        pause(.15); //pause for .15 seconds
+
+        pause(.05); //pause for .05 seconds
+
+        driveNewIMU(12, 3, -.5, false, 0); //Drive backwards 12 inches at -.5 power keeping a 0 degree heading with a 3 second limit
+
+        pause(.05); //pause for .05 seconds
+
+        driveNewIMU(2.25, 5, .4, true, 0); //Drive forward 2.25 inches at .4 power keeping a 0 degree heading with a 5 second limit
+
+        pause(.05); //pause for .05 seconds
+
+        scoreBlock(0);  //Run scoreBlock() to deliver a block to the cryptobox, keeping a 0 degree heading
+
+        pause(.05); //pause for .05 seconds
+
+        driveNewIMU(8, .9, -.4, false, 0); //Drive backwards 6 inches at -.4 power keeping a 0 degree heading with a .9 second limit
+
+        pause(.05); //pause for .05 seconds
+
+        driveNewIMU(3.25, 5, .5, true, 0); //Drive forward 3.25 inches at .5 power keeping a 0 degree heading with a 5 second limit
+
+        pause(.05); //pause for .05 seconds
+
+    }
+}
