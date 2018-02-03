@@ -1,0 +1,125 @@
+//Package declaration
+package org.firstinspires.ftc.teamcode;
+
+//Import statements
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
+/**
+ * Created by MarcusLeher on 30/12/2017.
+ */
+
+@Autonomous(name = "redcorner", group = "VuforiaAuto")
+//@Disabled
+
+//Autonomous to score the ball and three blocks from the red corner position
+public class REDAUTOCORNER extends FunctionsForAuto {
+    String vuMarkOutput = ""; //Set vuMarkOutput to the empty string
+
+    public void runOpMode() throws InterruptedException { //runOpMode() method
+
+        configure("red", "relicSide"); //Configure with parameters red and relicSide
+
+        pause(.05); //pause for .05 seconds
+
+        calibrateGyro(); //Calibrate the gyro
+
+        //Telemetry
+        telemetry.addData("calibrated", true);
+        telemetry.update();
+
+        pause(.05); //pause for .05 seconds
+
+        introduceAngle(); //Introduce the angle
+
+        pause(.05); //pause for .05 seconds
+
+        waitForStart(); //Wait for start
+
+        pause(.05); //pause for .05 seconds
+
+        //Telemetry
+        telemetry.addData("here", true);
+        telemetry.update();
+
+        dropFeelerMoveBallOnlyNewRobot(); //Run dropFeelerMoveBallOnlyNewRobot to score the ball
+
+        pause(.05); //pause for .05 seconds
+
+        vuMarkOutput = detectVuMark(2); //Run vuforia detection for 2 seconds
+
+        pause(.05); //pause for .05 seconds
+
+        driveNewIMU(14.5, 10, .25, true, 0); //Drive forward 18 inches at .25 power keeping a 0 degree heading with a 10 second limit
+
+        pause(.05); //pause for .05 seconds
+
+        spinMove (88, false); //Spin to 88 degrees not starting at .33 power
+
+        if (vuMarkOutput.equalsIgnoreCase("left")) //If vuforia reads left
+        {
+            strafeNewIMU(17.9, 5, .65, 90);  //Strafe to the right for 17.9 inches at .65 power keeping a 90 degree heading with a 5 second limit
+        }
+        else if (vuMarkOutput.equalsIgnoreCase("right")) //If vuforia reads right
+        {
+            //Do nothing
+        }
+        else //Else
+        {
+            strafeNewIMU(9.7, 5, .65, 90); //Strafe to the right for 9.7 inches at .65 power keeping a 90 degree heading with a 5 second limit
+        }
+
+        pause(.05); //pause for .05 seconds
+
+        driveNewIMU (14, 3, -.5, false, 90); //Drive backwards 14 inches at -.5 power keeping a 90 degree heading with a 3 second limit
+
+        pause(.05); //pause for .05 seconds
+
+        driveNewIMU(1.25, 5, .4, true, 90); //Drive forward 1.25 inches at .4 power keeping a 90 degree heading with a 5 second limit
+
+        pause(.05); //pause for .05 seconds
+
+        scoreBlock(90);  //Run scoreBlock() to deliver a block to the cryptobox, keeping a 90 degree heading
+
+        pause(.05); //pause for .05 seconds
+
+        driveNewIMU (5, 1, -.4, false, 90); //Drive backwards 5 inches at -.4 power keeping a 90 degree heading with a 1 second limit
+
+        pause(.05); //pause for .05 seconds
+
+        driveNewIMU(5.25, 5, .5, true, 90); //Drive forward 5.25 inches at .5 power keeping a 90 degree heading with a 5 second limit
+
+        pause(.05); //pause for .05 seconds
+
+        if (vuMarkOutput.equalsIgnoreCase("left")) //If vuforia reads left
+        {
+            strafeNewIMU(9, 5, -.65, 90); //Strafe to the left for 9 inches at -.65 power keeping a 90 degree heading with a 5 second limit
+        }
+        else if (vuMarkOutput.equalsIgnoreCase("right")) //If vuforia reads right
+        {
+            strafeNewIMU(9, 5, .65, 90); //Strafe to the right for 9 inches at .65 power keeping a 90 degree heading with a 5 second limit
+        }
+        else //Else
+        {
+            //Do not move
+        }
+
+        getBlocks(60); //getBlocks for 60 inches
+
+        pause(.05); //pause for .05 seconds
+
+        spinMove(92, true); //spin to 92 degrees starting at .33 power
+
+        pause(.05); //pause for .05 seconds
+
+        scoreBlock(90); //Run scoreBlock() to score the second and third blocks, keeping a 90 degree heading
+
+        pause(.05); //pause for .05 seconds
+
+        driveNewIMU (9, .9, -.4, false, 90); //Drive backwards 9 inches at -.4 power keeping a 90 degree heading with a .9 second limit
+
+        pause(.05); //pause for .05 seconds
+
+        driveNewIMU(2.25, 5, .6, true, 90); //Drive forward 2.25 inches at .6 power keeping a 90 degree heading with a 5 second limit
+    }
+}
