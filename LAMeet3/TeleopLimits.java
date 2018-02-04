@@ -169,7 +169,7 @@ public class TeleopLimits extends OpMode {
 
         //Sensor configurations in the hardware map
         imu = hardwareMap.get(BNO055IMU.class, "i0"); //i0
-        imu.initialize(IMUparameters); //Initialize the IMU
+        //imu.initialize(IMUparameters); //Initialize the IMU
         limitTop = hardwareMap.get(DigitalChannel.class, "d1"); //d1
         limitBottom = hardwareMap.get(DigitalChannel.class, "d2"); //d2
         sensorA = hardwareMap.get(DistanceSensor.class, "i2"); //i2
