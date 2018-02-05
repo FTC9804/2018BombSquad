@@ -16,6 +16,18 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
+import android.app.Activity;
+import android.media.MediaPlayer;
+import android.os.Bundle;
+import android.os.Handler;
+import android.view.View;
+
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
+import java.util.concurrent.TimeUnit;
 
 //Declaration for display on the driver station
 @TeleOp(name = "TeleOpLimits", group = "LAMeets")
@@ -29,6 +41,9 @@ public class TeleopLimits extends OpMode {
     DcMotor rightMotor; //Right drive motor, for driving forwards and backwards
     DcMotor leftMotor;  //Left drive motor, for driving forwards and backwards
     DcMotor backMotor;  //Back drive motor, for driving sideways, a.k.a "strafing"
+
+    MediaPlayer mySound;
+
 
     //Relic
     DcMotor relicMotor; //Motor to extend the relic scoring mechanism
@@ -51,9 +66,6 @@ public class TeleopLimits extends OpMode {
     double feelerRaiseUpPosition = .9; //Position that the feelerRaise is set to when we are not scoring the ball
     double feelerRaiseDownPosition = .2; //Position that the feelerRaise is set to when we are scoring the ball
 
-
-    //IMU
-    BNO055IMU imu; //IMU sensor for detecting the angle of the robot
 
     //Controls
     //Driving controls, all for gamepad 1
@@ -150,26 +162,10 @@ public class TeleopLimits extends OpMode {
         //Servo configurations in the hardware map
         leftPanSpin = hardwareMap.servo.get("s1"); //s1
         rightPanSpin = hardwareMap.servo.get("s2"); //s2
-        grab = hardwareMap.servo.get("s6"); //s5
+        grab = hardwareMap.servo.get("s6"); //s6
         feelerRaise = hardwareMap.servo.get("s8"); //s8
         upDown = hardwareMap.servo.get("s11"); //s11
 
-        //IMU
-
-        //Set up the parameters with which we will use the IMU
-        BNO055IMU.Parameters IMUparameters = new BNO055IMU.Parameters();
-
-        IMUparameters.mode                = BNO055IMU.SensorMode.IMU;
-        IMUparameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        IMUparameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        IMUparameters.calibrationDataFile = "BNO055IMUCalibration.json";
-        IMUparameters.loggingEnabled      = true; //F A L S E???
-        IMUparameters.loggingTag          = "IMU";
-        IMUparameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-
-        //Sensor configurations in the hardware map
-        imu = hardwareMap.get(BNO055IMU.class, "i0"); //i0
-        //imu.initialize(IMUparameters); //Initialize the IMU
         limitTop = hardwareMap.get(DigitalChannel.class, "d1"); //d1
         limitBottom = hardwareMap.get(DigitalChannel.class, "d2"); //d2
         sensorA = hardwareMap.get(DistanceSensor.class, "i2"); //i2
@@ -184,6 +180,10 @@ public class TeleopLimits extends OpMode {
         leftIntakeMotor.setDirection(FORWARD); //Set leftIntakeMotor to FORWARD direction
         panLifterMotor.setDirection(REVERSE); //Set panLifterMotor to REVERSE direction
 
+        rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         // Servo directions
         leftPanSpin.setDirection(Servo.Direction.REVERSE); //Set leftPanSpin to REVERSE direction
         rightPanSpin.setDirection(Servo.Direction.FORWARD); //Set rightPanSpin to FORWARD direction
@@ -193,16 +193,18 @@ public class TeleopLimits extends OpMode {
 
         //Init values
         grab.setPosition(.5); //Set grab to position .5
-        upDown.setPosition(.5); //Set upDown to position .5
+        upDown.setPosition(0); //Set upDown to position .5
         leftPanSpin.setPosition(.3); //Set leftPanSpin to position .3
         rightPanSpin.setPosition(.3); //Set rightPanSpin to position .3
-        feelerRaise.setPosition(feelerRaiseUpPosition); //Set feelerRaise to feelerRaiseUpPosition
+
+        //mySound = MediaPlayer.create(this, R.raw.sleep);
+
     }
     public void loop () {
 
-        backPressed = gamepad1.back; //Set boolean backPressed to gamepad1.back
+        dpadRightPressed = gamepad1.dpad_right; //Set variable dpadRightPressed to the raw boolean value of the right dpad
 
-        if(backPressed)
+        if(dpadRightPressed)
         {
             if (!previousStatus)
             {
@@ -217,6 +219,9 @@ public class TeleopLimits extends OpMode {
         {
             previousStatus = currentStatus;
         }
+
+        telemetry.addData("dpad right", dpadRightPressed);
+        telemetry.addData("current", currentStatus);
 
         //DRIVING
 
@@ -397,7 +402,6 @@ public class TeleopLimits extends OpMode {
         leftTrigger = gamepad1.left_trigger; //Set variable leftTrigger to the raw double value of the left trigger
         leftBumper = gamepad1.left_bumper; //Set variable leftBumper to the raw boolean value of the left bumper
         dpadLeftPressed = gamepad1.dpad_left; //Set variable dpadLeftPressed to the raw boolean value of the left dpad
-        dpadRightPressed = gamepad1.dpad_right; //Set variable dpadRightPressed to the raw boolean value of the right dpad
         dpadUpPressed = gamepad1.dpad_up; //Set variable dpadUpPressed to the raw boolean value of the up dpad
         dpadDownPressed = gamepad1.dpad_down; //Set variable dpadDownPressed to the raw boolean value of the down dpad
         aPressed =gamepad1.a;
@@ -489,13 +493,13 @@ public class TeleopLimits extends OpMode {
             {
 
             }
-            else if (rightTrigger>.05)
-            {
-                grabPosition+=.0002 * rightTrigger;
-            }
             else if (leftTrigger>.05)
             {
-                grabPosition-=.0002 * leftTrigger;
+                grabPosition+=.01 * leftTrigger;
+            }
+            else if (rightTrigger>.05)
+            {
+                grabPosition-=.01 * rightTrigger;
             }
             else
             {
@@ -506,21 +510,21 @@ public class TeleopLimits extends OpMode {
             {
 
             }
-            else if (yPressed)
-            {
-                upDownPosition+=.01;
-            }
             else if (aPressed)
             {
-                upDownPosition-=.01;
+                upDownPosition+=.006;
+            }
+            else if (yPressed)
+            {
+                upDownPosition-=.006;
             }
             else
             {
 
             }
 
-            grabPosition=Range.clip(grabPosition, 0, 1);
-            upDownPosition=Range.clip(grabPosition, 0, 1);
+            grabPosition=Range.clip(grabPosition, .045, .37563895);
+            upDownPosition=Range.clip(upDownPosition, 0, 1);
 
             grab.setPosition(grabPosition);
             upDown.setPosition(upDownPosition);
