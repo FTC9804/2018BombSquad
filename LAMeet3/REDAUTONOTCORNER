@@ -20,9 +20,6 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
         configure("red", "relicSide"); //Configure with parameters red and relicSide
 
-        leftPanSpin.setPosition(.175); //Set leftPanSpin to position .175
-        rightPanSpin.setPosition(.175); //Set rightPanSpin to position .175
-
         pause(.05); //pause for .05 seconds
 
         calibrateGyro(); //Calibrate the gyro
@@ -55,7 +52,7 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
         driveNewIMU(11, 10, .25, true, 0); //Drive forward 11 inches at .25 power keeping a 0 degree heading with a 10 second limit
 
-        pause(.45);  //pause for .45 seconds
+        pause(1);  //pause for .45 seconds
 
         spinMove(0, true); //Spin to 0 degrees starting at .33 power
 
@@ -63,54 +60,19 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
         if (vuMarkOutput.equalsIgnoreCase("left")) //If vuforia reads left
         {
-            strafeNewIMU(20, 5, -.65, 0); //Strafe to the left for 24 inches at -.65 power keeping a 0 degree heading with a 5 second limit
+            strafeNewIMU(17, 5, -.65, 0); //Strafe to the left for 24 inches at -.65 power keeping a 0 degree heading with a 5 second limit
         }
         else if (vuMarkOutput.equalsIgnoreCase("right")) //If vuforia reads right
         {
-            strafeNewIMU(4, 5, -.65, 0); //Strafe to the left for 8 inches at -.65 power keeping a 0 degree heading with a 5 second limit
+            strafeNewIMU(1, 5, -.65, 0); //Strafe to the left for 8 inches at -.65 power keeping a 0 degree heading with a 5 second limit
         }
         else //else
         {
-            strafeNewIMU(12, 5, -.65, 0); //Strafe to the left for 16 inches at -.65 power keeping a 0 degree heading with a 5 second limit
+            strafeNewIMU(9, 5, -.65, 0); //Strafe to the left for 16 inches at -.65 power keeping a 0 degree heading with a 5 second limit
         }
 
         pause(.15); //pause for .15 seconds
 
-        //Outtake
-        leftIntakeMotor.setPower(-.7);
-        rightIntakeMotor.setPower(-.9);
-
-        driveNewIMU (12, 3, .5, true, 0); //Drive forwards 12 inches at .5 power keeping a 0 degree heading with a 3 second limit
-
-        pause(.15); //pause for .15 seconds
-
-        driveNewIMU(2.25, 5, -.4, false, 0); //Drive backwards 2.25 inches at -.4 power keeping a 0 degree heading with a 5 second limit
-
-        pause(.15); //pause for .15 seconds
-
-        //Outtake for 2 seconds
-        timeOne = this.getRuntime();
-        timeTwo=this.getRuntime();
-
-        while (timeTwo-timeOne<2)
-        {
-            leftIntakeMotor.setPower(-.7);
-            rightIntakeMotor.setPower(-.9);
-            timeTwo=this.getRuntime();
-        }
-
-        //Stop the motion of the intake motors
-        leftIntakeMotor.setPower(0);
-        rightIntakeMotor.setPower(0);
-
-        driveNewIMU (8, .9, -.4, false, 0); //Drive backwards 6 inches at -.4 power keeping a 0 degree heading with a .9 second limit
-
-        pause(.15); //pause for .15 seconds
-
-        driveNewIMU (12, .9, .4, false, 0); //Drive forwards 12 inches at .4 power keeping a 0 degree heading with a .9 second limit
-
-        pause(.15); //pause for .15 seconds
-
-        driveNewIMU (2, .9, -.4, false, 0); //Drive backwards 2 inches at -.4 power keeping a 0 degree heading with a .9 second limit
+        touch(false, false, false);
     }
 }
