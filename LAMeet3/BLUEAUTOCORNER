@@ -54,80 +54,33 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
         pause(.05); //pause for .05 seconds
 
-        vuMarkOutput = detectVuMark(2); //Run vuforia detection for 2 seconds
+        vuMarkOutput = detectVuMark(3); //Run vuforia detection for 3 seconds
 
         pause(.05); //pause for .05 seconds
 
         driveNewIMU(24, 10, -.45, false, 0); //Drive backwards 24 inches at -.45 power keeping a 0 degree heading with a 10 second limit
 
-        pause(.05); //pause for .05 seconds
+        pause(1); //pause for .05 seconds
 
-        spinMove (88, false); //Spin to 88 degrees not starting at .33 power
+        spinMove (-88, false); //Spin to 88 degrees not starting at .33 power
 
-        if (vuMarkOutput.equalsIgnoreCase("left")) //If vuforia reads left
-        {
-            strafeNewIMU(1.4, 5, -.65, 90); //Strafe to the left for 8.9 inches at -.65 power keeping a 90 degree heading with a 5 second limit
-        }
-        else if (vuMarkOutput.equalsIgnoreCase("right")) //If vuforia reads right
-        {
-            strafeNewIMU(15.2, 5, -.65, 90); //Strafe to the left for 15.2 inches at -.65 power keeping a 90 degree heading with a 5 second limit
-        }
-        else //Else
-        {
-            strafeNewIMU(8.9, 5, -.65, 90); //Strafe to the left for 8.9 inches at -.65 power keeping a 90 degree heading with a 5 second limit
-        }
-
-        pause(.05); //pause for .05 seconds
-
-        driveNewIMU (12, 3, -.5, false, 90); //Drive backwards 12 inches at -.5 power keeping a 90 degree heading with a 3 second limit
-
-        pause(.05); //pause for .05 seconds
-
-        driveNewIMU(1.25, 5, .4, true, 90); //Drive forward 1.25 inches at .4 power keeping a 90 degree heading with a 5 second limit
-
-        pause(.05); //pause for .05 seconds
-
-        scoreBlock(90); //Run scoreBlock() to deliver a block to the cryptobox, keeping a 90 degree heading
-
-        pause(.05); //pause for .05 seconds
-
-        driveNewIMU (5, 1, -.4, false, 90); //Drive backwards 5 inches at -.4 power keeping a 90 degree heading with a 1 second limit
-
-        pause(.05); //pause for .05 seconds
-
-        driveNewIMU(5.25, 5, .5, true, 90); //Drive forward 5.25 inches at .5 power keeping a 90 degree heading with a 5 second limit
-
-        pause(.05); //pause for .05 seconds
+        pause(1);
 
         if (vuMarkOutput.equalsIgnoreCase("left")) //If vuforia reads left
         {
-            strafeNewIMU(9, 5, -.65, 90); //Strafe to the left for 9 inches at -.65 power keeping a 90 degree heading with a 5 second limit
+            strafeNewIMU(4.4, 5, .65, -90); //Strafe to the left for 8.9 inches at -.65 power keeping a 90 degree heading with a 5 second limit
         }
         else if (vuMarkOutput.equalsIgnoreCase("right")) //If vuforia reads right
         {
-            strafeNewIMU(9, 5, .65, 90); //Strafe to the right for 9 inches at .65 power keeping a 90 degree heading with a 5 second limit
+            strafeNewIMU(18.2, 5, .65, -90); //Strafe to the left for 15.2 inches at -.65 power keeping a 90 degree heading with a 5 second limit
         }
         else //Else
         {
-            //Do not move
+            strafeNewIMU(12.9, 5, .65, -90); //Strafe to the left for 8.9 inches at -.65 power keeping a 90 degree heading with a 5 second limit
         }
 
-        getBlocks(60); //getBlocks for 60 inches
-
         pause(.05); //pause for .05 seconds
 
-        spinMove(92, true); //spin to 92 degrees starting at .33 power
-
-        pause(.05); //pause for .05 seconds
-
-        scoreBlock(90); //Run scoreBlock() to score the second and third blocks, keeping a 90 degree heading
-
-        pause(.05); //pause for .05 seconds
-
-        driveNewIMU (9, .9, -.4, false, 90); //Drive backwards 9 inches at -.4 power keeping a 90 degree heading with a .9 second limit
-
-        pause(.05); //pause for .05 seconds
-
-        driveNewIMU(2.25, 5, .6, true, 90); //Drive forward 2.25 inches at .6 power keeping a 90 degree heading with a 5 second limit
+        touch(true, true, false);
     }
 }
