@@ -10,7 +10,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoControllerEx;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
@@ -42,9 +44,6 @@ public class TeleopLimits extends OpMode {
     DcMotor leftMotor;  //Left drive motor, for driving forwards and backwards
     DcMotor backMotor;  //Back drive motor, for driving sideways, a.k.a "strafing"
 
-    MediaPlayer mySound;
-
-
     //Relic
     DcMotor relicMotor; //Motor to extend the relic scoring mechanism
 
@@ -60,12 +59,12 @@ public class TeleopLimits extends OpMode {
     //Block Rotation
     Servo leftPanSpin; //Servo on the left side of the robot that rotates the pan, or block scoring mechanism, in order to score blocks
     Servo rightPanSpin; //Servo on the right side of the robot that rotates the pan, or block scoring mechanism, in order to score blocks
+    Servo upDown; //Servo to raise the relic mechanism up and down
+    Servo grab; //Servo to grab the relic
 
     //Feeler
     Servo feelerRaise; //Servo that lifts and lowers the ball scoring mechanism, known as the "feeler"
     double feelerRaiseUpPosition = .9; //Position that the feelerRaise is set to when we are not scoring the ball
-    double feelerRaiseDownPosition = .2; //Position that the feelerRaise is set to when we are scoring the ball
-
 
     //Controls
     //Driving controls, all for gamepad 1
@@ -88,10 +87,6 @@ public class TeleopLimits extends OpMode {
 
     //Relic controls, all for gamepad 1
     boolean dpadRightPressed; //boolean for dpadRight. Set to true if dpadRight is pressed and set to false otherwise
-
-    //Mode (either TeleOp or Endgame) controls
-    boolean backPressed; //boolean for the back button.  Set to true if back is pressed and set to false otherwise.
-
     double grabPosition;
     double upDownPosition;
 
@@ -113,7 +108,6 @@ public class TeleopLimits extends OpMode {
     boolean single = true; //boolean that is set to true if the sum of leftOverOne, rightOverOne, frontOverOne, and backOverOne is equal to or greater than 1, and is set to false otherwise
     int direction = 0; //int that is set to either 0, 1, 2, 3, 4 depending on the values of leftOverOne, rightOverOne, frontOverOne, and backOverOne
     int over; //int that is set to 1 if the sum of leftOverOne, rightOverOne, frontOverOne, and backOverOne is equal to or greater than 1, and is set to 0 otherwise
-    int mode = 0; //int that is set to 0 if we are in normal mode and 1 if we are in end game mode
     double finLeftPower; //The final power to be applied to leftMotor
     double finRightPower; //The final power to be applied to rightMotor
     double finFrontPower; //The final power to be applied to backMotor
@@ -125,10 +119,6 @@ public class TeleopLimits extends OpMode {
     double panLiftingPower; //The power to which we set panLifterMotor
     double panSpinPosition; //The position to which we set leftPanSpin and rightPanSpin
 
-    //Time variables set to current run time throughout the code, typically set to this.getRunTime()
-    double timeOne; //timeOne, first time variable
-    double timeTwo; //timeTwo, second time variable
-
     //BLOCK SENSORS
 
     DistanceSensor sensorA; //Distance sensor closest to the intake to see how far away potential blocks are
@@ -139,13 +129,9 @@ public class TeleopLimits extends OpMode {
     DigitalChannel limitTop; //Limit Switch that tells us if we reach the top of the robot with the Pan
     DigitalChannel limitBottom; //Limit switch that tells us if we reach the bottom of the robot with the Pan
 
-    boolean endGame;
-    boolean previousStatus;
-    boolean currentStatus;
-
-    DcMotor relic;
-    Servo upDown;
-    Servo grab;
+    //Mode booleans
+    boolean previousStatus; //Boolean that is true if the previous mode was end game, and is false otherwise
+    boolean currentStatus; //Boolean that is true if the current mode is endgame, and is false otherwise
 
     /* Initialize standard Hardware interfaces */
     public void init() { // use hardwaremap here instead of hwmap or ahwmap provided in sample code
@@ -166,6 +152,11 @@ public class TeleopLimits extends OpMode {
         feelerRaise = hardwareMap.servo.get("s8"); //s8
         upDown = hardwareMap.servo.get("s11"); //s11
 
+        ServoControllerEx theControl = (ServoControllerEx) upDown.getController();
+        int thePort = upDown.getPortNumber();
+        PwmControl.PwmRange theRange = new PwmControl.PwmRange(553, 2500);
+        theControl.setServoPwmRange(thePort, theRange);
+
         limitTop = hardwareMap.get(DigitalChannel.class, "d1"); //d1
         limitBottom = hardwareMap.get(DigitalChannel.class, "d2"); //d2
         sensorA = hardwareMap.get(DistanceSensor.class, "i2"); //i2
@@ -180,51 +171,48 @@ public class TeleopLimits extends OpMode {
         leftIntakeMotor.setDirection(FORWARD); //Set leftIntakeMotor to FORWARD direction
         panLifterMotor.setDirection(REVERSE); //Set panLifterMotor to REVERSE direction
 
-        rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //Set rightMotor mode to BRAKE
+        leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //Set leftMotor mode to BRAKE
+        backMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //Set backMotor mode to BRAKE
 
         // Servo directions
         leftPanSpin.setDirection(Servo.Direction.REVERSE); //Set leftPanSpin to REVERSE direction
         rightPanSpin.setDirection(Servo.Direction.FORWARD); //Set rightPanSpin to FORWARD direction
         grab.setDirection(Servo.Direction.REVERSE); //Set grab to REVERSE direction
-        upDown.setDirection(Servo.Direction.FORWARD);
+        upDown.setDirection(Servo.Direction.FORWARD); //Set upDown to FORWARD direction
         feelerRaise.setDirection(Servo.Direction.FORWARD); //Set feelerRaise to FORWARD direction
 
         //Init values
         grab.setPosition(.5); //Set grab to position .5
-        upDown.setPosition(0); //Set upDown to position .5
+        upDown.setPosition(0); //Set upDown to position 0
         leftPanSpin.setPosition(.3); //Set leftPanSpin to position .3
         rightPanSpin.setPosition(.3); //Set rightPanSpin to position .3
-
-        //mySound = MediaPlayer.create(this, R.raw.sleep);
-
     }
     public void loop () {
 
         dpadRightPressed = gamepad1.dpad_right; //Set variable dpadRightPressed to the raw boolean value of the right dpad
 
-        if(dpadRightPressed)
+        if(dpadRightPressed) //If dpadRightPressed is true
         {
-            if (!previousStatus)
+            if (!previousStatus) //If previousStatus is false
             {
-                currentStatus = true;
+                currentStatus = true; //Set currentStatus to true
             }
-            else
+            else //Else
             {
-                currentStatus = false;
+                currentStatus = false; //Set currentStatus to false
             }
         }
-        else
+        else //Else
         {
-            previousStatus = currentStatus;
+            previousStatus = currentStatus; //Set previousStatus to currentStatus
         }
 
+        //Telemetry
         telemetry.addData("dpad right", dpadRightPressed);
         telemetry.addData("current", currentStatus);
 
         //DRIVING
-
         telemetry.addData("Left X Joy Raw: ", gamepad1.left_stick_x); //The raw value of left stick x
         telemetry.addData("Right X Joy Raw: ", gamepad1.right_stick_x); //The raw value of right stick x
         telemetry.addData("Right Y Joy Raw: ", gamepad1.right_stick_y); //The raw value of right stick y
@@ -248,7 +236,7 @@ public class TeleopLimits extends OpMode {
         testBackPower = linBackPower;
         testFrontPower = linFrontPower;
 
-        feelerRaise.setPosition(feelerRaiseUpPosition);
+        feelerRaise.setPosition(feelerRaiseUpPosition); //Set feelerRaise to feelerRaiseUpPosition
 
         if (Math.abs(testLeftPower) > 1) //Tests if each Math.abs(testLeftPower) is over 1
         {
@@ -404,11 +392,11 @@ public class TeleopLimits extends OpMode {
         dpadLeftPressed = gamepad1.dpad_left; //Set variable dpadLeftPressed to the raw boolean value of the left dpad
         dpadUpPressed = gamepad1.dpad_up; //Set variable dpadUpPressed to the raw boolean value of the up dpad
         dpadDownPressed = gamepad1.dpad_down; //Set variable dpadDownPressed to the raw boolean value of the down dpad
-        aPressed =gamepad1.a;
-        yPressed = gamepad1.y;
+        aPressed =gamepad1.a; //Set variable aPressed to the raw boolean value of the a button
+        yPressed = gamepad1.y; //Set variable yPressed to the raw boolean value of the y button
 
 
-        if (!currentStatus) {
+        if (!currentStatus) { //If currentStatus is false
 
             if (rightTrigger > .05 && leftBumper) { //If both rightTrigger and leftBumper are pressed, set intake powers to 0, as this is a conflicting command
                 leftIntakePower = 0; //Set leftIntakePower to 0
@@ -465,81 +453,77 @@ public class TeleopLimits extends OpMode {
             telemetry.addData("limitTop", limitTop.getState());
             telemetry.addData("limitBottom", limitBottom.getState());
 
-            panSpinPosition = Range.clip(panSpinPosition, .175, .6); //Ensure panSpinPosition is between .1875 and .6
+            panSpinPosition = Range.clip(panSpinPosition, .175, .6); //Ensure panSpinPosition is between .175 and .6
         }
+
+        //Else
         else
         {
 
-            //dpad up down extend retract motor
-
-            //rt grab lt release
-
-            //a raise y lower
-
-            if (dpadUpPressed)
+            if (dpadUpPressed) //If dPadUpPressed is true
             {
-                relicMotor.setPower(.6);
+                relicMotor.setPower(.6); //Set the power of relic motor to .6
             }
-            else if (dpadDownPressed)
+            else if (dpadDownPressed) //Else if dpadDownPressed is true
             {
-                relicMotor.setPower(-.6);
+                relicMotor.setPower(-.6); //Set the power of relic motor to -.6
             }
             else
             {
-                relicMotor.setPower(0);
+                relicMotor.setPower(0); //Set the power of relic motor to 0
             }
 
-            if (rightTrigger > .05  && leftTrigger > .05)
+            if (rightTrigger > .05  && leftTrigger > .05) //If rightTrigger and leftTrigger are adequately pressed
             {
-
+                //Do nothing due to conflicting commands
             }
-            else if (leftTrigger>.05)
+            else if (leftTrigger>.05) //Else if leftTrigger is adequately pressed
             {
-                grabPosition+=.01 * leftTrigger;
+                grabPosition+=.01 * leftTrigger; //Add .01 times the value of leftTrigger to grabPosition
             }
             else if (rightTrigger>.05)
             {
-                grabPosition-=.01 * rightTrigger;
+                grabPosition-=.01 * rightTrigger; //Subtract .01 times the value of leftTrigger to grabPosition
             }
-            else
+            else //Else
             {
-
+                //Do nothing
             }
 
-            if (yPressed && aPressed)
+            if (yPressed && aPressed) //If yPressed and aPressed are true
             {
-
+                //Do nothing due to conflicting commands
             }
-            else if (aPressed)
+            else if (aPressed) //Else if aPressed is true
             {
-                upDownPosition+=.006;
+                upDownPosition+=.003; //Add .003 to upDownPosition
             }
-            else if (yPressed)
+            else if (yPressed) //Else if yPressed is true
             {
-                upDownPosition-=.006;
+                upDownPosition-=.003; //Subract .003 from upDownPosition
             }
-            else
+            else //Else
             {
-
+                //Do nothing
             }
 
-            grabPosition=Range.clip(grabPosition, .045, .37563895);
-            upDownPosition=Range.clip(upDownPosition, 0, 1);
-
-            grab.setPosition(grabPosition);
-            upDown.setPosition(upDownPosition);
+            grabPosition=Range.clip(grabPosition, .045, .375); //Ensure grabPosition is between .045 and .375
+            upDownPosition=Range.clip(upDownPosition, 0, 1); //Ensure upDownPosition is between 0 and 1
         }
 
         //SET CONTROLS
         leftPanSpin.setPosition(panSpinPosition); //Set the position of leftPanSpin to panSpinPosition
-        rightPanSpin.setPosition(panSpinPosition); //Set the position of rightPanSpin to panSpinPosition
+        rightPanSpin.setPosition(panSpinPosition + .02); //Set the position of rightPanSpin to panSpinPosition plus .02
         panLifterMotor.setPower(panLiftingPower); //Set the power of panLifterMotor to panLiftingPower
         leftIntakeMotor.setPower(leftIntakePower); //Set the power of leftIntakeMotor to leftIntakePower
         rightIntakeMotor.setPower(rightIntakePower); //Set the power of rightIntakeMotor to rightIntakePower
         leftMotor.setPower(finLeftPower); //Set the power of leftMotor to finLeftPower
         rightMotor.setPower(finRightPower); //Set the power of rightMotor to finRightPower
-        backMotor.setPower(finBackPower); //Set the power of backMOtor to finBackPower
+        backMotor.setPower(finBackPower); //Set the power of backMotor to finBackPower
+        grab.setPosition(grabPosition); //Set the power of grab to grabPosition
+        upDown.setPosition(upDownPosition); //Set the power of upDown to upDownPosition
 
+        //Update telemetry
         telemetry.update();
     } // end loop
 
