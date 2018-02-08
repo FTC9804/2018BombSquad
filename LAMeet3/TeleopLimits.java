@@ -61,8 +61,8 @@ public class TeleopLimits extends OpMode {
     Servo rightPanSpin; //Servo on the right side of the robot that rotates the pan, or block scoring mechanism, in order to score blocks
     Servo upDown; //Servo to raise the relic mechanism up and down
     Servo grab; //Servo to grab the relic
-    Servo panBack;
-    Servo touchServo;
+    Servo panBack; //Servo to limit blocks from falling out of the robot
+    Servo touchServo; //Servo that extends an arm from the front of the robot to detect when we are ready to score in autonomous
     //Feeler
     Servo feelerRaise; //Servo that lifts and lowers the ball scoring mechanism, known as the "feeler"
     double feelerRaiseUpPosition = .9; //Position that the feelerRaise is set to when we are not scoring the ball
@@ -131,9 +131,9 @@ public class TeleopLimits extends OpMode {
     DigitalChannel limitBottom; //Limit switch that tells us if we reach the bottom of the robot with the Pan
 
     // Gain Mode Booleans
-    boolean HighGain;
-    boolean LowGain;
-    boolean gainToggle;
+    boolean highGain; //boolean that is true if we are making driving faster and is false otherwise
+    boolean lowGain; //boolean that is true if we are making driving slower and is false otherwise
+    boolean gainToggle; //boolean that is true if the joystick right stick button and is false otherwise
 
     //Mode booleans
     boolean previousStatus; //Boolean that is true if the previous mode was end game, and is false otherwise
@@ -157,9 +157,10 @@ public class TeleopLimits extends OpMode {
         grab = hardwareMap.servo.get("s6"); //s6
         feelerRaise = hardwareMap.servo.get("s8"); //s8
         upDown = hardwareMap.servo.get("s11"); //s11
-        panBack = hardwareMap.servo.get("s12");
+        panBack = hardwareMap.servo.get("s12"); //s12
         touchServo = hardwareMap.servo.get("s10"); //s10
 
+        //Code to extend the upDown Servo past 180 degrees
         ServoControllerEx theControl = (ServoControllerEx) upDown.getController();
         int thePort = upDown.getPortNumber();
         PwmControl.PwmRange theRange = new PwmControl.PwmRange(453, 2600);
@@ -178,7 +179,7 @@ public class TeleopLimits extends OpMode {
         rightIntakeMotor.setDirection(REVERSE); //Set rightIntakeMotor to REVERSE direction
         leftIntakeMotor.setDirection(FORWARD); //Set leftIntakeMotor to FORWARD direction
         panLifterMotor.setDirection(REVERSE); //Set panLifterMotor to REVERSE direction
-        relicMotor.setDirection(REVERSE);
+        relicMotor.setDirection(REVERSE); //Set relicMotor to REVERSE direction
 
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //Set rightMotor mode to BRAKE
         leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //Set leftMotor mode to BRAKE
@@ -190,20 +191,20 @@ public class TeleopLimits extends OpMode {
         grab.setDirection(Servo.Direction.REVERSE); //Set grab to REVERSE direction
         upDown.setDirection(Servo.Direction.FORWARD); //Set upDown to FORWARD direction
         feelerRaise.setDirection(Servo.Direction.FORWARD); //Set feelerRaise to FORWARD direction
-        panBack.setDirection(Servo.Direction.FORWARD); //Set leftPanSpin to REVERSE direction
-        touchServo.setDirection(Servo.Direction.REVERSE);
+        panBack.setDirection(Servo.Direction.FORWARD); //Set panBack to FORWARD direction
+        touchServo.setDirection(Servo.Direction.REVERSE); //Set touchServo to REVERSE direction
 
         //Init values
-        leftPanSpin.setPosition(.1875); //Set leftPanSpin to position .3
-        rightPanSpin.setPosition(.2075); //Set rightPanSpin to position .3
+        leftPanSpin.setPosition(.2175); //Set leftPanSpin to position .1875
+        rightPanSpin.setPosition(.2375); //Set rightPanSpin to position .2075
         grab.setPosition(.375); //Set grab to position .375
-        upDown.setPosition(0);
-        panBack.setPosition(0.45);
+        upDown.setPosition(0); //Set upDown to position 0
+        panBack.setPosition(0.39); //Set panBack to position .39
         feelerRaise.setPosition(feelerRaiseUpPosition); //Set feelerRaise to feelerRaiseUpPosition
-        touchServo.setPosition(.65);
+        touchServo.setPosition(.65); //Set touchServo to position .65
 
-        HighGain = true;
-        LowGain = false;
+        highGain = true;
+        lowGain = false;
         gainToggle = true;
     }
     public void loop () {
@@ -420,8 +421,8 @@ public class TeleopLimits extends OpMode {
                 leftIntakePower = 0; //Set leftIntakePower to 0
                 rightIntakePower = 0; //Set rightIntakePower to 0
             } else if (rightTrigger > .05) { //Else if rightTrigger if pressed
-                leftIntakePower = Math.pow(rightTrigger, 2) * .6; //Set leftIntakePower to the square of rightTrigger times .6
-                rightIntakePower = Math.pow(rightTrigger, 2) * .8; //Set rightIntakePower to the square of rightTrigger times .8
+                leftIntakePower = Math.pow(rightTrigger, 2) * .75; //Set leftIntakePower to the square of rightTrigger times .6
+                rightIntakePower = Math.pow(rightTrigger, 2) * .85; //Set rightIntakePower to the square of rightTrigger times .8
             } else if (leftBumper) { //Else if leftBumper is pressed
                 leftIntakePower = -.7; //Set leftIntakePower to -.7
                 rightIntakePower = -.7; //Set rightIntakePower to -.7
@@ -433,48 +434,62 @@ public class TeleopLimits extends OpMode {
             if (dpadDownPressed && dpadUpPressed) //If dpadUp and dpadDown are pressed
             {
                 panLiftingPower = 0; //Set panLiftingPower to 0 due to conflicting commands
-            } else if (dpadUpPressed) //Else if dpadUp is pressed
+            }
+
+            else if (dpadUpPressed) //Else if dpadUp is pressed
             {
                 panLiftingPower = -1; //Set panLiftingPower to -1
-                panBack.setPosition(1);
-            } else if (dpadDownPressed)  //Else if dpadDown is pressed
+            }
+
+            else if (dpadDownPressed)  //Else if dpadDown is pressed
             {
                 panLiftingPower = 1; //Set panLiftingPower to 1
-                panBack.setPosition(1);
+            }
 
-            } else //Else
+            else //Else
             {
                 panLiftingPower = 0; //Set panLiftingPower to 0
             }
 
-            if (dpadLeftPressed) {
-                panBack.setPosition(0.45);
-            }
+//            if (dpadLeftPressed) {
+//                panBack.setPosition(0.45); //Set panBack to position .45
+//            }
 
             yPressed = gamepad1.y; //Set boolean yPressed to gamepad1.y
             aPressed = gamepad1.a; //Set boolean aPressed to gamepad1.a
             xPressed = gamepad1.x; //Set boolean xPressed to gamepad1.x
             bPressed = gamepad1.b; //Set boolean bPressed to gamepad1.b
 
+            if (dpadLeftPressed) //if dpad left is pressed
+            {
+                panBack.setPosition(.39); //Set panBack to position .39
+            }
+
             if (yPressed && aPressed) //If y and a are pressed
             {
                 //Do nothing due to conflicting commands
-            } else if (yPressed) //Else if y is pressed
+            }
+            else if (yPressed) //Else if y is pressed
             {
                 panSpinPosition = panSpinPosition + .05; //Add .05 to panSpinPosition
-                panBack.setPosition(1);
-            } else if (aPressed) //Else if a is pressed
+                panBack.setPosition(.9); //Set panBack to position .9
+            }
+
+            else if (aPressed) //Else if a is pressed
             {
                 panSpinPosition = panSpinPosition - .05; //Subtract .05 to panSpinPosition
-                panBack.setPosition(0.45);
-            } else if (xPressed) //Else if x is pressed
+            }
+
+            else if (xPressed) //Else if x is pressed
             {
                 panSpinPosition = .3; //Set panSpinPosition to .3
-                panBack.setPosition(0.45);
-            } else if (bPressed) //Else if b is pressed
+                panBack.setPosition(0.39); //Set panBack to position .39
+            }
+
+            else if (bPressed) //Else if b is pressed
             {
                 panSpinPosition = .1875; //Set panSpinPosition to .1875
-                panBack.setPosition(0.45);
+                panBack.setPosition(0.39); //Set panBack to position .39
             }
 
             //Telemetry
@@ -482,7 +497,7 @@ public class TeleopLimits extends OpMode {
             telemetry.addData("limitTop", limitTop.getState());
             telemetry.addData("limitBottom", limitBottom.getState());
 
-            panSpinPosition = Range.clip(panSpinPosition, .175, .6); //Ensure panSpinPosition is between .175 and .6
+            panSpinPosition = Range.clip(panSpinPosition, .205, .625); //Ensure panSpinPosition is between .205 and .625
         }
 
         //Else
@@ -537,19 +552,19 @@ public class TeleopLimits extends OpMode {
             }
 
             grabPosition=Range.clip(grabPosition, .045, .375); //Ensure grabPosition is between .045 and .375
-            upDownPosition=Range.clip(upDownPosition, 0, 1); //Ensure upDownPosition is between 0 and 1
+            upDownPosition=Range.clip(upDownPosition, 0, .83); //Ensure upDownPosition is between 0 and 1
         }
 
-        if (gamepad1.right_stick_button && HighGain && gainToggle)
+        if (gamepad1.right_stick_button && highGain && gainToggle)
         {
-            LowGain = true;
-            HighGain = false;
+            lowGain = true;
+            highGain = false;
             gainToggle = false;
         }
-        else if (gamepad1.right_stick_button && LowGain && gainToggle)
+        else if (gamepad1.right_stick_button && lowGain && gainToggle)
         {
-            HighGain = true;
-            LowGain = false;
+            highGain = true;
+            lowGain = false;
             gainToggle = false;
         }
         else if ( !gamepad1.right_stick_button )
@@ -557,11 +572,12 @@ public class TeleopLimits extends OpMode {
             gainToggle = true;
         }
 
-        if (LowGain)
+        if (lowGain)
         {
             finLeftPower = finLeftPower*.5;
             finRightPower = finRightPower*.5;
         }
+
         //SET CONTROLS
         leftPanSpin.setPosition(panSpinPosition); //Set the position of leftPanSpin to panSpinPosition
         rightPanSpin.setPosition(panSpinPosition + .02); //Set the position of rightPanSpin to panSpinPosition plus .02
