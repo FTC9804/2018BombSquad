@@ -361,7 +361,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.4); //Pause for .4 seconds
 
-                strafeToTouch(3.5, .65, 178); //Run strafeToTouch method at 176 degrees and .65 power, with a 3.5 second timeout
+                strafeToTouch(3.5, .65, 178); //Run strafeToTouch method at 178 degrees and .65 power, with a 3.5 second timeout
 
                 pause(.2); //Pause for .2 seconds
 
@@ -488,7 +488,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.1); //Pause for .1 seconds
 
-                driveNewIMU(2.59, 3, -.4, false, 0); //Drive backwards for 2.49 inches at -.4 power with a 3 second limit maintaining a 0 degree heading
+                driveNewIMU(2.44, 3, -.4, false, 0); //Drive backwards for 2.44 inches at -.4 power with a 3 second limit maintaining a 0 degree heading
 
                 pause(.1); //Pause for .1 seconds
 
