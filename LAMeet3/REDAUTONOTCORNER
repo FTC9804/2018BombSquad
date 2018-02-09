@@ -28,15 +28,15 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
         telemetry.addData("calibrated", true);
         telemetry.update();
 
-        pause(1.5); //pause for 1.5 seconds
+        pause(.5); //pause for .5 seconds
 
         introduceAngle(); //Introduce the angle
 
-        pause(1.5); //pause for 1.5 seconds
+        pause(.5); //pause for .5 seconds
 
         waitForStart(); //Wait for start
 
-        pause(1.5); //pause for 1.5 seconds
+        pause(.5); //pause for .5 seconds
 
         //Telemetry
         telemetry.addData("here", true);
@@ -52,27 +52,27 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
         driveNewIMU(11, 10, .25, true, 0); //Drive forward 11 inches at .25 power keeping a 0 degree heading with a 10 second limit
 
-        pause(1);  //pause for .45 seconds
+        pause(.4);  //pause for .4 seconds
 
-        spinMove(0, true); //Spin to 0 degrees starting at .33 power
+        spinMove(0, true); //Spin to 0 degrees starting at .3 power
 
-        pause(1); //pause for 1 second
+        pause(.5); //pause for .5 seconds
 
         if (vuMarkOutput.equalsIgnoreCase("left")) //If vuforia reads left
         {
-            strafeNewIMU(17, 5, -.65, 0); //Strafe to the left for 24 inches at -.65 power keeping a 0 degree heading with a 5 second limit
+            strafeNewIMU(24, 5, -.65, 0); //Strafe to the left for 24 inches at -.65 power keeping a 0 degree heading with a 5 second limit
         }
         else if (vuMarkOutput.equalsIgnoreCase("right")) //If vuforia reads right
         {
-            strafeNewIMU(1, 5, -.65, 0); //Strafe to the left for 8 inches at -.65 power keeping a 0 degree heading with a 5 second limit
+            strafeNewIMU(7.5, 5, -.65, 0); //Strafe to the left for 7.5 inches at -.65 power keeping a 0 degree heading with a 5 second limit
         }
         else //else
         {
-            strafeNewIMU(9, 5, -.65, 0); //Strafe to the left for 16 inches at -.65 power keeping a 0 degree heading with a 5 second limit
+            strafeNewIMU(14.7, 5, -.65, 0); //Strafe to the left for 14.7 inches at -.65 power keeping a 0 degree heading with a 5 second limit
         }
 
-        pause(.15); //pause for .15 seconds
+        pause(.1); //pause for .1 seconds
 
-        touch(false, false, false);
+        touch(false, false, false); //Run touch method with parameters false, false, and false, meaning we are running from red not corner position
     }
 }
