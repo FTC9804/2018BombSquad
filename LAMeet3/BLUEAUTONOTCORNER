@@ -4,29 +4,21 @@ package org.firstinspires.ftc.teamcode;
 //Import statements
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import android.media.MediaPlayer;
-import android.media.audiofx.AudioEffect;
-import android.media.MediaPlayer.OnBufferingUpdateListener;
-import android.media.MediaPlayer.TrackInfo;
-import java.util.*;
-
 
 /**
  * Created by MarcusLeher on 30/12/2017.
  */
 
-@Autonomous(name = "bluecornerWRONG", group = "VuforiaAuto")
+@Autonomous(name = "blueNOTcorner", group = "VuforiaAuto")
 //@Disabled
 
-//Autonomous to score the ball and three blocks from the blue corner position
-public class BLUEAUTOCORNERWRONG extends FunctionsForAuto {
-
+//Autonomous to score ball and a block from the blue non-corner position
+public class BLUEAUTONOTCORNER extends FunctionsForAuto {
     String vuMarkOutput = ""; //Set vuMarkOutput to the empty string
-
 
     public void runOpMode() throws InterruptedException { //runOpMode() method
 
-        configure("red", "relicSide"); //Configure with parameters blue and relicSide
+        configure("blue", "relicSide"); //Configure with parameters blue and relicSide
 
         pause(.05); //pause for .05 seconds
 
@@ -36,15 +28,15 @@ public class BLUEAUTOCORNERWRONG extends FunctionsForAuto {
         telemetry.addData("calibrated", true);
         telemetry.update();
 
-        pause(.05); //pause for .05 seconds
+        pause(.5); //pause for .5 seconds
 
         introduceAngle(); //Introduce the angle
 
-        pause(.05); //pause for .05 seconds
+        pause(.5); //pause for .5 seconds
 
         waitForStart(); //Wait for start
 
-        pause(.05); //pause for .05 seconds
+        pause(.5); //pause for .5 seconds
 
         //Telemetry
         telemetry.addData("here", true);
@@ -52,23 +44,23 @@ public class BLUEAUTOCORNERWRONG extends FunctionsForAuto {
 
         dropFeelerMoveBallOnlyNewRobot(); //Run dropFeelerMoveBallOnlyNewRobot to score the ball
 
-        pause(.05); //pause for .05 seconds
+        pause(.15); //pause for .15 seconds
 
         vuMarkOutput = detectVuMark(3); //Run vuforia detection for 3 seconds
 
-        pause(.05); //pause for .05 seconds
+        pause(.15); //pause for .15 seconds
 
         driveNewIMU(9.75, 10, -.25, false, 0); //Drive backwards 9.75 inches at -.25 power keeping a 0 degree heading with a 10 second limit
 
-        pause(.75); //pause for .75 seconds
+        pause(.8); //pause for .8 seconds
 
-        driveNewIMU(11.7, 10, -.25, false, 0); //Drive backwards 11.7 inches at -.25 power keeping a 0 degree heading with a 10 second limit
+        driveNewIMU(10.25, 10, -.25, false, 0); //Drive backwards 10.25 inches at -.25 power keeping a 0 degree heading with a 10 second limit
 
         pause(.4); //pause for .4 seconds
 
-        spinMove (-88, false); //Spin to -88 degrees not starting at .3 power
+        spinMove(178, false); //Spin to 178 degrees not starting at .3 power
 
-        pause(.5); //Pause for .5 seconds
+        pause(.45); //pause for .45 seconds
 
         if (vuMarkOutput.equalsIgnoreCase("left")) //If vuforia reads left
         {
@@ -76,15 +68,15 @@ public class BLUEAUTOCORNERWRONG extends FunctionsForAuto {
         }
         else if (vuMarkOutput.equalsIgnoreCase("right")) //If vuforia reads right
         {
-            strafeNewIMU(15, 5, .65, -90); //Strafe to the right for 15 inches at .65 power keeping a -90 degree heading with a 5 second limit
+            strafeNewIMU(18.5, 5, .65, 178); //Strafe to the right for 18.5 inches at .65 power keeping a 178 degree heading with a 5 second limit
         }
         else //Else
         {
-            strafeNewIMU(7.4, 5, .65, -90); //Strafe to the right for 7.4 inches at .65 power keeping a -90 degree heading with a 5 second limit
+            strafeNewIMU(10.5, 5, .65, 178); //Strafe to the right for 10.5 inches at .65 power keeping a 178 degree heading with a 5 second limit
         }
 
         pause(.1); //pause for .1 seconds
 
-        touch(true, true, false); //Run touch method with parameters true, true, and false, meaning we are running from blue corner position
+        touch(true, false, false); //Run touch method with parameters true, false, and false, meaning we are running from blue not corner position
     }
 }
