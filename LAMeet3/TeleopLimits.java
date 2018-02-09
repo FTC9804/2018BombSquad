@@ -163,7 +163,7 @@ public class TeleopLimits extends OpMode {
         //Code to extend the upDown Servo past 180 degrees
         ServoControllerEx theControl = (ServoControllerEx) upDown.getController();
         int thePort = upDown.getPortNumber();
-        PwmControl.PwmRange theRange = new PwmControl.PwmRange(453, 2600);
+        PwmControl.PwmRange theRange = new PwmControl.PwmRange(353, 2700);
         theControl.setServoPwmRange(thePort, theRange);
 
         limitTop = hardwareMap.get(DigitalChannel.class, "d1"); //d1
@@ -195,8 +195,8 @@ public class TeleopLimits extends OpMode {
         touchServo.setDirection(Servo.Direction.REVERSE); //Set touchServo to REVERSE direction
 
         //Init values
-        leftPanSpin.setPosition(.2175); //Set leftPanSpin to position .1875
-        rightPanSpin.setPosition(.2375); //Set rightPanSpin to position .2075
+        leftPanSpin.setPosition(.2475); //Set leftPanSpin to position .1875
+        rightPanSpin.setPosition(.2675); //Set rightPanSpin to position .2075
         grab.setPosition(.375); //Set grab to position .375
         upDown.setPosition(0); //Set upDown to position 0
         panBack.setPosition(0.39); //Set panBack to position .39
@@ -421,8 +421,8 @@ public class TeleopLimits extends OpMode {
                 leftIntakePower = 0; //Set leftIntakePower to 0
                 rightIntakePower = 0; //Set rightIntakePower to 0
             } else if (rightTrigger > .05) { //Else if rightTrigger if pressed
-                leftIntakePower = Math.pow(rightTrigger, 2) * .75; //Set leftIntakePower to the square of rightTrigger times .6
-                rightIntakePower = Math.pow(rightTrigger, 2) * .85; //Set rightIntakePower to the square of rightTrigger times .8
+                leftIntakePower = Math.pow(rightTrigger, 2) * .75; //Set leftIntakePower to the square of rightTrigger times .75
+                rightIntakePower = Math.pow(rightTrigger, 2) * .85; //Set rightIntakePower to the square of rightTrigger times .85
             } else if (leftBumper) { //Else if leftBumper is pressed
                 leftIntakePower = -.7; //Set leftIntakePower to -.7
                 rightIntakePower = -.7; //Set rightIntakePower to -.7
@@ -450,10 +450,6 @@ public class TeleopLimits extends OpMode {
             {
                 panLiftingPower = 0; //Set panLiftingPower to 0
             }
-
-//            if (dpadLeftPressed) {
-//                panBack.setPosition(0.45); //Set panBack to position .45
-//            }
 
             yPressed = gamepad1.y; //Set boolean yPressed to gamepad1.y
             aPressed = gamepad1.a; //Set boolean aPressed to gamepad1.a
@@ -489,7 +485,6 @@ public class TeleopLimits extends OpMode {
             else if (bPressed) //Else if b is pressed
             {
                 panSpinPosition = .1875; //Set panSpinPosition to .1875
-                panBack.setPosition(0.39); //Set panBack to position .39
             }
 
             //Telemetry
@@ -497,7 +492,7 @@ public class TeleopLimits extends OpMode {
             telemetry.addData("limitTop", limitTop.getState());
             telemetry.addData("limitBottom", limitBottom.getState());
 
-            panSpinPosition = Range.clip(panSpinPosition, .205, .625); //Ensure panSpinPosition is between .205 and .625
+            panSpinPosition = Range.clip(panSpinPosition, .22, .645); //Ensure panSpinPosition is between .205 and .625
         }
 
         //Else
@@ -506,11 +501,11 @@ public class TeleopLimits extends OpMode {
 
             if (dpadUpPressed) //If dPadUpPressed is true
             {
-                relicMotor.setPower(.6); //Set the power of relic motor to .6
+                relicMotor.setPower(.95); //Set the power of relic motor to .6
             }
             else if (dpadDownPressed) //Else if dpadDownPressed is true
             {
-                relicMotor.setPower(-.6); //Set the power of relic motor to -.6
+                relicMotor.setPower(-.95); //Set the power of relic motor to -.6
             }
             else
             {
@@ -540,7 +535,7 @@ public class TeleopLimits extends OpMode {
             }
             else if (aPressed) //Else if aPressed is true
             {
-                upDownPosition+=.003; //Add .003 to upDownPosition
+                upDownPosition+=.003;
             }
             else if (yPressed) //Else if yPressed is true
             {
@@ -552,30 +547,30 @@ public class TeleopLimits extends OpMode {
             }
 
             grabPosition=Range.clip(grabPosition, .045, .375); //Ensure grabPosition is between .045 and .375
-            upDownPosition=Range.clip(upDownPosition, 0, .83); //Ensure upDownPosition is between 0 and 1
+            upDownPosition=Range.clip(upDownPosition, 0, .83); //Ensure upDownPosition is between 0 and .83
         }
 
-        if (gamepad1.right_stick_button && highGain && gainToggle)
+        if (gamepad1.right_stick_button && highGain && gainToggle) //If right stick button is pressed and highGain and gainToggle are true
         {
-            lowGain = true;
-            highGain = false;
-            gainToggle = false;
+            lowGain = true; //Set lowGain to true
+            highGain = false; //Set highGain to false
+            gainToggle = false; //Set gainToggle to false
         }
-        else if (gamepad1.right_stick_button && lowGain && gainToggle)
+        else if (gamepad1.right_stick_button && lowGain && gainToggle) //Else if right stick button is pressed and lowGain and gainToggle are true
         {
-            highGain = true;
-            lowGain = false;
-            gainToggle = false;
+            highGain = true; //Set highGain to true
+            lowGain = false; //Set lowGain to false
+            gainToggle = false; //Set gainToggle to false
         }
-        else if ( !gamepad1.right_stick_button )
+        else if (!gamepad1.right_stick_button) //Else if right stick button is not pressed
         {
-            gainToggle = true;
+            gainToggle = true; //Set gainToggle to true
         }
 
-        if (lowGain)
+        if (lowGain) //If lowGain is true
         {
-            finLeftPower = finLeftPower*.5;
-            finRightPower = finRightPower*.5;
+            finLeftPower = finLeftPower*.5; //Divide the power of finLeftPower by 2
+            finRightPower = finRightPower*.5; //Divide the power of finRightPower by 2
         }
 
         //SET CONTROLS
