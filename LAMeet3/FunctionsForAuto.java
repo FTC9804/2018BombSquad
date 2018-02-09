@@ -98,11 +98,11 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     String robotStartingPosition; //The starting position of the robot, either relicSide or triangle Side, representing different places on the field
     
     //Ball scoring variables
-    double feelerSwipeNeutralPosition = .44; //Straight position of feelerSwipe
+    double feelerSwipeNeutralPosition = .39; //Straight position of feelerSwipe
     double feelerSwipeCWPosition = .05; //Clockwise turned position of feelerSwipe
     double feelerSwipeCCWPosition = .95; //Counter-clockwise turned position of feelerSwipe
     double feelerRaiseUpPosition = .9; //Position that the feelerRaise is set to when we are not scoring the ball
-    double feelerRaiseDownPosition = .36; //Position that the feelerRaise is set to when we are scoring the ball
+    double feelerRaiseDownPosition = .3; //Position that the feelerRaise is set to when we are scoring the ball
 
     //Vuforia
     VuforiaLocalizer vuforia; //Variable to store our instance of the Vuforia localization engine
