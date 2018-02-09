@@ -46,33 +46,31 @@ public class REDAUTOCORNER extends FunctionsForAuto {
 
         pause(.05); //pause for .05 seconds
 
-        vuMarkOutput = detectVuMark(3); //Run vuforia detection for 2 seconds
+        vuMarkOutput = detectVuMark(3); //Run vuforia detection for 3 seconds
 
         pause(.05); //pause for .05 seconds
 
-        driveNewIMU(17.5, 10, .45, true, 0); //Drive forward 18 inches at .25 power keeping a 0 degree heading with a 10 second limit
+        driveNewIMU(7.8, 10, .45, true, 0); //Drive forward 7.8 inches at .45 power keeping a 0 degree heading with a 10 second limit
 
-        pause(1); //pause for .05 seconds
+        pause(.4); //pause for .4 seconds
 
-        spinMove (-88, false); //Spin to 88 degrees not starting at .33 power
+        spinMove (-88, false); //Spin to -88 degrees not starting at .3 power
 
         if (vuMarkOutput.equalsIgnoreCase("left")) //If vuforia reads left
         {
-            strafeNewIMU(18.9, 5, -.65, -90);  //Strafe to the right for 17.9 inches at .65 power keeping a 90 degree heading with a 5 second limit
+            strafeNewIMU(19.9, 5, -.65, -88);  //Strafe to the left for 19.9 inches at -.65 power keeping a -88 degree heading with a 5 second limit
         }
         else if (vuMarkOutput.equalsIgnoreCase("right")) //If vuforia reads right
         {
-            strafeNewIMU(1.7, 5, -.65, -90);
+            strafeNewIMU(3.8, 5, -.65, -88); //Strafe to the left for 3.8 inches at -.65 power keeping a -88 degree heading with a 5 second limit
         }
         else //Else
         {
-            strafeNewIMU(10.7, 5, -.65, -90); //Strafe to the right for 9.7 inches at .65 power keeping a 90 degree heading with a 5 second limit
+            strafeNewIMU(11.8, 5, -.65, -88); //Strafe to the left for 11.8 inches at -.65 power keeping a -88 degree heading with a 5 second limit
         }
 
-        pause(.1); //pause for .05 seconds
+        pause(.1); //pause for .1 seconds
 
-
-
-        touch(false, false, true);
+        touch(false, false, true); //Run touch method with parameters false, false, and true, meaning we are running from red corner position
     }
 }
