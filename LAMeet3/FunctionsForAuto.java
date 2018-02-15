@@ -98,7 +98,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     String robotStartingPosition; //The starting position of the robot, either relicSide or triangle Side, representing different places on the field
     
     //Ball scoring variables
-    double feelerSwipeNeutralPosition = .39; //Straight position of feelerSwipe
+    double feelerSwipeNeutralPositionBlue = .37; //Straight position of feelerSwipe for blue
+    double feelerSwipeNeutralPositionRed = .41; //Straight position of feelerSwipe for red
     double feelerSwipeCWPosition = .05; //Clockwise turned position of feelerSwipe
     double feelerSwipeCCWPosition = .95; //Counter-clockwise turned position of feelerSwipe
     double feelerRaiseUpPosition = .9; //Position that the feelerRaise is set to when we are not scoring the ball
@@ -277,11 +278,11 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.1); //Pause for .1 seconds
 
-                driveNewIMU(2.44, 3, -.4, false, -90); //Drive backwards for 2.44 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
+                driveNewIMU(3.14, 3, -.4, false, -90); //Drive backwards for 3.84 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
 
                 pause(.1); //Pause for .1 seconds
 
-                spinMove(-90, true); //Spin move to -90 degrees starting at .3 drive motor power
+                //spinMove(-90, true); //Spin move to -90 degrees starting at .3 drive motor power
 
                 pause(.1); //Pause for .1 seconds
 
@@ -291,9 +292,14 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 strafeToTouch(2.5, .65, -90); //Run strafeToTouch method at -90 degrees and .65 power, with a 2.5 second timeout
 
+
                 pause(.2); //Pause for .2 seconds
 
                 touchServo.setPosition(.65); //Set the position of touchServo to .65
+
+                pause(.2); //Pause for .2 Seconds
+
+                driveNewIMU(2, 4, .4, true, -90);
 
                 pause(.2); //Pause for .2 Seconds
 
@@ -349,11 +355,11 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.1); //Pause for .1 seconds
 
-                driveNewIMU(2.44, 3, -.4, false, 179); //Drive backwards for 2.44 inches at -.4 power with a 3 second limit maintaining a 179 degree heading
+                driveNewIMU(3.14, 3, -.4, false, 179); //Drive backwards for 3.84 inches at -.4 power with a 3 second limit maintaining a 179 degree heading
 
                 pause(.1); //Pause for .1 seconds
 
-                spinMove(179, true); //Spin move to 179 degrees starting at .3 drive motor power
+                //spinMove(179, true); //Spin move to 179 degrees starting at .3 drive motor power
 
                 pause(.1); //Pause for .1 seconds
 
@@ -363,12 +369,16 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 strafeToTouch(3.5, .65, 178); //Run strafeToTouch method at 178 degrees and .65 power, with a 3.5 second timeout
 
+
                 pause(.2); //Pause for .2 seconds
 
                 touchServo.setPosition(.65); //Set the position of touchServo to .65
 
                 pause(.2); //Pause for .2 Seconds
 
+                driveNewIMU(2, 4, .4, true, 180);
+
+                pause(.2); //Pause for .2 Seconds
                 //Set leftIntakeMotor to -.6 power and rightIntakeMotor to -.7 power
                 leftIntakeMotor.setPower(-.6);
                 rightIntakeMotor.setPower(-.7);
@@ -420,11 +430,11 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.1); //Pause for .1 seconds
 
-                driveNewIMU(2.44, 3, -.4, false, -90); //Drive backwards for 2.44 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
+                driveNewIMU(2.54, 3, -.4, false, -90); //Drive backwards for 3.84 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
 
                 pause(.1); //Pause for .1 seconds
 
-                spinMove(-90, true); //Spin move to -90 degrees starting at .3 drive motor power
+                //spinMove(-90, true); //Spin move to -90 degrees starting at .3 drive motor power
 
                 pause(.1); //Pause for .1 seconds
 
@@ -437,6 +447,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                 pause(.2); //Pause for .2 seconds
 
                 touchServo.setPosition(.65); //Set the position of touchServo to .65
+
+                pause(.2); //Pause for .2 Seconds
+
+                driveNewIMU(2, 4, .4, true, -90);
 
                 pause(.2); //Pause for .2 Seconds
 
@@ -488,11 +502,11 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.1); //Pause for .1 seconds
 
-                driveNewIMU(2.44, 3, -.4, false, 0); //Drive backwards for 2.44 inches at -.4 power with a 3 second limit maintaining a 0 degree heading
+                driveNewIMU(3.14, 3, -.4, false, 0); //Drive backwards for 3.84 inches at -.4 power with a 3 second limit maintaining a 0 degree heading
 
                 pause(.1); //Pause for .1 seconds
 
-                spinMove(0, true); //Spin move to 0 degrees starting at .3 drive motor power
+                //spinMove(0, true); //Spin move to 0 degrees starting at .3 drive motor power
 
                 pause(.1); //Pause for .1 seconds
 
@@ -505,6 +519,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                 pause(.2); //Pause for .2 seconds
 
                 touchServo.setPosition(.65); //Set the position of touchServo to .65
+
+                pause(.2); //Pause for .2 Seconds
+
+                driveNewIMU(2, 4, .4, true, 0);
 
                 pause(.2); //Pause for .2 Seconds
 
@@ -714,7 +732,14 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     //Method to score the ball in autonomous
     public void dropFeelerMoveBallOnlyNewRobot() {
 
-        feelerSwipe.setPosition(feelerSwipeNeutralPosition); //Set feelerSwipe to feelerSwipeNeutralPosition
+        if (allianceColor.equalsIgnoreCase("blue")) {
+            feelerSwipe.setPosition(feelerSwipeNeutralPositionBlue); //Set feelerSwipe to feelerSwipeNeutralPosition
+        }
+        else
+        {
+            feelerSwipe.setPosition(feelerSwipeNeutralPositionRed);
+        }
+
 
         pause (.7); //.7 second pause
 
@@ -732,7 +757,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             pause(.1); //.1 second pause
             feelerRaise.setPosition(feelerRaiseUpPosition); //Raise feelerRaise after ball is knocked off
             pause(.1); //.1 second pause
-            feelerSwipe.setPosition(feelerSwipeNeutralPosition); //Set feelerSwipe to its neutral position
+            //feelerSwipe.setPosition(feelerSwipeNeutralPositionRed); //Set feelerSwipe to its neutral position
         }
         else if ( allianceColor.equalsIgnoreCase("red") && sensorColorFeeler.red() >= sensorColorFeeler.blue()) { //If we are the red alliance and see a red ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
@@ -744,7 +769,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             pause(.1); //.1 second pause
             feelerRaise.setPosition(feelerRaiseUpPosition); //Raise feelerRaise after ball is knocked off
             pause(.1); //.1 second pause
-            feelerSwipe.setPosition(feelerSwipeNeutralPosition); //Set feelerSwipe to its neutral position
+            //feelerSwipe.setPosition(feelerSwipeNeutralPositionRed); //Set feelerSwipe to its neutral position
         }
         else if ( allianceColor.equalsIgnoreCase("blue") && sensorColorFeeler.blue() >= sensorColorFeeler.red()) { //If we are the blue alliance and see a blue ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
@@ -756,7 +781,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             pause(.1); //.1 second pause
             feelerRaise.setPosition(feelerRaiseUpPosition); //Raise feelerRaise after ball is knocked off
             pause(.1); //.1 second pause
-            feelerSwipe.setPosition(feelerSwipeNeutralPosition); //Set feelerSwipe to its neutral position
+            //feelerSwipe.setPosition(feelerSwipeNeutralPositionBlue); //Set feelerSwipe to its neutral position
         }
         else if ( allianceColor.equalsIgnoreCase("blue") && sensorColorFeeler.red() >= sensorColorFeeler.blue()) { //If we are the blue alliance and see a red ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
@@ -768,7 +793,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             pause(.1); //.1 second pause
             feelerRaise.setPosition(feelerRaiseUpPosition); //Raise feelerRaise after ball is knocked off
             pause(.1); //.1 second pause
-            feelerSwipe.setPosition(feelerSwipeNeutralPosition); //Set feelerSwipe to its neutral position
+            //feelerSwipe.setPosition(feelerSwipeNeutralPositionBlue); //Set feelerSwipe to its neutral position
         }
 
     }
