@@ -131,7 +131,7 @@ public class TeleopLimits extends OpMode {
     DigitalChannel limitBottom; //Limit switch that tells us if we reach the bottom of the robot with the Pan
 
     // Gain Mode Booleans
-    boolean highGain; //boolean that is true if we are making driving faster and is false otherwise
+    boolean highGain = true; //boolean that is true if we are making driving faster and is false otherwise
     boolean lowGain; //boolean that is true if we are making driving slower and is false otherwise
     boolean gainToggle; //boolean that is true if the joystick right stick button and is false otherwise
 
@@ -421,8 +421,8 @@ public class TeleopLimits extends OpMode {
                 leftIntakePower = 0; //Set leftIntakePower to 0
                 rightIntakePower = 0; //Set rightIntakePower to 0
             } else if (rightTrigger > .05) { //Else if rightTrigger if pressed
-                leftIntakePower = Math.pow(rightTrigger, 2) * .75; //Set leftIntakePower to the square of rightTrigger times .75
-                rightIntakePower = Math.pow(rightTrigger, 2) * .85; //Set rightIntakePower to the square of rightTrigger times .85
+                leftIntakePower = Math.pow(rightTrigger, 2) * .8; //Set leftIntakePower to the square of rightTrigger times .75
+                rightIntakePower = Math.pow(rightTrigger, 2) * .8; //Set rightIntakePower to the square of rightTrigger times .85
             } else if (leftBumper) { //Else if leftBumper is pressed
                 leftIntakePower = -.7; //Set leftIntakePower to -.7
                 rightIntakePower = -.7; //Set rightIntakePower to -.7
@@ -492,7 +492,7 @@ public class TeleopLimits extends OpMode {
             telemetry.addData("limitTop", limitTop.getState());
             telemetry.addData("limitBottom", limitBottom.getState());
 
-            panSpinPosition = Range.clip(panSpinPosition, .22, .645); //Ensure panSpinPosition is between .205 and .625
+            panSpinPosition = Range.clip(panSpinPosition, .1875, .6285); //Ensure panSpinPosition is between .205 and .625
         }
 
         //Else
@@ -535,7 +535,17 @@ public class TeleopLimits extends OpMode {
             }
             else if (aPressed) //Else if aPressed is true
             {
-                upDownPosition+=.003;
+                if (upDown.getPosition() < .69) //If the position of upDown is less than .69
+                {
+                    upDownPosition+=.003; //Add .003 to upDownPosition
+                }
+                else //Else
+                {
+                    upDownPosition+=.001; //Add .001 to upDownPosition
+                }
+
+                telemetry.addData("upDown", upDownPosition); //Telemetry
+
             }
             else if (yPressed) //Else if yPressed is true
             {
@@ -548,29 +558,6 @@ public class TeleopLimits extends OpMode {
 
             grabPosition=Range.clip(grabPosition, .045, .375); //Ensure grabPosition is between .045 and .375
             upDownPosition=Range.clip(upDownPosition, 0, .83); //Ensure upDownPosition is between 0 and .83
-        }
-
-        if (gamepad1.right_stick_button && highGain && gainToggle) //If right stick button is pressed and highGain and gainToggle are true
-        {
-            lowGain = true; //Set lowGain to true
-            highGain = false; //Set highGain to false
-            gainToggle = false; //Set gainToggle to false
-        }
-        else if (gamepad1.right_stick_button && lowGain && gainToggle) //Else if right stick button is pressed and lowGain and gainToggle are true
-        {
-            highGain = true; //Set highGain to true
-            lowGain = false; //Set lowGain to false
-            gainToggle = false; //Set gainToggle to false
-        }
-        else if (!gamepad1.right_stick_button) //Else if right stick button is not pressed
-        {
-            gainToggle = true; //Set gainToggle to true
-        }
-
-        if (lowGain) //If lowGain is true
-        {
-            finLeftPower = finLeftPower*.5; //Divide the power of finLeftPower by 2
-            finRightPower = finRightPower*.5; //Divide the power of finRightPower by 2
         }
 
         //SET CONTROLS
