@@ -36,7 +36,7 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
         waitForStart(); //Wait for start
 
-        pause(.5); //pause for .5 seconds
+        pause(.3); //pause for .5 seconds
 
         //Telemetry
         telemetry.addData("here", true);
@@ -54,25 +54,25 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
         pause(.8); //pause for .8 seconds
 
-        driveNewIMU(10.25, 10, -.25, false, 0); //Drive backwards 10.25 inches at -.25 power keeping a 0 degree heading with a 10 second limit
+        driveNewIMU(11.5, 10, -.25, false, 0); //Drive backwards 10.25 inches at -.25 power keeping a 0 degree heading with a 10 second limit
 
         pause(.4); //pause for .4 seconds
 
-        spinMove(178, false); //Spin to 178 degrees not starting at .3 power
+        spinMove(178, false, 10); //Spin to 178 degrees not starting at .3 power with a 10 second timeout
 
         pause(.45); //pause for .45 seconds
 
         if (vuMarkOutput.equalsIgnoreCase("left")) //If vuforia reads left
         {
-            //Do nothing
+            strafeNewIMU(1.5, 5, .65, 178); //Strafe to the right for 10.5 inches at .65 power keeping a 178 degree heading with a 5 second limit
         }
         else if (vuMarkOutput.equalsIgnoreCase("right")) //If vuforia reads right
         {
-            strafeNewIMU(18.5, 5, .65, 178); //Strafe to the right for 18.5 inches at .65 power keeping a 178 degree heading with a 5 second limit
+            strafeNewIMU(15.4, 5, .65, 178); //Strafe to the right for 26.5 inches at .65 power keeping a 178 degree heading with a 5 second limit
         }
         else //Else
         {
-            strafeNewIMU(10.5, 5, .65, 178); //Strafe to the right for 10.5 inches at .65 power keeping a 178 degree heading with a 5 second limit
+            strafeNewIMU(10, 5, .65, 178); //Strafe to the right for 18.5 inches at .65 power keeping a 178 degree heading with a 5 second limit
         }
 
         pause(.1); //pause for .1 seconds
