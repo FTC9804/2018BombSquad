@@ -54,19 +54,19 @@ public class REDAUTOCORNER extends FunctionsForAuto {
 
         pause(.4); //pause for .4 seconds
 
-        spinMove (-88, false); //Spin to -88 degrees not starting at .3 power
+        spinMove (-88, false, 8); //Spin to -88 degrees not starting at .3 power with a 8 second timeout
 
         if (vuMarkOutput.equalsIgnoreCase("left")) //If vuforia reads left
         {
-            strafeNewIMU(19.9, 5, -.65, -88);  //Strafe to the left for 19.9 inches at -.65 power keeping a -88 degree heading with a 5 second limit
+            strafeNewIMU(17.9, 5, -.65, -88);  //Strafe to the left for 19.9 inches at -.65 power keeping a -88 degree heading with a 5 second limit
         }
         else if (vuMarkOutput.equalsIgnoreCase("right")) //If vuforia reads right
         {
-            strafeNewIMU(3.8, 5, -.65, -88); //Strafe to the left for 3.8 inches at -.65 power keeping a -88 degree heading with a 5 second limit
+            strafeNewIMU(2.75, 5, -.65, -88); //Strafe to the left for 3.8 inches at -.65 power keeping a -88 degree heading with a 5 second limit
         }
         else //Else
         {
-            strafeNewIMU(11.8, 5, -.65, -88); //Strafe to the left for 11.8 inches at -.65 power keeping a -88 degree heading with a 5 second limit
+            strafeNewIMU(9.8, 5, -.65, -88); //Strafe to the left for 11.8 inches at -.65 power keeping a -88 degree heading with a 5 second limit
         }
 
         pause(.1); //pause for .1 seconds
