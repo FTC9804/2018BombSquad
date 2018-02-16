@@ -58,7 +58,7 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
         pause(.05); //pause for .05 seconds
 
-        driveNewIMU(9.75, 10, -.25, false, 0); //Drive backwards 9.75 inches at -.25 power keeping a 0 degree heading with a 10 second limit
+        driveNewIMU(8.75, 10, -.25, false, 0); //Drive backwards 9.75 inches at -.25 power keeping a 0 degree heading with a 10 second limit
 
         pause(.75); //pause for .75 seconds
 
@@ -66,7 +66,7 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
         pause(.4); //pause for .4 seconds
 
-        spinMove (-88, false); //Spin to -88 degrees not starting at .3 power
+        spinMove (-88, false, 8); //Spin to -88 degrees not starting at .3 power with a 8 second timeout
 
         pause(.5); //Pause for .5 seconds
 
