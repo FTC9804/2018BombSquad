@@ -54,21 +54,21 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
         pause(.4);  //pause for .4 seconds
 
-        spinMove(0, true); //Spin to 0 degrees starting at .3 power
+        spinMove(0, true, 8); //Spin to 0 degrees starting at .3 power with a 8 second timeout
 
         pause(.5); //pause for .5 seconds
 
         if (vuMarkOutput.equalsIgnoreCase("left")) //If vuforia reads left
         {
-            strafeNewIMU(24, 5, -.65, 0); //Strafe to the left for 24 inches at -.65 power keeping a 0 degree heading with a 5 second limit
+            strafeNewIMU(22.5, 5, -.65, 0); //Strafe to the left for 22.5 inches at -.65 power keeping a 0 degree heading with a 5 second limit
         }
         else if (vuMarkOutput.equalsIgnoreCase("right")) //If vuforia reads right
         {
-            strafeNewIMU(7.5, 5, -.65, 0); //Strafe to the left for 7.5 inches at -.65 power keeping a 0 degree heading with a 5 second limit
+            strafeNewIMU(6, 5, -.65, 0); //Strafe to the left for 6 inches at -.65 power keeping a 0 degree heading with a 5 second limit
         }
         else //else
         {
-            strafeNewIMU(14.7, 5, -.65, 0); //Strafe to the left for 14.7 inches at -.65 power keeping a 0 degree heading with a 5 second limit
+            strafeNewIMU(13.2, 5, -.65, 0); //Strafe to the left for 13.2 inches at -.65 power keeping a 0 degree heading with a 5 second limit
         }
 
         pause(.1); //pause for .1 seconds
