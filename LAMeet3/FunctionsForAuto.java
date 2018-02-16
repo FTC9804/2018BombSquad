@@ -75,7 +75,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     DistanceSensor sensorA; //Distance sensor closest to the intake to see how far away potential blocks are
     DistanceSensor sensorB; //Distance sensor between A and C, to see how far potential blocks are
     DistanceSensor sensorC; //Distance sensor farthest from intake, to see how far potential blocks are
-    DistanceSensor sensorTouch;
+    DistanceSensor sensorTouch; //Distance sensor on the front of the robot to see how far we are from the cryptobox
 
     //Time variables set to current run time throughout the code, typically set to this.getRunTime()
     double timeOne; //timeOne, first time variable
@@ -85,9 +85,9 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     double inches, inches2; //Desired number of inches to drive
     double rotations, rotations2;  //Wheel rotations necessary to drive the above amount of inches
     double counts, counts2; //Encoder counts necessary to drive the above amount of inches/rotations
-    final static double ENCODER_CPR = 537.6; //Encoder counts per rotation (CPR, AndyMark NeveRest 20 Motor)
-    final static double GEAR_RATIO = .727; //Gear ratio of driving motors, 16/22
-    final static double WHEEL_DIAMETER = 4; //Wheel diameter in inches
+    final double ENCODER_CPR = 537.6; //Encoder counts per rotation (CPR, AndyMark NeveRest 20 Motor)
+    final double GEAR_RATIO = .727; //Gear ratio of driving motors, 16/22
+    final double WHEEL_DIAMETER = 4; //Wheel diameter in inches
     double spinPower; //The absolute value of the power we apply to the left and right motor when executing a spin
 
     //Loop counter
@@ -98,12 +98,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     String robotStartingPosition; //The starting position of the robot, either relicSide or triangle Side, representing different places on the field
     
     //Ball scoring variables
-    double feelerSwipeNeutralPositionBlue = .37; //Straight position of feelerSwipe for blue
-    double feelerSwipeNeutralPositionRed = .41; //Straight position of feelerSwipe for red
-    double feelerSwipeCWPosition = .05; //Clockwise turned position of feelerSwipe
-    double feelerSwipeCCWPosition = .95; //Counter-clockwise turned position of feelerSwipe
-    double feelerRaiseUpPosition = .9; //Position that the feelerRaise is set to when we are not scoring the ball
-    double feelerRaiseDownPosition = .3; //Position that the feelerRaise is set to when we are scoring the ball
+    final double FEELER_SWIPE_NEUTRAL_POSITION_BLUE = .385; //Straight position of feelerSwipe for blue
+    final double FEELER_SWIPE_NEUTRAL_POSITION_RED = .41; //Straight position of feelerSwipe for red
+    final double FEELER_SWIPE_CW_POSITION = .2; //Clockwise turned position of feelerSwipe
+    final double FEELER_SWIPE_CCW_POSITION = .95; //Counter-clockwise turned position of feelerSwipe
+    final double FEELER_RAISE_UP_POSITION = .9; //Position that the feelerRaise is set to when we are not scoring the ball
+    double FEELER_RAISE_DOWN_POSITION = .2; //Position that the feelerRaise is set to when we are scoring the ball
 
     //Vuforia
     VuforiaLocalizer vuforia; //Variable to store our instance of the Vuforia localization engine
@@ -126,8 +126,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     double correction; //A value to add to or subtract from our driving power based on our angle error
 
     //Pan spin variables
-    double panSpinUp = .66; //The value to which we set the pan spin motors when we are scoring blocks
-    double panSpinDown = .3; //The value to which we set the pan spin motors when we are not scoring/intaking blocks
+    final double PAN_SPIN_UP = .66; //The value to which we set the pan spin motors when we are scoring blocks
+    double PAN_SPIN_DOWN = .3; //The value to which we set the pan spin motors when we are not scoring/intaking blocks
     double bothBlockCounter = 0; //Double representing the number of iterations of a loop in which sensors B and C both see a block
 
 
@@ -207,8 +207,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         touchServo.setDirection(Servo.Direction.REVERSE); //Set touchServo to REVERSE direction
 
         //Init values
-        feelerSwipe.setPosition(feelerSwipeCCWPosition); //Set feelerSwipe to feelerSwipeCCWPosition
-        feelerRaise.setPosition(feelerRaiseUpPosition); //Set feelerRaise to feelerRaiseUpPosition
+        feelerSwipe.setPosition(FEELER_SWIPE_CCW_POSITION); //Set feelerSwipe to FEELER_SWIPE_CCW_POSITION
+        feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Set feelerRaise to FEELER_RAISE_UP_POSITION
         leftPanSpin.setPosition(.2175); //Set the position of leftPanSpin to .2175
         rightPanSpin.setPosition(.2375); //Set the position of rightPanSpin to .2375
         touchServo.setPosition(.65); //Set the position of touchServo to .65
@@ -244,15 +244,15 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         }
         panLifterMotor.setPower(0); //Stop the movement of panLifterMotor
 
-        leftPanSpin.setPosition(panSpinUp); //Set leftPanSpin to the panSpinUp position
-        rightPanSpin.setPosition(panSpinUp + .02); //Set rightPanSpin to the panSpinUp position plus .02
+        leftPanSpin.setPosition(PAN_SPIN_UP); //Set leftPanSpin to the PAN_SPIN_UP position
+        rightPanSpin.setPosition(PAN_SPIN_UP + .02); //Set rightPanSpin to the PAN_SPIN_UP position plus .02
 
         pause(.7); //pause for .7 seconds
 
         driveNewIMU(2.8, 5, .3, true, angle); //Drive forward for 2.8 inches at .3 power, with a 5 second time limit, maintaining the parameter angle degree heading
 
-        leftPanSpin.setPosition(panSpinDown); //Set leftPanSpin to the panSpinDown position
-        rightPanSpin.setPosition(panSpinDown + .02); //Set rightPanSpin to the panSpinDown position plus .02
+        leftPanSpin.setPosition(PAN_SPIN_DOWN); //Set leftPanSpin to the PAN_SPIN_DOWN position
+        rightPanSpin.setPosition(PAN_SPIN_DOWN + .02); //Set rightPanSpin to the PAN_SPIN_DOWN position plus .02
 
         pause(.2); //pause for .2 seconds
 
@@ -274,11 +274,11 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     {
         if (blue) { //If blue is true
             if (blueCorner) { //If blueCorner is true
-                driveNewIMU(10.25, 3, .4, true, -90); //Drive forward for 10.25 inches at .4 power with a 3 second limit maintaining a -90 degree heading
+                driveNewIMU(10.25, 4, .4, true, -90); //Drive forward for 10.25 inches at .4 power with a 4 second limit maintaining a -90 degree heading
 
                 pause(.1); //Pause for .1 seconds
 
-                driveNewIMU(3.14, 3, -.4, false, -90); //Drive backwards for 3.84 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
+                driveNewIMU(2.94, 3, -.4, false, -90); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
 
                 pause(.1); //Pause for .1 seconds
 
@@ -351,11 +351,11 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
             else
             {
-                driveNewIMU(10.25, 3, .4, true, 179); //Drive forward for 10.25 inches at .4 power with a 3 second limit maintaining a 179 degree heading
+                driveNewIMU(10.25, 4, .4, true, 179); //Drive forward for 10.25 inches at .4 power with a 4 second limit maintaining a 179 degree heading
 
                 pause(.1); //Pause for .1 seconds
 
-                driveNewIMU(3.14, 3, -.4, false, 179); //Drive backwards for 3.84 inches at -.4 power with a 3 second limit maintaining a 179 degree heading
+                driveNewIMU(2.94, 3, -.4, false, 179); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a 179 degree heading
 
                 pause(.1); //Pause for .1 seconds
 
@@ -426,11 +426,11 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         else {
             if (redCorner) {
-                driveNewIMU(10.25, 3, .4, true, -90); //Drive forward for 10.25 inches at .4 power with a 3 second limit maintaining a -90 degree heading
+                driveNewIMU(10.25, 4, .4, true, -90); //Drive forward for 10.25 inches at .4 power with a 4 second limit maintaining a -90 degree heading
 
                 pause(.1); //Pause for .1 seconds
 
-                driveNewIMU(2.54, 3, -.4, false, -90); //Drive backwards for 3.84 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
+                driveNewIMU(2.34, 3, -.4, false, -90); //Drive backwards for 2.34 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
 
                 pause(.1); //Pause for .1 seconds
 
@@ -498,17 +498,17 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             }
             else
             {
-                driveNewIMU(10.25, 3, .4, true, 0); //Drive forward for 10.25 inches at .4 power with a 3 second limit maintaining a 0 degree heading
+                driveNewIMU(10.25, 4, .4, true, 0); //Drive forward for 10.25 inches at .4 power with a 4 second limit maintaining a 0 degree heading
 
                 pause(.1); //Pause for .1 seconds
 
-                driveNewIMU(3.14, 3, -.4, false, 0); //Drive backwards for 3.84 inches at -.4 power with a 3 second limit maintaining a 0 degree heading
+                driveNewIMU(2.94, 3, -.4, false, 0); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a 0 degree heading
 
                 pause(.1); //Pause for .1 seconds
 
                 //spinMove(0, true); //Spin move to 0 degrees starting at .3 drive motor power
 
-                pause(.1); //Pause for .1 seconds
+                pause(.1); //Pfause for .1 seconds
 
                 touchServo.setPosition(.02); //Set touchServo to position .02
 
@@ -589,8 +589,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         rotations2 = inches2 / (Math.PI * WHEEL_DIAMETER); //Set rotations2 to inches2 divided by pi, approximately 3.14, divided by the wheel diameter
         counts2= ENCODER_CPR * rotations2 * GEAR_RATIO; //Set counts2 to the encoder CPR times rotations2 times the gear ratio
 
-        leftPanSpin.setPosition(.2175); //Set the position of leftPanSpin to .2175
-        rightPanSpin.setPosition(.2375); //Set the position of rightPanSpin to .2375
+        leftPanSpin.setPosition(.2675); //Set the position of leftPanSpin to .2175
+        rightPanSpin.setPosition(.2875); //Set the position of rightPanSpin to .2375
 
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //check should to bottom too?
@@ -732,32 +732,35 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     //Method to score the ball in autonomous
     public void dropFeelerMoveBallOnlyNewRobot() {
 
+        feelerRaise.setPosition(.6); //Set feelerRaise to position .6
+
+        pause(.7); //Pause for .7 seconds
+
         if (allianceColor.equalsIgnoreCase("blue")) {
-            feelerSwipe.setPosition(feelerSwipeNeutralPositionBlue); //Set feelerSwipe to feelerSwipeNeutralPosition
+            feelerSwipe.setPosition(FEELER_SWIPE_NEUTRAL_POSITION_BLUE); //Set feelerSwipe to FEELER_SWIPE_NEUTRAL_POSITION_BLUE
         }
         else
         {
-            feelerSwipe.setPosition(feelerSwipeNeutralPositionRed);
+            feelerSwipe.setPosition(FEELER_SWIPE_NEUTRAL_POSITION_RED); //Set feelerSwipe to FEELER_SWIPE_NEUTRAL_POSITION_RED
         }
 
 
         pause (.7); //.7 second pause
 
-        feelerRaise.setPosition(feelerRaiseDownPosition); //Lower feelerRaise to put ball scoring mechanism next to the balls
+        feelerRaise.setPosition(FEELER_RAISE_DOWN_POSITION); //Lower feelerRaise to put ball scoring mechanism next to the balls
 
         pause(1.5); //1 second pause
 
         if (allianceColor.equalsIgnoreCase("red") && sensorColorFeeler.blue() >=  sensorColorFeeler.red()) { //If we are the red alliance and see a blue ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
-            telemetry.addData("Value of RED: ", sensorColorFeeler.red() );
-            telemetry.addData("Value of BLUE: ", sensorColorFeeler.blue() );
+            telemetry.addData("Value of RED: ", sensorColorFeeler.red());
+            telemetry.addData("Value of BLUE: ", sensorColorFeeler.blue());
             telemetry.update(); //Update telemetry
             pause(.1); //.1 second pause
-            feelerSwipe.setPosition(feelerSwipeCWPosition); //Set feelerSwipe to its clockwise position
+            feelerSwipe.setPosition(FEELER_SWIPE_CW_POSITION); //Set feelerSwipe to its clockwise position
             pause(.1); //.1 second pause
-            feelerRaise.setPosition(feelerRaiseUpPosition); //Raise feelerRaise after ball is knocked off
+            feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Raise feelerRaise after ball is knocked off
             pause(.1); //.1 second pause
-            //feelerSwipe.setPosition(feelerSwipeNeutralPositionRed); //Set feelerSwipe to its neutral position
         }
         else if ( allianceColor.equalsIgnoreCase("red") && sensorColorFeeler.red() >= sensorColorFeeler.blue()) { //If we are the red alliance and see a red ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
@@ -765,11 +768,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             telemetry.addData("Value of BLUE: ", sensorColorFeeler.blue() );
             telemetry.update(); //Update telemetry
             pause(.1); //.1 second pause
-            feelerSwipe.setPosition(feelerSwipeCCWPosition); //Set feelerSwipe to its counter-clockwise position
+            feelerSwipe.setPosition(FEELER_SWIPE_CCW_POSITION); //Set feelerSwipe to its counter-clockwise position
             pause(.1); //.1 second pause
-            feelerRaise.setPosition(feelerRaiseUpPosition); //Raise feelerRaise after ball is knocked off
+            feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Raise feelerRaise after ball is knocked off
             pause(.1); //.1 second pause
-            //feelerSwipe.setPosition(feelerSwipeNeutralPositionRed); //Set feelerSwipe to its neutral position
         }
         else if ( allianceColor.equalsIgnoreCase("blue") && sensorColorFeeler.blue() >= sensorColorFeeler.red()) { //If we are the blue alliance and see a blue ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
@@ -777,11 +779,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             telemetry.addData("Value of BLUE: ", sensorColorFeeler.blue() );
             telemetry.update(); //Update telemetry
             pause(.1); //.1 second pause
-            feelerSwipe.setPosition(feelerSwipeCCWPosition); //Set feelerSwipe to its counter-clockwise position
+            feelerSwipe.setPosition(FEELER_SWIPE_CCW_POSITION); //Set feelerSwipe to its counter-clockwise position
             pause(.1); //.1 second pause
-            feelerRaise.setPosition(feelerRaiseUpPosition); //Raise feelerRaise after ball is knocked off
+            feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Raise feelerRaise after ball is knocked off
             pause(.1); //.1 second pause
-            //feelerSwipe.setPosition(feelerSwipeNeutralPositionBlue); //Set feelerSwipe to its neutral position
         }
         else if ( allianceColor.equalsIgnoreCase("blue") && sensorColorFeeler.red() >= sensorColorFeeler.blue()) { //If we are the blue alliance and see a red ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
@@ -789,11 +790,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             telemetry.addData("Value of BLUE: ", sensorColorFeeler.blue() );
             telemetry.update(); //Update telemetry
             pause(.1); //.1 second pause
-            feelerSwipe.setPosition(feelerSwipeCWPosition); //Set feelerSwipe to its clockwise position
+            feelerSwipe.setPosition(FEELER_SWIPE_CW_POSITION); //Set feelerSwipe to its clockwise position
             pause(.1); //.1 second pause
-            feelerRaise.setPosition(feelerRaiseUpPosition); //Raise feelerRaise after ball is knocked off
+            feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Raise feelerRaise after ball is knocked off
             pause(.1); //.1 second pause
-            //feelerSwipe.setPosition(feelerSwipeNeutralPositionBlue); //Set feelerSwipe to its neutral position
         }
 
     }
@@ -903,7 +903,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
             }
 
-            //backLeftMotor.setPower(0);
+            //Stop the movement of backMotor, leftMotor, and rightMotor
             backMotor.setPower(0);
             leftMotor.setPower(0);
             rightMotor.setPower(0);
@@ -989,7 +989,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
 
 
-    public void spinMove (double desiredAngle, boolean pointThree)
+    public void spinMove (double desiredAngle, boolean pointThree, double time)
     {
         if (pointThree) //If boolean pointThree is true, we set the initial spinPower to .3
         {
@@ -1009,7 +1009,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
 
         if (desiredAngle<initialHeading) { //If desiredAngle is less than initialHeading
-            while (this.realAngle() > desiredAngle) { //While current angle is greater than desiredAngle
+            while (this.realAngle() > desiredAngle && timeTwo - timeOne < time) { //While current angle is greater than desiredAngle and less seconds than the time variable have elapsed
                 if (Math.abs(this.realAngle() - desiredAngle) < 80) { //Brake: if currentAngle and desiredAngle are within 80 degrees of each other
                     loopCounter++; //Positively increment loopCounter by 1
                     spinPower -= loopCounter * .0085; //Decrease spinPower by loopCounter times .0085
@@ -1017,6 +1017,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                 spinPower = Range.clip(spinPower, .29, 1); //Ensure spinPower is between .29 and 1
                 leftMotor.setPower(spinPower); //Set leftMotor's power to spinPower
                 rightMotor.setPower(-spinPower); //Set rightMotor's power to negative spinPower
+                timeTwo = this.getRuntime(); //Set timeTwo to the current run time
             }
 
             //Stop the motion of leftMotor and rightMotor
@@ -1024,7 +1025,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             rightMotor.setPower(0);
         }
         else { //If desiredAngle is less than initialHeading
-            while (this.realAngle() < desiredAngle) { //While current angle is less than desiredAngle
+            while (this.realAngle() < desiredAngle && timeTwo - timeOne < time) { //While current angle is less than desiredAngle and less seconds than the time variable have elapsed
                 if (Math.abs(this.realAngle() - desiredAngle) < 80) { //Brake: if currentAngle and desiredAngle are within 80 degrees of each other
                     loopCounter++; //Positively increment loopCounter by 1
                     spinPower -= loopCounter * .0085; //Decrease spinPower by loopCounter times .0085
@@ -1032,6 +1033,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                 spinPower = Range.clip(spinPower, .29, 1); //Ensure spinPower is between .29 and 1
                 leftMotor.setPower(-spinPower); //Set leftMotor's power to negative spinPower
                 rightMotor.setPower(spinPower); //Set leftMotor's power to spinPower
+                timeTwo = this.getRuntime(); //Set timeTwo to the current run time
             }
 
             //Stop the motion of leftMotor and rightMotor
@@ -1158,7 +1160,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
             }
 
-            //backLeftMotor.setPower(0);
+            //Stop the movement of backMotor, leftMotor, and rightMotor
             backMotor.setPower(0);
             leftMotor.setPower(0);
             rightMotor.setPower(0);
