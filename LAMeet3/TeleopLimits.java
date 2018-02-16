@@ -412,9 +412,12 @@ public class TeleopLimits extends OpMode {
         dpadDownPressed = gamepad1.dpad_down; //Set variable dpadDownPressed to the raw boolean value of the down dpad
         aPressed =gamepad1.a; //Set variable aPressed to the raw boolean value of the a button
         yPressed = gamepad1.y; //Set variable yPressed to the raw boolean value of the y button
+        xPressed = gamepad1.x; //Set boolean xPressed to gamepad1.x
+        bPressed = gamepad1.b; //Set boolean bPressed to gamepad1.b
 
 
         if (!currentStatus) { //If currentStatus is false
+
 
             feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Set feelerRaise to feelerRaiseUpPosition
 
@@ -432,30 +435,23 @@ public class TeleopLimits extends OpMode {
                 rightIntakePower = 0; //Set rightIntakePower to 0
             }
 
-            if (dpadDownPressed && dpadUpPressed) //If dpadUp and dpadDown are pressed
+            //If the state of limit Top is false and dpad up is pressed, or the state of limit Bottom is false and dpad down is pressed
+            if (!limitTop.getState() && dpadUpPressed || !limitBottom.getState() && dpadDownPressed)
             {
-                panLiftingPower = 0; //Set panLiftingPower to 0 due to conflicting commands
+                panLiftingPower = 0; //Set panLiftingPower to 0
             }
-
-            else if (dpadUpPressed) //Else if dpadUp is pressed
+            else if (dpadUpPressed && !dpadDownPressed) //Else if dpad up is pressed and dpad down is not pressed
             {
-                panLiftingPower = -1; //Set panLiftingPower to -1
+                panLiftingPower = -.95; //Set panLiftingPower to -.95
             }
-
-            else if (dpadDownPressed)  //Else if dpadDown is pressed
+            else if (dpadDownPressed && !dpadUpPressed) //Else if dpad down is pressed and dpad up is not pressed
             {
-                panLiftingPower = 1; //Set panLiftingPower to 1
+                panLiftingPower = .95; //Set panLiftingPower to .95
             }
-
             else //Else
             {
                 panLiftingPower = 0; //Set panLiftingPower to 0
             }
-
-            yPressed = gamepad1.y; //Set boolean yPressed to gamepad1.y
-            aPressed = gamepad1.a; //Set boolean aPressed to gamepad1.a
-            xPressed = gamepad1.x; //Set boolean xPressed to gamepad1.x
-            bPressed = gamepad1.b; //Set boolean bPressed to gamepad1.b
 
             if (dpadLeftPressed) //if dpad left is pressed
             {
@@ -466,6 +462,7 @@ public class TeleopLimits extends OpMode {
             {
                 //Do nothing due to conflicting commands
             }
+
             else if (yPressed) //Else if y is pressed
             {
                 panSpinPosition = panSpinPosition + .05; //Add .05 to panSpinPosition
@@ -493,7 +490,7 @@ public class TeleopLimits extends OpMode {
             telemetry.addData("limitTop", limitTop.getState());
             telemetry.addData("limitBottom", limitBottom.getState());
 
-            panSpinPosition = Range.clip(panSpinPosition, .27, .59); //Ensure panSpinPosition is between .205 and .625
+            panSpinPosition = Range.clip(panSpinPosition, .27, .59); //Ensure panSpinPosition is between .27 and .59
         }
 
         //Else
@@ -565,7 +562,7 @@ public class TeleopLimits extends OpMode {
 
         //SET CONTROLS
         leftPanSpin.setPosition(panSpinPosition); //Set the position of leftPanSpin to panSpinPosition
-        rightPanSpin.setPosition(panSpinPosition + .015); //Set the position of rightPanSpin to panSpinPosition plus .02
+        rightPanSpin.setPosition(panSpinPosition + .015); //Set the position of rightPanSpin to panSpinPosition plus .015
         panLifterMotor.setPower(panLiftingPower); //Set the power of panLifterMotor to panLiftingPower
         leftIntakeMotor.setPower(leftIntakePower); //Set the power of leftIntakeMotor to leftIntakePower
         rightIntakeMotor.setPower(rightIntakePower); //Set the power of rightIntakeMotor to rightIntakePower
