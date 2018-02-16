@@ -65,7 +65,7 @@ public class TeleopLimits extends OpMode {
     Servo touchServo; //Servo that extends an arm from the front of the robot to detect when we are ready to score in autonomous
     //Feeler
     Servo feelerRaise; //Servo that lifts and lowers the ball scoring mechanism, known as the "feeler"
-    double feelerRaiseUpPosition = .9; //Position that the feelerRaise is set to when we are not scoring the ball
+    final double FEELER_RAISE_UP_POSITION = .9; //Position that the feelerRaise is set to when we are not scoring the ball
 
     //Controls
     //Driving controls, all for gamepad 1
@@ -196,17 +196,18 @@ public class TeleopLimits extends OpMode {
 
         //Init values
         leftPanSpin.setPosition(.2475); //Set leftPanSpin to position .1875
-        rightPanSpin.setPosition(.2675); //Set rightPanSpin to position .2075
+        rightPanSpin.setPosition(.2625); //Set rightPanSpin to position .2075
         grab.setPosition(.375); //Set grab to position .375
         upDown.setPosition(0); //Set upDown to position 0
         panBack.setPosition(0.39); //Set panBack to position .39
-        feelerRaise.setPosition(feelerRaiseUpPosition); //Set feelerRaise to feelerRaiseUpPosition
+        feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Set feelerRaise to FEELER_RAISE_UP_POSITION
         touchServo.setPosition(.65); //Set touchServo to position .65
 
         highGain = true;
         lowGain = false;
         gainToggle = true;
     }
+
     public void loop () {
 
         dpadRightPressed = gamepad1.dpad_right; //Set variable dpadRightPressed to the raw boolean value of the right dpad
@@ -254,8 +255,6 @@ public class TeleopLimits extends OpMode {
         testRightPower = linRightPower + rotRightPower;
         testBackPower = linBackPower;
         testFrontPower = linFrontPower;
-
-        feelerRaise.setPosition(feelerRaiseUpPosition); //Set feelerRaise to feelerRaiseUpPosition
 
         if (Math.abs(testLeftPower) > 1) //Tests if each Math.abs(testLeftPower) is over 1
         {
@@ -417,6 +416,8 @@ public class TeleopLimits extends OpMode {
 
         if (!currentStatus) { //If currentStatus is false
 
+            feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Set feelerRaise to feelerRaiseUpPosition
+
             if (rightTrigger > .05 && leftBumper) { //If both rightTrigger and leftBumper are pressed, set intake powers to 0, as this is a conflicting command
                 leftIntakePower = 0; //Set leftIntakePower to 0
                 rightIntakePower = 0; //Set rightIntakePower to 0
@@ -492,12 +493,14 @@ public class TeleopLimits extends OpMode {
             telemetry.addData("limitTop", limitTop.getState());
             telemetry.addData("limitBottom", limitBottom.getState());
 
-            panSpinPosition = Range.clip(panSpinPosition, .1875, .6285); //Ensure panSpinPosition is between .205 and .625
+            panSpinPosition = Range.clip(panSpinPosition, .27, .59); //Ensure panSpinPosition is between .205 and .625
         }
 
         //Else
         else
         {
+
+            feelerRaise.setPosition(.75); //Set feelerRaise to position .7
 
             if (dpadUpPressed) //If dPadUpPressed is true
             {
@@ -562,7 +565,7 @@ public class TeleopLimits extends OpMode {
 
         //SET CONTROLS
         leftPanSpin.setPosition(panSpinPosition); //Set the position of leftPanSpin to panSpinPosition
-        rightPanSpin.setPosition(panSpinPosition + .02); //Set the position of rightPanSpin to panSpinPosition plus .02
+        rightPanSpin.setPosition(panSpinPosition + .015); //Set the position of rightPanSpin to panSpinPosition plus .02
         panLifterMotor.setPower(panLiftingPower); //Set the power of panLifterMotor to panLiftingPower
         leftIntakeMotor.setPower(leftIntakePower); //Set the power of leftIntakeMotor to leftIntakePower
         rightIntakeMotor.setPower(rightIntakePower); //Set the power of rightIntakeMotor to rightIntakePower
