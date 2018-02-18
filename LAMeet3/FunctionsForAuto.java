@@ -98,12 +98,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     String robotStartingPosition; //The starting position of the robot, either relicSide or triangle Side, representing different places on the field
     
     //Ball scoring variables
-    final double FEELER_SWIPE_NEUTRAL_POSITION_BLUE = .385; //Straight position of feelerSwipe for blue
+    final double FEELER_SWIPE_NEUTRAL_POSITION_BLUE = .43; //Straight position of feelerSwipe for blue
     final double FEELER_SWIPE_NEUTRAL_POSITION_RED = .41; //Straight position of feelerSwipe for red
     final double FEELER_SWIPE_CW_POSITION = .2; //Clockwise turned position of feelerSwipe
     final double FEELER_SWIPE_CCW_POSITION = .95; //Counter-clockwise turned position of feelerSwipe
     final double FEELER_RAISE_UP_POSITION = .9; //Position that the feelerRaise is set to when we are not scoring the ball
-    double FEELER_RAISE_DOWN_POSITION = .2; //Position that the feelerRaise is set to when we are scoring the ball
+    double FEELER_RAISE_DOWN_POSITION = .1; //Position that the feelerRaise is set to when we are scoring the ball
 
     //Vuforia
     VuforiaLocalizer vuforia; //Variable to store our instance of the Vuforia localization engine
@@ -209,8 +209,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         //Init values
         feelerSwipe.setPosition(FEELER_SWIPE_CCW_POSITION); //Set feelerSwipe to FEELER_SWIPE_CCW_POSITION
         feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Set feelerRaise to FEELER_RAISE_UP_POSITION
-        leftPanSpin.setPosition(.2175); //Set the position of leftPanSpin to .2175
-        rightPanSpin.setPosition(.2375); //Set the position of rightPanSpin to .2375
+        leftPanSpin.setPosition(.2475); //Set the position of leftPanSpin to .2175
+        rightPanSpin.setPosition(.2675); //Set the position of rightPanSpin to .2375
         touchServo.setPosition(.65); //Set the position of touchServo to .65
     }
 
@@ -278,7 +278,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.1); //Pause for .1 seconds
 
-                driveNewIMU(2.94, 3, -.4, false, -90); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
+                driveNewIMU(3, 3, -.3, false, -90); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
 
                 pause(.1); //Pause for .1 seconds
 
@@ -290,7 +290,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.4); //Pause for .4 seconds
 
-                strafeToTouch(2.5, .65, -90); //Run strafeToTouch method at -90 degrees and .65 power, with a 2.5 second timeout
+                strafeToTouch(2.5, .65, -90); //Run strafeToTouch method at -90 degrees and .63 power, with a 2.5 second timeout
 
 
                 pause(.2); //Pause for .2 seconds
@@ -299,7 +299,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.2); //Pause for .2 Seconds
 
-                driveNewIMU(2, 4, .4, true, -90);
+                driveNewIMU(2.2, 4, .4, true, -90);
 
                 pause(.2); //Pause for .2 Seconds
 
@@ -309,7 +309,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.2); //Pause for .2 seconds
 
-                driveNewIMU(2.25, 5, -.4, false, -90); //Drive backwards 2.25 inches at -.4 power keeping a -90 degree heading with a 5 second limit
+                driveNewIMU(2.6, 5, -.4, false, -90); //Drive backwards 2.25 inches at -.4 power keeping a -90 degree heading with a 5 second limit
 
                 pause(.15); //pause for .15 seconds
 
@@ -337,7 +337,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                 leftIntakeMotor.setPower(-.15);
                 rightIntakeMotor.setPower(-.17);
 
-                driveNewIMU(24, 4, .4, true, -90); //Drive forwards 24 inches at .4 power keeping a -90 degree heading with a 4 second limit
+                driveNewIMU(16, 4, .4, true, -90); //Drive forwards 24 inches at .4 power keeping a -90 degree heading with a 4 second limit
 
                 pause(.15); //pause for .15 seconds
 
@@ -355,7 +355,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.1); //Pause for .1 seconds
 
-                driveNewIMU(2.94, 3, -.4, false, 179); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a 179 degree heading
+                driveNewIMU(3.9, 3, -.3, false, 179); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a 179 degree heading
 
                 pause(.1); //Pause for .1 seconds
 
@@ -367,7 +367,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.4); //Pause for .4 seconds
 
-                strafeToTouch(3.5, .65, 178); //Run strafeToTouch method at 178 degrees and .65 power, with a 3.5 second timeout
+                strafeToTouch(3.5, .65, 178); //Run strafeToTouch method at 178 degrees and .63 power, with a 3.5 second timeout
 
 
                 pause(.2); //Pause for .2 seconds
@@ -376,7 +376,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.2); //Pause for .2 Seconds
 
-                driveNewIMU(2, 4, .4, true, 180);
+                driveNewIMU(2.2, 4, .4, true, 180);
 
                 pause(.2); //Pause for .2 Seconds
                 //Set leftIntakeMotor to -.6 power and rightIntakeMotor to -.7 power
@@ -385,7 +385,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.2); //Pause for .2 seconds
 
-                driveNewIMU(2.25, 5, -.4, false, 179); //Drive backwards 2.25 inches at -.4 power keeping a 179 degree heading with a 5 second limit
+                driveNewIMU(2.6, 5, -.4, false, 179); //Drive backwards 2.25 inches at -.4 power keeping a 179 degree heading with a 5 second limit
 
                 pause(.15); //pause for .15 seconds
 
@@ -411,7 +411,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                 leftIntakeMotor.setPower(-.15);
                 rightIntakeMotor.setPower(-.17);
 
-                driveNewIMU(24, 4, .4, true, 179); //Drive forwards 24 inches at .4 power keeping a 179 degree heading with a 4 second limit
+                driveNewIMU(16, 4, .4, true, 179); //Drive forwards 24 inches at .4 power keeping a 179 degree heading with a 4 second limit
 
                 pause(.15); //pause for .15 seconds
 
@@ -430,7 +430,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.1); //Pause for .1 seconds
 
-                driveNewIMU(2.34, 3, -.4, false, -90); //Drive backwards for 2.34 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
+                driveNewIMU(3, 3, -.3, false, -90); //Drive backwards for 2.34 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
 
                 pause(.1); //Pause for .1 seconds
 
@@ -442,7 +442,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.4); //Pause for .4 seconds
 
-                strafeToTouch(3.5, .65, -88); //Run strafeToTouch method at -88 degrees and .65 power, with a 3.5 second timeout
+                strafeToTouch(3.5, .65, -88); //Run strafeToTouch method at -88 degrees and .63 power, with a 3.5 second timeout
 
                 pause(.2); //Pause for .2 seconds
 
@@ -450,7 +450,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.2); //Pause for .2 Seconds
 
-                driveNewIMU(2, 4, .4, true, -90);
+                driveNewIMU(2.2, 4, .4, true, -90);
 
                 pause(.2); //Pause for .2 Seconds
 
@@ -460,7 +460,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.2); //Pause for .2 seconds
 
-                driveNewIMU(2.25, 5, -.4, false, -90); //Drive backwards 2.25 inches at -.4 power keeping a -90 degree heading with a 5 second limit
+                driveNewIMU(2.6, 5, -.4, false, -90); //Drive backwards 2.25 inches at -.4 power keeping a -90 degree heading with a 5 second limit
 
                 pause(.15); //pause for .15 seconds
 
@@ -486,7 +486,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                 leftIntakeMotor.setPower(-.15);
                 rightIntakeMotor.setPower(-.17);
 
-                driveNewIMU(24, 4, .4, true, -90); //Drive forwards 24 inches at .4 power keeping a -90 degree heading with a 4 second limit
+                driveNewIMU(16, 4, .4, true, -90); //Drive forwards 24 inches at .4 power keeping a -90 degree heading with a 4 second limit
 
                 pause(.15); //pause for .15 seconds
 
@@ -502,7 +502,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.1); //Pause for .1 seconds
 
-                driveNewIMU(2.94, 3, -.4, false, 0); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a 0 degree heading
+                driveNewIMU(3.9, 3, -.3, false, 0); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a 0 degree heading
 
                 pause(.1); //Pause for .1 seconds
 
@@ -514,7 +514,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.4); //Pause for .4 seconds
 
-                strafeToTouch(3.5, .65, 0); //Run strafeToTouch method at 0 degrees and .65 power, with a 3.5 second timeout
+                strafeToTouch(3.5, .65, 0); //Run strafeToTouch method at 0 degrees and .63 power, with a 3.5 second timeout
 
                 pause(.2); //Pause for .2 seconds
 
@@ -522,7 +522,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.2); //Pause for .2 Seconds
 
-                driveNewIMU(2, 4, .4, true, 0);
+                driveNewIMU(2.6, 4, .4, true, 0);
 
                 pause(.2); //Pause for .2 Seconds
 
@@ -558,7 +558,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                 leftIntakeMotor.setPower(-.15);
                 rightIntakeMotor.setPower(-.17);
 
-                driveNewIMU(24, 4, .4, true, 0); //Drive forwards 24 inches at .4 power keeping a 0 degree heading with a 4 second limit
+                driveNewIMU(16, 4, .4, true, 0); //Drive forwards 24 inches at .4 power keeping a 0 degree heading with a 4 second limit
 
                 pause(.15); //pause for .15 seconds
 
@@ -605,9 +605,9 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             leftIntakeMotor.setPower(.85); //Set leftIntakeMotor to .85 power
             rightIntakeMotor.setPower(1); //Set rightIntakeMotor to 1 power
             timeTwo=this.getRuntime(); //Set timeTwo to this.getRuntime()
-            loopCounter++; //Positively increment loopCounter by 1
+            //loopCounter++; //Positively increment loopCounter by 1
 
-            currentAngle = this.realAngle(); //Set currentAngle to the current angle of the robot
+            //currentAngle = this.realAngle(); //Set currentAngle to the current angle of the robot
 
             //If the distance sensed by sensors B and C are less than 13, positively increment bothBlockCounter by 1
             if (sensorB.getDistance(DistanceUnit.CM) < 13 && sensorC.getDistance(DistanceUnit.CM) < 13)
@@ -621,8 +621,9 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
 
             //Telemetry
-            telemetry.addData("left", leftMotor.getPower());
-            telemetry.addData("loopCounter", loopCounter);
+            //telemetry.addData("left", leftMotor.getPower());
+            //telemetry.addData("loopCounter", loopCounter);
+            telemetry.addData("blocks", bothBlockCounter);
             telemetry.update();
         }
 
@@ -642,7 +643,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         bothBlockCounter= 0; //Set the value of bothBlockCounter to 0
 
-        pause(.05); //Pause for .05 seconds
+        pause(.5); //Pause for .5 seconds (allow time for pan servos to raise)
 
         leftIntakeMotor.setPower(-.5);
         rightIntakeMotor.setPower(-.5);
@@ -1014,7 +1015,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                     loopCounter++; //Positively increment loopCounter by 1
                     spinPower -= loopCounter * .0085; //Decrease spinPower by loopCounter times .0085
                 }
-                spinPower = Range.clip(spinPower, .29, 1); //Ensure spinPower is between .29 and 1
+                spinPower = Range.clip(spinPower, .275, 1); //Ensure spinPower is between .26 and 1
                 leftMotor.setPower(spinPower); //Set leftMotor's power to spinPower
                 rightMotor.setPower(-spinPower); //Set rightMotor's power to negative spinPower
                 timeTwo = this.getRuntime(); //Set timeTwo to the current run time
@@ -1030,7 +1031,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                     loopCounter++; //Positively increment loopCounter by 1
                     spinPower -= loopCounter * .0085; //Decrease spinPower by loopCounter times .0085
                 }
-                spinPower = Range.clip(spinPower, .29, 1); //Ensure spinPower is between .29 and 1
+                spinPower = Range.clip(spinPower, .275, 1); //Ensure spinPower is between .26 and 1
                 leftMotor.setPower(-spinPower); //Set leftMotor's power to negative spinPower
                 rightMotor.setPower(spinPower); //Set leftMotor's power to spinPower
                 timeTwo = this.getRuntime(); //Set timeTwo to the current run time
@@ -1083,7 +1084,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         if (power > 0) {
 
             //While less seconds than the parameter time have elapsed and the centimeter value of sensorTouch is not less than 6
-            while (!(sensorTouch.getDistance(DistanceUnit.CM) < 6) && timeTwo - timeOne < time) {
+            while (!(sensorTouch.getDistance(DistanceUnit.CM) < 5.8) && timeTwo - timeOne < time) {
                 //Set correction to the current angle minus the desired angle plus 7 (value to keep strafe straight found through experimental testing) times .027
                 correction = ((this.realAngle()-desiredAngle) + 7) * .027;
 
@@ -1125,7 +1126,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         else { //Else
 
             //While less seconds than the parameter time have elapsed and the centimeter value of sensorTouch is not less than 6
-            while (!(sensorTouch.getDistance(DistanceUnit.CM) < 6) && timeTwo - timeOne < time) {
+            while (!(sensorTouch.getDistance(DistanceUnit.CM) < 5.8) && timeTwo - timeOne < time) {
 
                 //Set correction to the current angle minus the desired angle minus 8 (value to keep strafe straight found through experimental testing) times .027
                 correction = ((this.realAngle()-desiredAngle) - 8) * .027;
