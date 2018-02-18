@@ -85,6 +85,8 @@ public class TeleopLimits extends OpMode {
     boolean aPressed; //boolean for the a button.  Set to true if a is pressed and set to false otherwise.
     boolean xPressed; //boolean for the x button.  Set to true if x is pressed and set to false otherwise.
     boolean bPressed; //boolean for the b button.  Set to true if b is pressed and set to false otherwise.
+    boolean rightStickButton;
+
 
     //Relic controls, all for gamepad 1
     boolean dpadRightPressed; //boolean for dpadRight. Set to true if dpadRight is pressed and set to false otherwise
@@ -181,10 +183,6 @@ public class TeleopLimits extends OpMode {
         panLifterMotor.setDirection(REVERSE); //Set panLifterMotor to REVERSE direction
         relicMotor.setDirection(REVERSE); //Set relicMotor to REVERSE direction
 
-        rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //Set rightMotor mode to BRAKE
-        leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //Set leftMotor mode to BRAKE
-        backMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //Set backMotor mode to BRAKE
-
         // Servo directions
         leftPanSpin.setDirection(Servo.Direction.REVERSE); //Set leftPanSpin to REVERSE direction
         rightPanSpin.setDirection(Servo.Direction.FORWARD); //Set rightPanSpin to FORWARD direction
@@ -197,7 +195,7 @@ public class TeleopLimits extends OpMode {
         //Init values
         leftPanSpin.setPosition(.2475); //Set leftPanSpin to position .1875
         rightPanSpin.setPosition(.2625); //Set rightPanSpin to position .2075
-        grab.setPosition(.375); //Set grab to position .375
+        grab.setPosition(.8); //Set grab to position .8
         upDown.setPosition(0); //Set upDown to position 0
         panBack.setPosition(0.39); //Set panBack to position .39
         feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Set feelerRaise to FEELER_RAISE_UP_POSITION
@@ -414,6 +412,7 @@ public class TeleopLimits extends OpMode {
         yPressed = gamepad1.y; //Set variable yPressed to the raw boolean value of the y button
         xPressed = gamepad1.x; //Set boolean xPressed to gamepad1.x
         bPressed = gamepad1.b; //Set boolean bPressed to gamepad1.b
+        rightStickButton = gamepad1.right_stick_button;
 
 
         if (!currentStatus) { //If currentStatus is false
@@ -425,8 +424,8 @@ public class TeleopLimits extends OpMode {
                 leftIntakePower = 0; //Set leftIntakePower to 0
                 rightIntakePower = 0; //Set rightIntakePower to 0
             } else if (rightTrigger > .05) { //Else if rightTrigger if pressed
-                leftIntakePower = Math.pow(rightTrigger, 2) * .8; //Set leftIntakePower to the square of rightTrigger times .75
-                rightIntakePower = Math.pow(rightTrigger, 2) * .8; //Set rightIntakePower to the square of rightTrigger times .85
+                leftIntakePower = Math.pow(rightTrigger, 2) * .7; //Set leftIntakePower to the square of rightTrigger times .75
+                rightIntakePower = Math.pow(rightTrigger, 2) * .7; //Set rightIntakePower to the square of rightTrigger times .85
             } else if (leftBumper) { //Else if leftBumper is pressed
                 leftIntakePower = -.7; //Set leftIntakePower to -.7
                 rightIntakePower = -.7; //Set rightIntakePower to -.7
@@ -442,11 +441,11 @@ public class TeleopLimits extends OpMode {
             }
             else if (dpadUpPressed && !dpadDownPressed) //Else if dpad up is pressed and dpad down is not pressed
             {
-                panLiftingPower = -.95; //Set panLiftingPower to -.95
+                panLiftingPower = -.99; //Set panLiftingPower to -.95
             }
             else if (dpadDownPressed && !dpadUpPressed) //Else if dpad down is pressed and dpad up is not pressed
             {
-                panLiftingPower = .95; //Set panLiftingPower to .95
+                panLiftingPower = .99; //Set panLiftingPower to .95
             }
             else //Else
             {
@@ -471,18 +470,27 @@ public class TeleopLimits extends OpMode {
 
             else if (aPressed) //Else if a is pressed
             {
-                panSpinPosition = panSpinPosition - .05; //Subtract .05 to panSpinPosition
+                if (leftPanSpin.getPosition()>.37)
+                {
+                    panSpinPosition = panSpinPosition - .05; //Subtract .05 from panSpinPosition
+                }
+                else
+                {
+                    panSpinPosition = panSpinPosition - .025; //Subtract .025 from panSpinPosition
+                }
+
             }
 
             else if (xPressed) //Else if x is pressed
             {
-                panSpinPosition = .3; //Set panSpinPosition to .3
+                panSpinPosition = .42; //Set panSpinPosition to .3
                 panBack.setPosition(0.39); //Set panBack to position .39
             }
 
             else if (bPressed) //Else if b is pressed
             {
-                panSpinPosition = .1875; //Set panSpinPosition to .1875
+                panSpinPosition=.25;
+
             }
 
             //Telemetry
@@ -490,14 +498,14 @@ public class TeleopLimits extends OpMode {
             telemetry.addData("limitTop", limitTop.getState());
             telemetry.addData("limitBottom", limitBottom.getState());
 
-            panSpinPosition = Range.clip(panSpinPosition, .27, .59); //Ensure panSpinPosition is between .27 and .59
+            panSpinPosition = Range.clip(panSpinPosition, .25, .84); //Ensure panSpinPosition is between .27 and .59
         }
 
         //Else
         else
         {
 
-            feelerRaise.setPosition(.75); //Set feelerRaise to position .7
+            feelerRaise.setPosition(.65); //Set feelerRaise to position .65
 
             if (dpadUpPressed) //If dPadUpPressed is true
             {
@@ -526,7 +534,7 @@ public class TeleopLimits extends OpMode {
             }
             else //Else
             {
-                //Do nothing
+
             }
 
             if (yPressed && aPressed) //If yPressed and aPressed are true
@@ -551,13 +559,24 @@ public class TeleopLimits extends OpMode {
             {
                 upDownPosition-=.003; //Subract .003 from upDownPosition
             }
+            else if (xPressed)
+            {
+                upDownPosition=.7569696969;
+                grabPosition=.045;
+            }
             else //Else
             {
                 //Do nothing
             }
 
-            grabPosition=Range.clip(grabPosition, .045, .375); //Ensure grabPosition is between .045 and .375
-            upDownPosition=Range.clip(upDownPosition, 0, .83); //Ensure upDownPosition is between 0 and .83
+            if (rightStickButton)
+            {
+                relicMotor.setPower(.99);
+            }
+
+
+            grabPosition=Range.clip(grabPosition, .045, .7); //Ensure grabPosition is between .045 and .7
+            upDownPosition=Range.clip(upDownPosition, .06969, .83); //Ensure upDownPosition is between .05 and .83
         }
 
         //SET CONTROLS
