@@ -60,15 +60,16 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
         if (vuMarkOutput.equalsIgnoreCase("left")) //If vuforia reads left
         {
-            strafeNewIMU(22.5, 5, -.65, 0); //Strafe to the left for 22.5 inches at -.65 power keeping a 0 degree heading with a 5 second limit
+            strafeNewIMU(22.5, 5, -.65, 0); //Strafe to the left for 22.5 inches at -.63 power keeping a 0 degree heading with a 5 second limit
         }
+
         else if (vuMarkOutput.equalsIgnoreCase("right")) //If vuforia reads right
         {
-            strafeNewIMU(6, 5, -.65, 0); //Strafe to the left for 6 inches at -.65 power keeping a 0 degree heading with a 5 second limit
+            strafeNewIMU(6, 5, -.65, 0); //Strafe to the left for 6 inches at -.63 power keeping a 0 degree heading with a 5 second limit
         }
         else //else
         {
-            strafeNewIMU(13.2, 5, -.65, 0); //Strafe to the left for 13.2 inches at -.65 power keeping a 0 degree heading with a 5 second limit
+            strafeNewIMU(13.2, 5, -.65, 0); //Strafe to the left for 13.2 inches at -.63 power keeping a 0 degree heading with a 5 second limit
         }
 
         pause(.1); //pause for .1 seconds
