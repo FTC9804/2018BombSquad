@@ -54,7 +54,7 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
         pause(.05); //pause for .05 seconds
 
-        vuMarkOutput = detectVuMark(3); //Run vuforia detection for 3 seconds
+        vuMarkOutput = detectVuMark(2); //Run vuforia detection for 3 seconds
 
         pause(.05); //pause for .05 seconds
 
@@ -64,11 +64,7 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
         driveNewIMU(11, 10, -.25, false, 0); //Drive backwards 11.7 inches at -.25 power keeping a 0 degree heading with a 10 second limit
 
-        pause(.4); //pause for .4 seconds
-
-        spinMove (-88, false, 8); //Spin to -88 degrees not starting at .3 power with a 8 second timeout
-
-        pause(.5); //Pause for .5 seconds
+        pause(1.3); //Pause for .5 seconds
 
         if (vuMarkOutput.equalsIgnoreCase("left")) //If vuforia reads left
         {
@@ -76,14 +72,14 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
         }
         else if (vuMarkOutput.equalsIgnoreCase("right")) //If vuforia reads right
         {
-            strafeNewIMU(16, 5, .65, -90); //Strafe to the right for 15 inches at .63 power keeping a -90 degree heading with a 5 second limit
+            driveNewIMU(14, 5, -.32, false, 0);
         }
         else //Else
         {
-            strafeNewIMU(8.4, 5, .65, -90); //Strafe to the right for 7.4 inches at .63 power keeping a -90 degree heading with a 5 second limit
+            driveNewIMU(6.4, 5, -.32, false, 0);
         }
 
-        pause(.1); //pause for .1 seconds
+        spinMove (-88, false, 8); //Spin to -88 degrees not starting at .3 power with a 8 second timeout
 
         touch(true, true, false); //Run touch method with parameters true, true, and false, meaning we are running from blue corner position
     }
