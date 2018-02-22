@@ -28,15 +28,15 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
         telemetry.addData("calibrated", true);
         telemetry.update();
 
-        pause(.5); //pause for .5 seconds
+        pause(.05); //pause for .5 seconds
 
         introduceAngle(); //Introduce the angle
 
-        pause(.5); //pause for .5 seconds
+        pause(.05); //pause for .5 seconds
 
         waitForStart(); //Wait for start
 
-        pause(.3); //pause for .5 seconds
+        pause(.05); //pause for .5 seconds
 
         //Telemetry
         telemetry.addData("here", true);
@@ -46,21 +46,21 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
         pause(.15); //pause for .15 seconds
 
-        vuMarkOutput = detectVuMark(3); //Run vuforia detection for 3 seconds
+        vuMarkOutput = detectVuMark(2); //Run vuforia detection for 3 seconds
 
         pause(.15); //pause for .15 seconds
 
-        driveNewIMU(7.75, 10, -.25, false, 0); //Drive backwards 7.75 inches at -.25 power keeping a 0 degree heading with a 10 second limit
+        driveNewIMU(8.75, 10, -.25, false, 0); //Drive backwards 7.75 inches at -.25 power keeping a 0 degree heading with a 10 second limit
 
         pause(.8); //pause for .8 seconds
 
-        driveNewIMU(9.5, 10, -.25, false, 0); //Drive backwards 10.25 inches at -.25 power keeping a 0 degree heading with a 10 second limit
+        driveNewIMU(13, 10, -.25, false, 0); //Drive backwards 10.25 inches at -.25 power keeping a 0 degree heading with a 10 second limit
 
         pause(.4); //pause for .4 seconds
 
         spinMove(178, false, 10); //Spin to 178 degrees not starting at .3 power with a 10 second timeout
 
-        pause(.45); //pause for .45 seconds
+        pause(.2); //pause for .45 seconds
 
         if (vuMarkOutput.equalsIgnoreCase("left")) //If vuforia reads left
         {
