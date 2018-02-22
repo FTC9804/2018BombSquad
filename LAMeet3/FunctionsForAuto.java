@@ -66,6 +66,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     //Touch driving
     Servo touchServo; //Servo that extends an arm from the front of the robot to detect when we are ready to score in autonomous
+    Servo touchServo2;
 
     //COLOR SENSOR
     ColorSensor sensorColorFeeler; //Color sensor for detecting ball color in autonomous
@@ -115,6 +116,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     //Limit Switches
     DigitalChannel limitTop; //Limit Switch that tells us if we reach the top of the robot with the Pan
     DigitalChannel limitBottom; //Limit switch that tells us if we reach the bottom of the robot with the Pan
+    DigitalChannel touchEnd;
+
 
     //IMU
     BNO055IMU imu; //IMU sensor for detecting the angle of the robot
@@ -168,6 +171,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         feelerRaise = hardwareMap.servo.get("s8"); //s8
         feelerSwipe = hardwareMap.servo.get("s9"); //s9
         touchServo = hardwareMap.servo.get("s10"); //s10
+        touchServo2 = hardwareMap.servo.get("s13");
 
         //Set up the parameters with which we will use the IMU
         BNO055IMU.Parameters IMUparameters = new BNO055IMU.Parameters();
@@ -184,12 +188,14 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         imu.initialize(IMUparameters); //Initialize the IMU
         limitTop = hardwareMap.get(DigitalChannel.class, "d1"); //d1
         limitBottom = hardwareMap.get(DigitalChannel.class, "d2"); //d2
+        touchEnd = hardwareMap.get(DigitalChannel.class, "d3"); //d3
         sensorColorFeeler = hardwareMap.get(ColorSensor.class, "i1"); //i1
         sensorColorFeeler.enableLed(true); //Enable the LED of the color sensor
         sensorA = hardwareMap.get(DistanceSensor.class, "i2"); //i2
         sensorB = hardwareMap.get(DistanceSensor.class, "i3"); //i3
         sensorC = hardwareMap.get(DistanceSensor.class, "i4"); //i4
         sensorTouch = hardwareMap.get(DistanceSensor.class, "i5"); //i5
+
 
         //Motor directions
         rightMotor.setDirection(REVERSE); //Set rightMotor to REVERSE direction
@@ -205,13 +211,15 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         feelerRaise.setDirection(Servo.Direction.FORWARD); //Set feelerRaise to FORWARD direction
         feelerSwipe.setDirection(Servo.Direction.REVERSE); //Set feelerSwipe to REVERSE direction
         touchServo.setDirection(Servo.Direction.REVERSE); //Set touchServo to REVERSE direction
+        touchServo2.setDirection(Servo.Direction.FORWARD); //Set touchServo to REVERSE direction
 
         //Init values
         feelerSwipe.setPosition(FEELER_SWIPE_CCW_POSITION); //Set feelerSwipe to FEELER_SWIPE_CCW_POSITION
         feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Set feelerRaise to FEELER_RAISE_UP_POSITION
         leftPanSpin.setPosition(.2475); //Set the position of leftPanSpin to .2175
         rightPanSpin.setPosition(.2675); //Set the position of rightPanSpin to .2375
-        touchServo.setPosition(.65); //Set the position of touchServo to .65
+        touchServo.setPosition(.97); //Set the position of touchServo to .65
+        touchServo2.setPosition(.95);
     }
 
     //Method to calibrate the IMU gyro
@@ -270,38 +278,64 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     }
 
+    public void driveToTouch (double power, double desiredAngle)
+    {
+        touchServo.setPosition(.57);
+        touchServo2.setPosition(.55);
+
+        pause(.5);
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (touchEnd.getState() && timeTwo-timeOne < 2.6)
+        {
+            //Set currentAngle to this.getAngleSimple()
+            currentAngle = this.realAngle();
+
+            //Set correction to the current angle minus the desired angle times .016
+            correction = (this.realAngle()-desiredAngle) * .016;
+
+            //Set the power of leftMotor to power plus correction, and the power of rightMotor to power minus correction
+            leftMotor.setPower(power + correction);
+            rightMotor.setPower(power - correction);
+
+            //Set timeTwo to this.getRuntime()
+            timeTwo=this.getRuntime();
+        }
+
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
+    }
+
     public void touch (boolean blue, boolean blueCorner, boolean redCorner)
     {
         if (blue) { //If blue is true
             if (blueCorner) { //If blueCorner is true
-                driveNewIMU(10.25, 4, .4, true, -90); //Drive forward for 10.25 inches at .4 power with a 4 second limit maintaining a -90 degree heading
+                driveToTouch(.3, -90);
 
                 pause(.1); //Pause for .1 seconds
 
-                driveNewIMU(3, 3, -.3, false, -90); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
+                driveNewIMU(1.2, 3, -.3, false, -90); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
 
                 pause(.1); //Pause for .1 seconds
-
-                //spinMove(-90, true); //Spin move to -90 degrees starting at .3 drive motor power
-
-                pause(.1); //Pause for .1 seconds
-
-                touchServo.setPosition(.02); //Set touchServo to position .02
-
-                pause(.4); //Pause for .4 seconds
 
                 strafeToTouch(2.5, .65, -90); //Run strafeToTouch method at -90 degrees and .63 power, with a 2.5 second timeout
 
-
                 pause(.2); //Pause for .2 seconds
 
-                touchServo.setPosition(.65); //Set the position of touchServo to .65
+                driveNewIMU(2.8, 3, -.3, false, -90);
+
+                pause(.2);
+
+                touchServo.setPosition(.97); //Set the position of touchServo to .65
+                touchServo2.setPosition(.95);
 
                 pause(.2); //Pause for .2 Seconds
 
-                driveNewIMU(2.2, 4, .4, true, -90);
+                driveNewIMU(6.4, 4, .4, true, -90);
 
-                pause(.2); //Pause for .2 Seconds
+                pause(.8); //Pause for .2 Seconds
 
                 //Set leftIntakeMotor to -.6 power and rightIntakeMotor to -.7 power
                 leftIntakeMotor.setPower(-.6);
@@ -309,7 +343,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.2); //Pause for .2 seconds
 
-                driveNewIMU(2.6, 5, -.4, false, -90); //Drive backwards 2.25 inches at -.4 power keeping a -90 degree heading with a 5 second limit
+                driveNewIMU(2.65, 5, -.4, false, -90); //Drive backwards 2.25 inches at -.4 power keeping a -90 degree heading with a 5 second limit
 
                 pause(.15); //pause for .15 seconds
 
@@ -329,63 +363,59 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.1); //.1 second pause
 
-                driveNewIMU(4, 2, -.4, false, -90); //Drive backwards 4 inches at -.4 power keeping a -90 degree heading with a 2 second limit
+                driveNewIMU(1.5, 2, -.4, false, -90); //Drive backwards 4 inches at -.4 power keeping a -90 degree heading with a 2 second limit
 
                 pause(.15); //pause for .15 seconds
 
-                //Set the power of leftIntakeMotor to -.15 and the power of rightIntakeMotor to -.17
-                leftIntakeMotor.setPower(-.15);
-                rightIntakeMotor.setPower(-.17);
-
-                driveNewIMU(16, 4, .4, true, -90); //Drive forwards 24 inches at .4 power keeping a -90 degree heading with a 4 second limit
-
-                pause(.15); //pause for .15 seconds
-
-                driveNewIMU(4, 3, -.4, false, -90); //Drive backwards 4 inches at -.4 power keeping a -90 degree heading with a 3 second limit
-
-                //Stop the motion of the intake motors
-                leftIntakeMotor.setPower(0);
-                rightIntakeMotor.setPower(0);
+//                //Set the power of leftIntakeMotor to -.15 and the power of rightIntakeMotor to -.17
+//                leftIntakeMotor.setPower(-.15);
+//                rightIntakeMotor.setPower(-.17);
+//
+//                driveNewIMU(16, 2.4, .4, true, -90); //Drive forwards 24 inches at .4 power keeping a -90 degree heading with a 4 second limit
+//
+//                pause(.15); //pause for .15 seconds
+//
+//                driveNewIMU(4, 3, -.4, false, -90); //Drive backwards 4 inches at -.4 power keeping a -90 degree heading with a 3 second limit
+//
+//                //Stop the motion of the intake motors
+//                leftIntakeMotor.setPower(0);
+//                rightIntakeMotor.setPower(0);
 
             }
 
             else
             {
-                driveNewIMU(10.25, 4, .4, true, 179); //Drive forward for 10.25 inches at .4 power with a 4 second limit maintaining a 179 degree heading
+                driveToTouch(.3, 180);
 
                 pause(.1); //Pause for .1 seconds
 
-                driveNewIMU(3.9, 3, -.3, false, 179); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a 179 degree heading
+                driveNewIMU(1.2, 3, -.3, false, 180); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
 
                 pause(.1); //Pause for .1 seconds
-
-                //spinMove(179, true); //Spin move to 179 degrees starting at .3 drive motor power
-
-                pause(.1); //Pause for .1 seconds
-
-                touchServo.setPosition(.02); //Set touchServo to position .02
-
-                pause(.4); //Pause for .4 seconds
 
                 strafeToTouch(3.5, .65, 178); //Run strafeToTouch method at 178 degrees and .63 power, with a 3.5 second timeout
 
+                pause(.1);
+
+                driveNewIMU(2.8, 3, -.3, false, 180);
 
                 pause(.2); //Pause for .2 seconds
 
-                touchServo.setPosition(.65); //Set the position of touchServo to .65
+                touchServo.setPosition(.97); //Set the position of touchServo to .65
+                touchServo2.setPosition(.95);
 
                 pause(.2); //Pause for .2 Seconds
 
-                driveNewIMU(2.2, 4, .4, true, 180);
+                driveNewIMU(6.4, 4, .4, true, 180);
 
-                pause(.2); //Pause for .2 Seconds
+                pause(.8); //Pause for .2 Seconds
                 //Set leftIntakeMotor to -.6 power and rightIntakeMotor to -.7 power
                 leftIntakeMotor.setPower(-.6);
                 rightIntakeMotor.setPower(-.7);
 
                 pause(.2); //Pause for .2 seconds
 
-                driveNewIMU(2.6, 5, -.4, false, 179); //Drive backwards 2.25 inches at -.4 power keeping a 179 degree heading with a 5 second limit
+                driveNewIMU(2.65, 5, -.4, false, 179); //Drive backwards 2.25 inches at -.4 power keeping a 179 degree heading with a 5 second limit
 
                 pause(.15); //pause for .15 seconds
 
@@ -405,54 +435,51 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.1); //.1 second pause
 
-                driveNewIMU(4, 2, -.4, false, 179); //Drive backwards 4 inches at -.4 power keeping a 179 degree heading with a 2 second limit
+                driveNewIMU(1.5, 2, -.4, false, 179); //Drive backwards 4 inches at -.4 power keeping a 179 degree heading with a 2 second limit
 
-                //Set the power of leftIntakeMotor to -.15 and the power of rightIntakeMotor to -.17
-                leftIntakeMotor.setPower(-.15);
-                rightIntakeMotor.setPower(-.17);
-
-                driveNewIMU(16, 4, .4, true, 179); //Drive forwards 24 inches at .4 power keeping a 179 degree heading with a 4 second limit
-
-                pause(.15); //pause for .15 seconds
-
-                driveNewIMU(4, 3, -.4, false, 179); //Drive backwards 4 inches at -.4 power keeping a 179 degree heading with a 3 second limit
-
-                //Stop the motion of the intake motors
-                leftIntakeMotor.setPower(0);
-                rightIntakeMotor.setPower(0);
+//                //Set the power of leftIntakeMotor to -.15 and the power of rightIntakeMotor to -.17
+//                leftIntakeMotor.setPower(-.15);
+//                rightIntakeMotor.setPower(-.17);
+//
+//                driveNewIMU(16, 2.4, .4, true, 179); //Drive forwards 24 inches at .4 power keeping a 179 degree heading with a 4 second limit
+//
+//                pause(.15); //pause for .15 seconds
+//
+//                driveNewIMU(4, 3, -.4, false, 179); //Drive backwards 4 inches at -.4 power keeping a 179 degree heading with a 3 second limit
+//
+//                //Stop the motion of the intake motors
+//                leftIntakeMotor.setPower(0);
+//                rightIntakeMotor.setPower(0);
 
             }
         }
 
         else {
             if (redCorner) {
-                driveNewIMU(10.25, 4, .4, true, -90); //Drive forward for 10.25 inches at .4 power with a 4 second limit maintaining a -90 degree heading
+                driveToTouch(.3, -90);
 
                 pause(.1); //Pause for .1 seconds
 
-                driveNewIMU(3, 3, -.3, false, -90); //Drive backwards for 2.34 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
+                driveNewIMU(1.2, 3, -.3, false, -90); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
 
                 pause(.1); //Pause for .1 seconds
-
-                //spinMove(-90, true); //Spin move to -90 degrees starting at .3 drive motor power
-
-                pause(.1); //Pause for .1 seconds
-
-                touchServo.setPosition(.02); //Set touchServo to position .02
-
-                pause(.4); //Pause for .4 seconds
 
                 strafeToTouch(3.5, .65, -88); //Run strafeToTouch method at -88 degrees and .63 power, with a 3.5 second timeout
 
                 pause(.2); //Pause for .2 seconds
 
-                touchServo.setPosition(.65); //Set the position of touchServo to .65
+                driveNewIMU(2.8, 3, -.3, false, -90);
+
+                pause(.2);
+
+                touchServo.setPosition(.97); //Set the position of touchServo to .65
+                touchServo2.setPosition(.95);
 
                 pause(.2); //Pause for .2 Seconds
 
-                driveNewIMU(2.2, 4, .4, true, -90);
+                driveNewIMU(6.4, 4, .4, true, -90);
 
-                pause(.2); //Pause for .2 Seconds
+                pause(.8); //Pause for .2 Seconds
 
                 //Set leftIntakeMotor to -.6 power and rightIntakeMotor to -.7 power
                 leftIntakeMotor.setPower(-.6);
@@ -460,7 +487,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.2); //Pause for .2 seconds
 
-                driveNewIMU(2.6, 5, -.4, false, -90); //Drive backwards 2.25 inches at -.4 power keeping a -90 degree heading with a 5 second limit
+                driveNewIMU(2.65, 5, -.4, false, -90); //Drive backwards 2.25 inches at -.4 power keeping a -90 degree heading with a 5 second limit
 
                 pause(.15); //pause for .15 seconds
 
@@ -480,51 +507,48 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.1); //.1 second pause
 
-                driveNewIMU(4, 2, -.4, false, -90); //Drive backwards 4 inches at -.4 power keeping a -90 degree heading with a 2 second limit
+                driveNewIMU(1.5, 2, -.4, false, -90); //Drive backwards 4 inches at -.4 power keeping a -90 degree heading with a 2 second limit
 
-                //Set the power of leftIntakeMotor to -.15 and the power of rightIntakeMotor to -.17
-                leftIntakeMotor.setPower(-.15);
-                rightIntakeMotor.setPower(-.17);
-
-                driveNewIMU(16, 4, .4, true, -90); //Drive forwards 24 inches at .4 power keeping a -90 degree heading with a 4 second limit
-
-                pause(.15); //pause for .15 seconds
-
-                driveNewIMU(4, 3, -.4, false, -90); //Drive backwards 4 inches at -.4 power keeping a 90 degree heading with a 3 second limit
-
-                //Stop the motion of the intake motors
-                leftIntakeMotor.setPower(0);
-                rightIntakeMotor.setPower(0);
+//                //Set the power of leftIntakeMotor to -.15 and the power of rightIntakeMotor to -.17
+//                leftIntakeMotor.setPower(-.15);
+//                rightIntakeMotor.setPower(-.17);
+//
+////                driveNewIMU(16, 2.4, .4, true, -90); //Drive forwards 24 inches at .4 power keeping a -90 degree heading with a 4 second limit
+//
+//                pause(.15); //pause for .15 seconds
+//
+//                driveNewIMU(4, 3, -.4, false, -90); //Drive backwards 4 inches at -.4 power keeping a 90 degree heading with a 3 second limit
+//
+//                //Stop the motion of the intake motors
+//                leftIntakeMotor.setPower(0);
+//                rightIntakeMotor.setPower(0);
             }
             else
             {
-                driveNewIMU(10.25, 4, .4, true, 0); //Drive forward for 10.25 inches at .4 power with a 4 second limit maintaining a 0 degree heading
+                driveToTouch(.3, 0);
 
                 pause(.1); //Pause for .1 seconds
 
-                driveNewIMU(3.9, 3, -.3, false, 0); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a 0 degree heading
+                driveNewIMU(1.2, 3, -.3, false, 0); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
 
                 pause(.1); //Pause for .1 seconds
-
-                //spinMove(0, true); //Spin move to 0 degrees starting at .3 drive motor power
-
-                pause(.1); //Pfause for .1 seconds
-
-                touchServo.setPosition(.02); //Set touchServo to position .02
-
-                pause(.4); //Pause for .4 seconds
 
                 strafeToTouch(3.5, .65, 0); //Run strafeToTouch method at 0 degrees and .63 power, with a 3.5 second timeout
 
                 pause(.2); //Pause for .2 seconds
 
-                touchServo.setPosition(.65); //Set the position of touchServo to .65
+                driveNewIMU(2.8, 3, -.3, false, 0);
+
+                pause(.2);
+
+                touchServo.setPosition(.97); //Set the position of touchServo to .65
+                touchServo2.setPosition(.95);
 
                 pause(.2); //Pause for .2 Seconds
 
-                driveNewIMU(2.6, 4, .4, true, 0);
+                driveNewIMU(6.4, 4, .4, true, 0);
 
-                pause(.2); //Pause for .2 Seconds
+                pause(.8); //Pause for .2 Seconds
 
                 //Set leftIntakeMotor to -.6 power and rightIntakeMotor to -.7 power
                 leftIntakeMotor.setPower(-.6);
@@ -532,7 +556,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.2); //Pause for .2 seconds
 
-                driveNewIMU(2.25, 5, -.4, false, 0); //Drive backwards 2.25 inches at -.4 power keeping a 0 degree heading with a 5 second limit
+                driveNewIMU(2.65, 5, -.4, false, 0); //Drive backwards 2.25 inches at -.4 power keeping a 0 degree heading with a 5 second limit
 
                 pause(.15); //pause for .15 seconds
 
@@ -552,21 +576,21 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.1); //.1 second pause
 
-                driveNewIMU(4, 2, -.4, false, 0); //Drive backwards 4 inches at -.4 power keeping a 0 degree heading with a 2 second limit
+                driveNewIMU(1.5, 2, -.4, false, 0); //Drive backwards 4 inches at -.4 power keeping a 0 degree heading with a 2 second limit
 
-                //Set the power of leftIntakeMotor to -.15 and the power of rightIntakeMotor to -.17
-                leftIntakeMotor.setPower(-.15);
-                rightIntakeMotor.setPower(-.17);
-
-                driveNewIMU(16, 4, .4, true, 0); //Drive forwards 24 inches at .4 power keeping a 0 degree heading with a 4 second limit
-
-                pause(.15); //pause for .15 seconds
-
-                driveNewIMU(4, 3, -.4, false, 0); //Drive backwards 4 inches at -.4 power keeping a 0 degree heading with a 3 second limit
-
-                //Stop the motion of the intake motors
-                leftIntakeMotor.setPower(0);
-                rightIntakeMotor.setPower(0);
+//                //Set the power of leftIntakeMotor to -.15 and the power of rightIntakeMotor to -.17
+//                leftIntakeMotor.setPower(-.15);
+//                rightIntakeMotor.setPower(-.17);
+//
+//                driveNewIMU(16, 2.4, .4, true, 0); //Drive forwards 24 inches at .4 power keeping a 0 degree heading with a 4 second limit
+//
+//                pause(.15); //pause for .15 seconds
+//
+//                driveNewIMU(4, 3, -.4, false, 0); //Drive backwards 4 inches at -.4 power keeping a 0 degree heading with a 3 second limit
+//
+//                //Stop the motion of the intake motors
+//                leftIntakeMotor.setPower(0);
+//                rightIntakeMotor.setPower(0);
             }
         }
 
@@ -735,7 +759,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         feelerRaise.setPosition(.6); //Set feelerRaise to position .6
 
-        pause(.7); //Pause for .7 seconds
+        pause(.4); //Pause for .7 seconds
 
         if (allianceColor.equalsIgnoreCase("blue")) {
             feelerSwipe.setPosition(FEELER_SWIPE_NEUTRAL_POSITION_BLUE); //Set feelerSwipe to FEELER_SWIPE_NEUTRAL_POSITION_BLUE
@@ -750,7 +774,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         feelerRaise.setPosition(FEELER_RAISE_DOWN_POSITION); //Lower feelerRaise to put ball scoring mechanism next to the balls
 
-        pause(1.5); //1 second pause
+        pause(1.2); //1 second pause
 
         if (allianceColor.equalsIgnoreCase("red") && sensorColorFeeler.blue() >=  sensorColorFeeler.red()) { //If we are the red alliance and see a blue ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
@@ -957,9 +981,9 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             if (forwards) { //If robot is moving forward
                 //If the absolute value of rightMotor's position is greater than the absolute value of counts - 700, and loopCounter is under 100
                 //This serves to not immediately start decreasing the speed of the motors and only brake when necessary
-                if (Math.abs(rightMotor.getCurrentPosition()) > Math.abs(counts - 700) && loopCounter < 100) {
-                    power -= loopCounter * .01; //Subtract loopCounter times .01 from power
-                    power = Range.clip(power, .27, 1); //Ensure power is between .27 and 1
+                if (Math.abs(rightMotor.getCurrentPosition()) > Math.abs(counts - 900)) {
+                    power -= loopCounter * .0225; //Subtract loopCounter times .01 from power
+                    power = Range.clip(power, .18, 1); //Ensure power is between .27 and 1
                 }
             }
             //Lower the absolute value of the power of leftMotor and rightMotor as the drive progresses in order to brake
@@ -1084,7 +1108,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         if (power > 0) {
 
             //While less seconds than the parameter time have elapsed and the centimeter value of sensorTouch is not less than 6
-            while (!(sensorTouch.getDistance(DistanceUnit.CM) < 5.8) && timeTwo - timeOne < time) {
+            while (!(sensorTouch.getDistance(DistanceUnit.CM) < 6.5) && timeTwo - timeOne < time) {
                 //Set correction to the current angle minus the desired angle plus 7 (value to keep strafe straight found through experimental testing) times .027
                 correction = ((this.realAngle()-desiredAngle) + 7) * .027;
 
@@ -1126,7 +1150,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         else { //Else
 
             //While less seconds than the parameter time have elapsed and the centimeter value of sensorTouch is not less than 6
-            while (!(sensorTouch.getDistance(DistanceUnit.CM) < 5.8) && timeTwo - timeOne < time) {
+            while (!(sensorTouch.getDistance(DistanceUnit.CM) < 5) && timeTwo - timeOne < time) {
 
                 //Set correction to the current angle minus the desired angle minus 8 (value to keep strafe straight found through experimental testing) times .027
                 correction = ((this.realAngle()-desiredAngle) - 8) * .027;
