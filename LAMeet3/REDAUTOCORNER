@@ -46,28 +46,30 @@ public class REDAUTOCORNER extends FunctionsForAuto {
 
         pause(.05); //pause for .05 seconds
 
-        vuMarkOutput = detectVuMark(3); //Run vuforia detection for 3 seconds
+        vuMarkOutput = detectVuMark(2); //Run vuforia detection for 3 seconds
 
         pause(.05); //pause for .05 seconds
 
-        driveNewIMU(7.8, 10, .45, true, 0); //Drive forward 7.8 inches at .45 power keeping a 0 degree heading with a 10 second limit
+        driveNewIMU(5.55, 10, .45, true, 0); //Drive forward 7.8 inches at .45 power keeping a 0 degree heading with a 10 second limit
 
-        pause(.4); //pause for .4 seconds
-
-        spinMove (-88, false, 8); //Spin to -88 degrees not starting at .3 power with a 8 second timeout
+        pause(1.3); //pause for .4 seconds
 
         if (vuMarkOutput.equalsIgnoreCase("left")) //If vuforia reads left
         {
-            strafeNewIMU(18.9, 5, -.65, -88);  //Strafe to the left for 19.9 inches at -.63 power keeping a -88 degree heading with a 5 second limit
+            driveNewIMU(18.9, 5, .32, true, 0);
         }
         else if (vuMarkOutput.equalsIgnoreCase("right")) //If vuforia reads right
         {
-            strafeNewIMU(3.75, 5, -.65, -88); //Strafe to the left for 3.8 inches at -.63 power keeping a -88 degree heading with a 5 second limit
+            driveNewIMU(3.75, 5, .32, true, 0); //Strafe to the left for 3.8 inches at -.63 power keeping a -88 degree heading with a 5 second limit
         }
         else //Else
         {
-            strafeNewIMU(10.8, 5, -.65, -88); //Strafe to the left for 11.8 inches at -.63 power keeping a -88 degree heading with a 5 second limit
+            driveNewIMU(10.8, 5, .32, true, 0); //Strafe to the left for 11.8 inches at -.63 power keeping a -88 degree heading with a 5 second limit
         }
+
+        pause(.1);
+
+        spinMove (-88, false, 8); //Spin to -88 degrees not starting at .3 power with a 8 second timeout
 
         pause(.1); //pause for .1 seconds
 
