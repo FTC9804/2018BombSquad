@@ -28,15 +28,15 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
         telemetry.addData("calibrated", true);
         telemetry.update();
 
-        pause(.5); //pause for .5 seconds
+        pause(.05); //pause for .5 seconds
 
         introduceAngle(); //Introduce the angle
 
-        pause(.5); //pause for .5 seconds
+        pause(.05); //pause for .5 seconds
 
         waitForStart(); //Wait for start
 
-        pause(.5); //pause for .5 seconds
+        pause(.05); //pause for .5 seconds
 
         //Telemetry
         telemetry.addData("here", true);
@@ -46,7 +46,7 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
         pause(.15); //pause for .15 seconds
 
-        vuMarkOutput = detectVuMark(3); //Run vuforia detection for 3 seconds
+        vuMarkOutput = detectVuMark(2); //Run vuforia detection for 3 seconds
 
         pause(.15); //pause for .15 seconds
 
@@ -56,7 +56,7 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
         spinMove(0, true, 8); //Spin to 0 degrees starting at .3 power with a 8 second timeout
 
-        pause(.5); //pause for .5 seconds
+        pause(.2); //pause for .5 seconds
 
         if (vuMarkOutput.equalsIgnoreCase("left")) //If vuforia reads left
         {
@@ -65,11 +65,11 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
         else if (vuMarkOutput.equalsIgnoreCase("right")) //If vuforia reads right
         {
-            strafeNewIMU(6, 5, -.65, 0); //Strafe to the left for 6 inches at -.63 power keeping a 0 degree heading with a 5 second limit
+            strafeNewIMU(6.9, 5, -.65, 0); //Strafe to the left for 6 inches at -.63 power keeping a 0 degree heading with a 5 second limit
         }
         else //else
         {
-            strafeNewIMU(13.2, 5, -.65, 0); //Strafe to the left for 13.2 inches at -.63 power keeping a 0 degree heading with a 5 second limit
+            strafeNewIMU(13.9, 5, -.65, 0); //Strafe to the left for 13.2 inches at -.63 power keeping a 0 degree heading with a 5 second limit
         }
 
         pause(.1); //pause for .1 seconds
