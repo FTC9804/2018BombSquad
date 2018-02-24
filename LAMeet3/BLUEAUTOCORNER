@@ -58,7 +58,7 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
         pause(.05); //pause for .05 seconds
 
-        driveNewIMU(6.75, 10, -.25, false, 0); //Drive backwards 9.75 inches at -.25 power keeping a 0 degree heading with a 10 second limit
+        driveNewIMU(2.75, 10, -.25, false, 0); //Drive backwards 9.75 inches at -.25 power keeping a 0 degree heading with a 10 second limit
 
         pause(.75); //pause for .75 seconds
 
