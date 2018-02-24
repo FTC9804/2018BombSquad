@@ -1,4 +1,4 @@
-//FUNCTIONS FOR AUTONOMOUS 
+//FUNCTIONS FOR AUTONOMOUS
 
 //Package statement
 package org.firstinspires.ftc.teamcode;
@@ -38,19 +38,19 @@ import java.util.Locale;
 public abstract class FunctionsForAuto extends LinearOpMode {
 
     //MOTORS
-    
+
     //Driving
     DcMotor rightMotor; //Right drive motor, for driving forwards and backwards
     DcMotor leftMotor;  //Left drive motor, for driving forwards and backwards
     DcMotor backMotor;  //Back drive motor, for driving sideways, a.k.a "strafing"
-    
+
     //Relic
     DcMotor relicMotor; //Motor to extend the relic scoring mechanism
- 
-    //Intake 
+
+    //Intake
     DcMotor rightIntakeMotor; //Motor that controls the right intake/right wheel of the intake
     DcMotor leftIntakeMotor; //Motor that controls the left intake/left wheel of the intake
-    
+
     //Block Scoring
     DcMotor panLifterMotor; //Motor that lifts and lowers the block scoring mechanism, known as the "pan"
 
@@ -93,11 +93,11 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     //Loop counter
     int loopCounter = 0; //Integer that is incremented positively by 1 during every iteration of a given loop
-    
+
     //Alliance variables
     String allianceColor; //The alliance color of a given match
     String robotStartingPosition; //The starting position of the robot, either relicSide or triangle Side, representing different places on the field
-    
+
     //Ball scoring variables
     final double FEELER_SWIPE_NEUTRAL_POSITION_BLUE = .43; //Straight position of feelerSwipe for blue
     final double FEELER_SWIPE_NEUTRAL_POSITION_RED = .41; //Straight position of feelerSwipe for red
@@ -136,6 +136,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     //Configures all hardware devices, and sets them to their initial values, if necessary
     public void configure( String initialAllianceColor, String initialRobotStartingPosition ) {
+
+        this.resetStartTime();
 
         //Color and position
         allianceColor = initialAllianceColor; //Options: "red" or "blue"
@@ -219,7 +221,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         leftPanSpin.setPosition(.2475); //Set the position of leftPanSpin to .2175
         rightPanSpin.setPosition(.2675); //Set the position of rightPanSpin to .2375
         touchServo.setPosition(.97); //Set the position of touchServo to .65
-        touchServo2.setPosition(.95);
+        touchServo2.setPosition(.97);
     }
 
     //Method to calibrate the IMU gyro
@@ -240,41 +242,21 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     //Method to score either one or two blocks during autonomous
     public void scoreBlock (double angle) {
         //Set timeOne and timeTwo to this.getRuntime()
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
         //For .775 seconds, set panLifterMotor to .55 power and during this time, set leftPanSpin to the .3 position and rightPanSpin to the .32 position
-        while (timeTwo-timeOne < .775)
+        while (limitTop.getState())
         {
-            timeTwo = this.getRuntime();
-            panLifterMotor.setPower(.55);
-            leftPanSpin.setPosition(.3);
-            rightPanSpin.setPosition(.32);
+            panLifterMotor.setPower(.75);
         }
         panLifterMotor.setPower(0); //Stop the movement of panLifterMotor
+        leftPanSpin.setPosition(.835);
 
-        leftPanSpin.setPosition(PAN_SPIN_UP); //Set leftPanSpin to the PAN_SPIN_UP position
-        rightPanSpin.setPosition(PAN_SPIN_UP + .02); //Set rightPanSpin to the PAN_SPIN_UP position plus .02
+        //  leftPanSpin.setPosition(.835); //Set leftPanSpin to the PAN_SPIN_UP position
+        pause(1);
 
-        pause(.7); //pause for .7 seconds
-
-        driveNewIMU(2.8, 5, .3, true, angle); //Drive forward for 2.8 inches at .3 power, with a 5 second time limit, maintaining the parameter angle degree heading
-
-        leftPanSpin.setPosition(PAN_SPIN_DOWN); //Set leftPanSpin to the PAN_SPIN_DOWN position
-        rightPanSpin.setPosition(PAN_SPIN_DOWN + .02); //Set rightPanSpin to the PAN_SPIN_DOWN position plus .02
-
-        pause(.2); //pause for .2 seconds
-
-        //Set timeOne and timeTwo to this.getRuntime()
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        //For .5 seconds, set panLifterMotor to -.55 power
-        while (timeTwo-timeOne < .5)
-        {
-            timeTwo = this.getRuntime();
-            panLifterMotor.setPower(-.55);
-        }
-        panLifterMotor.setPower(0); //Stop the movement of panLifterMotor
+        //pause for .7 seconds
+        driveNewIMU(2.8, 1, .3, true, angle);
+        driveNewIMU(-5, 1.5, .3, true, angle); //Drive forward for 2.8 inches at .3 power, with a 5 second time limit, maintaining the parameter angle degree heading
+        driveNewIMU(3.8, 1, .3, true, angle); //Drive forward for 2.8 inches at .3 power, with a 5 second time limit, maintaining the parameter angle degree heading
 
     }
 
@@ -335,27 +317,17 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 driveNewIMU(6.4, 4, .4, true, -90);
 
-                pause(.8); //Pause for .2 Seconds
+                pause(.2); //Pause for .2 Seconds
 
                 //Set leftIntakeMotor to -.6 power and rightIntakeMotor to -.7 power
                 leftIntakeMotor.setPower(-.6);
-                rightIntakeMotor.setPower(-.7);
+                rightIntakeMotor.setPower(-.6);
 
                 pause(.2); //Pause for .2 seconds
 
                 driveNewIMU(2.65, 5, -.4, false, -90); //Drive backwards 2.25 inches at -.4 power keeping a -90 degree heading with a 5 second limit
 
                 pause(.15); //pause for .15 seconds
-
-                //Outtake for 2 seconds
-                timeOne = this.getRuntime();
-                timeTwo = this.getRuntime();
-                
-                while (timeTwo - timeOne < 2) {
-                    leftIntakeMotor.setPower(-.6);
-                    rightIntakeMotor.setPower(-.7);
-                    timeTwo = this.getRuntime();
-                }
 
                 //Stop the motion of the intake motors
                 leftIntakeMotor.setPower(0);
@@ -408,10 +380,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 driveNewIMU(6.4, 4, .4, true, 180);
 
-                pause(.8); //Pause for .2 Seconds
+                pause(.2); //Pause for .2 Seconds
                 //Set leftIntakeMotor to -.6 power and rightIntakeMotor to -.7 power
                 leftIntakeMotor.setPower(-.6);
-                rightIntakeMotor.setPower(-.7);
+                rightIntakeMotor.setPower(-.6);
 
                 pause(.2); //Pause for .2 seconds
 
@@ -419,15 +391,6 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 pause(.15); //pause for .15 seconds
 
-                //Outtake for 2 seconds
-                timeOne = this.getRuntime();
-                timeTwo = this.getRuntime();
-
-                while (timeTwo - timeOne < 2) {
-                    leftIntakeMotor.setPower(-.6);
-                    rightIntakeMotor.setPower(-.7);
-                    timeTwo = this.getRuntime();
-                }
 
                 //Stop the motion of the intake motors
                 leftIntakeMotor.setPower(0);
@@ -542,9 +505,9 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                 pause(.2);
 
                 touchServo.setPosition(.97); //Set the position of touchServo to .65
-                touchServo2.setPosition(.95);
+                touchServo2.setPosition(.97);
 
-                pause(.2); //Pause for .2 Seconds
+                pause(.5); //Pause for .2 Seconds
 
                 driveNewIMU(6.4, 4, .4, true, 0);
 
@@ -597,6 +560,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     }
 
 
+
     //Method to collect blocks during autonomous
     public void getBlocks(double distance) {
 
@@ -613,9 +577,11 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         rotations2 = inches2 / (Math.PI * WHEEL_DIAMETER); //Set rotations2 to inches2 divided by pi, approximately 3.14, divided by the wheel diameter
         counts2= ENCODER_CPR * rotations2 * GEAR_RATIO; //Set counts2 to the encoder CPR times rotations2 times the gear ratio
 
-        leftPanSpin.setPosition(.2675); //Set the position of leftPanSpin to .2175
-        rightPanSpin.setPosition(.2875); //Set the position of rightPanSpin to .2375
+        leftPanSpin.setPosition(.2); //Set the position of leftPanSpin to .2175
+        rightPanSpin.setPosition(.2); //Set the position of rightPanSpin to .2375
 
+        touchServo.setPosition(.72);
+        touchServo2.setPosition(.72);
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //check should to bottom too?
 
@@ -624,10 +590,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         timeTwo=this.getRuntime();
 
         //While bothBlockCounter is under 5 and the current position of rightMotor is less than counts2 and less than 10 seconds have elapsed
-        while (bothBlockCounter < 5 && rightMotor.getCurrentPosition()<(counts2) && timeTwo-timeOne < 5.4)
+        while (bothBlockCounter < 5 && rightMotor.getCurrentPosition()<(counts2) && timeTwo-timeOne < 3.5)
         {
-            leftIntakeMotor.setPower(.85); //Set leftIntakeMotor to .85 power
-            rightIntakeMotor.setPower(1); //Set rightIntakeMotor to 1 power
+            leftIntakeMotor.setPower(.8); //Set leftIntakeMotor to .85 power
+            rightIntakeMotor.setPower(.8); //Set rightIntakeMotor to 1 power
             timeTwo=this.getRuntime(); //Set timeTwo to this.getRuntime()
             //loopCounter++; //Positively increment loopCounter by 1
 
@@ -662,24 +628,27 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         rightIntakeMotor.setPower(0);
 
         //Set the position of leftPanSpin to .3 and the position of rightPanSpin to .32
-        leftPanSpin.setPosition(.3);
-        rightPanSpin.setPosition(.32);
-
+        leftPanSpin.setPosition(.375);
+        touchServo.setPosition(.9);
+        touchServo2.setPosition(.9);
         bothBlockCounter= 0; //Set the value of bothBlockCounter to 0
 
-        pause(.5); //Pause for .5 seconds (allow time for pan servos to raise)
+        pause(.2); //Pause for .5 seconds (allow time for pan servos to raise)
 
         leftIntakeMotor.setPower(-.5);
         rightIntakeMotor.setPower(-.5);
 
-        driveNewIMU (88, 5, -.4, false, 90); //Drive backwards for 88 inches at -.4 power, keeping a 90 degree heading and timing out after 5 seconds
+        driveNewIMU (88, 1.75, -.55, false, 90); //Drive backwards for 88 inches at -.4 power, keeping a 90 degree heading and timing out after 5 seconds
 
         leftIntakeMotor.setPower(0);
         rightIntakeMotor.setPower(0);
 
         pause(.05); //Pause for .05 seconds
 
-        driveNewIMU(2.25, 5, .3, true, 90); //Drive forwards for 2.25 inches at .3 power, keeping a 90 degree heading and timing out after 5 seconds
+        touchServo.setPosition(.7);
+        touchServo2.setPosition(.7);
+
+        // driveNewIMU(2.25, 4, .3, true, 90); //Drive forwards for 2.25 inches at .3 power, keeping a 90 degree heading and timing out after 5 seconds
 
     }
 
@@ -751,13 +720,15 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         //Pause for variable time seconds
         while (timeTwo - timeOne < time) {
             timeTwo = this.getRuntime();
+            telemetry.addData("run", this.getRuntime());
+            telemetry.update();
         }
     }
 
     //Method to score the ball in autonomous
     public void dropFeelerMoveBallOnlyNewRobot() {
 
-        feelerRaise.setPosition(.6); //Set feelerRaise to position .6
+        feelerRaise.setPosition(.49); //Set feelerRaise to position .6
 
         pause(.4); //Pause for .7 seconds
 
@@ -770,11 +741,11 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         }
 
 
-        pause (.7); //.7 second pause
+        pause (.375); //.7 second pause
 
         feelerRaise.setPosition(FEELER_RAISE_DOWN_POSITION); //Lower feelerRaise to put ball scoring mechanism next to the balls
 
-        pause(1.2); //1 second pause
+        pause(1); //1 second pause
 
         if (allianceColor.equalsIgnoreCase("red") && sensorColorFeeler.blue() >=  sensorColorFeeler.red()) { //If we are the red alliance and see a blue ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
