@@ -7,29 +7,16 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoControllerEx;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.PwmControl;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
-import android.app.Activity;
-import android.media.MediaPlayer;
-import android.os.Bundle;
-import android.os.Handler;
-import android.view.View;
 
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.SeekBar;
-import android.widget.TextView;
-import android.widget.Toast;
-import java.util.concurrent.TimeUnit;
 
 //Declaration for display on the driver station
 @TeleOp(name = "TeleOpLimits", group = "LAMeets")
@@ -68,18 +55,17 @@ public class TeleopLimits extends OpMode {
     Servo rightPanSpin; //Servo on the right side of the robot that rotates the pan, or block scoring mechanism, in order to score blocks
     Servo upDown; //Servo to raise the relic mechanism up and down
     Servo grab; //Servo to grab the relic
-    Servo panBack; //Servo to limit blocks from falling out of the robot
     Servo touchServo; //Servo that extends an arm from the front of the robot to detect when we are ready to score in autonomous
     Servo touchServo2;
     //Feeler
     Servo feelerRaise; //Servo that lifts and lowers the ball scoring mechanism, known as the "feeler"
-    final double FEELER_RAISE_UP_POSITION = .9; //Position that the feelerRaise is set to when we are not scoring the ball
+    final double FEELER_RAISE_UP_POSITION = .65; //Position that the feelerRaise is set to when we are not scoring the ball
 
     //Controls
     //Driving controls, all for gamepad 1
-    double leftStickX1; //Value taken from the raw value of the left X stick on gamepad 1
-    double rightStickX1; //Value taken from the raw value of the right X stick on gamepad 1
-    double rightStickY1; //Value taken from the raw value of the right Y stick on gamepad 1
+    double leftStickX1Raw;
+    double rightStickX1Raw;
+    double rightStickY1Raw;
 
     //Cube movement controls, all for gamepad 1
     double rightTrigger; //double for the extent to which rightTrigger is pressed. No press is 0, full press is 1
@@ -93,6 +79,7 @@ public class TeleopLimits extends OpMode {
     boolean aPressed; //boolean for the a button.  Set to true if a is pressed and set to false otherwise.
     boolean xPressed; //boolean for the x button.  Set to true if x is pressed and set to false otherwise.
     boolean bPressed; //boolean for the b button.  Set to true if b is pressed and set to false otherwise.
+    boolean backPressed;
     boolean rightStickButton;
 
 
@@ -102,26 +89,8 @@ public class TeleopLimits extends OpMode {
     double upDownPosition;
 
     //Driving variables
-    double linLeftPower; //double that is set to leftStickX1
-    double linRightPower; //double that is set to negative leftStickX1
-    double linFrontPower; //double that is set to negative rightStickX1
-    double linBackPower; //double that is set to rightStickX1
-    double rotLeftPower; //double that is set to negative rightStickY1
-    double rotRightPower; //double that is set to negative rightStickY1
-    double testLeftPower; //double that is set to linLeftPower plus rotLeftPower
-    double testRightPower; //double that is set to linRightPower plus rotRightPower
-    double testBackPower; //double that is set to linBackPower
-    double testFrontPower; //double that is set to linFrontPower
-    int leftOverOne; //double that is set to 1 if the absolute value of testLeftPower is greater than 1, and is set to 0 otherwise
-    int rightOverOne; //double that is set to 1 if the absolute value of testRightPower is greater than 1, and is set to 0 otherwise
-    int frontOverOne; //double that is set to 1 if the absolute value of testFrontPower is greater than 1, and is set to 0 otherwise
-    int backOverOne; //double that is set to 1 if the absolute value of testBackPower is greater than 1, and is set to 0 otherwise
-    boolean single = true; //boolean that is set to true if the sum of leftOverOne, rightOverOne, frontOverOne, and backOverOne is equal to or greater than 1, and is set to false otherwise
-    int direction = 0; //int that is set to either 0, 1, 2, 3, 4 depending on the values of leftOverOne, rightOverOne, frontOverOne, and backOverOne
-    int over; //int that is set to 1 if the sum of leftOverOne, rightOverOne, frontOverOne, and backOverOne is equal to or greater than 1, and is set to 0 otherwise
     double finLeftPower; //The final power to be applied to leftMotor
     double finRightPower; //The final power to be applied to rightMotor
-    double finFrontPower; //The final power to be applied to backMotor
     double finBackPower; //The final power to be applied to backMotor
 
     //Block variables
@@ -171,7 +140,6 @@ public class TeleopLimits extends OpMode {
         grab = hardwareMap.servo.get("s6"); //s6
         feelerRaise = hardwareMap.servo.get("s8"); //s8
         upDown = hardwareMap.servo.get("s11"); //s11
-        panBack = hardwareMap.servo.get("s12"); //s12
         touchServo = hardwareMap.servo.get("s10"); //s10
         touchServo2 = hardwareMap.servo.get("s13");
 
@@ -202,7 +170,6 @@ public class TeleopLimits extends OpMode {
         grab.setDirection(Servo.Direction.REVERSE); //Set grab to REVERSE direction
         upDown.setDirection(Servo.Direction.FORWARD); //Set upDown to FORWARD direction
         feelerRaise.setDirection(Servo.Direction.FORWARD); //Set feelerRaise to FORWARD direction
-        panBack.setDirection(Servo.Direction.FORWARD); //Set panBack to FORWARD direction
         touchServo.setDirection(Servo.Direction.REVERSE); //Set touchServo to REVERSE direction
         touchServo2.setDirection(Servo.Direction.FORWARD);
 
@@ -210,8 +177,7 @@ public class TeleopLimits extends OpMode {
         leftPanSpin.setPosition(.2575); //Set leftPanSpin to position .1875
         rightPanSpin.setPosition(.2725); //Set rightPanSpin to position .2075
         upDown.setPosition(0); //Set upDown to position 0
-        panBack.setPosition(0.39); //Set panBack to position .39
-        touchServo.setPosition(.97); //Set touchServo to position .65
+        touchServo.setPosition(.95); //Set touchServo to position .65
         touchServo2.setPosition(.95);
 
         highGain = true;
@@ -221,21 +187,42 @@ public class TeleopLimits extends OpMode {
 
     public void loop () {
 
+        leftStickX1Raw = gamepad1.left_stick_x;
+        rightStickX1Raw = gamepad1.right_stick_x;
+        rightStickY1Raw = gamepad1.right_stick_y;
+
+        //TRANSPORTING
+        //Controller Inputs
+
+        rightTrigger = gamepad1.right_trigger; //Set variable rightTrigger to the raw double value of the right trigger
+        rightBumper = gamepad1.right_bumper; //Set variable rightBumper to the raw boolean value of the right bumper
+        leftTrigger = gamepad1.left_trigger; //Set variable leftTrigger to the raw double value of the left trigger
+        leftBumper = gamepad1.left_bumper; //Set variable leftBumper to the raw boolean value of the left bumper
+        dpadLeftPressed = gamepad1.dpad_left; //Set variable dpadLeftPressed to the raw boolean value of the left dpad
+        dpadRightPressed = gamepad1.dpad_right; //Set variable dpadRightPressed to the raw boolean value of the right dpad
+        dpadUpPressed = gamepad1.dpad_up; //Set variable dpadUpPressed to the raw boolean value of the up dpad
+        dpadDownPressed = gamepad1.dpad_down; //Set variable dpadDownPressed to the raw boolean value of the down dpad
+        aPressed =gamepad1.a; //Set variable aPressed to the raw boolean value of the a button
+        yPressed = gamepad1.y; //Set variable yPressed to the raw boolean value of the y button
+        xPressed = gamepad1.x; //Set boolean xPressed to gamepad1.x
+        bPressed = gamepad1.b; //Set boolean bPressed to gamepad1.b
+        rightStickButton = gamepad1.right_stick_button;
+
         telemetry.addData("bothBlockCounter", bothBlockCounter);
         telemetry.addData("score", score);
         telemetry.addData("bPressed", bPressed);
         telemetry.addData("toggle", toggleLB);
 
-        if (sensorB.getDistance(DistanceUnit.CM) < 10 && sensorC.getDistance(DistanceUnit.CM) < 10)
+        if (sensorB.getDistance(DistanceUnit.CM) < 13 && sensorC.getDistance(DistanceUnit.CM) < 13)
         {
             bothBlockCounter++;
         }
         else
         {
-            bothBlockCounter=0;
+            bothBlockCounter/=2;
         }
 
-        dpadRightPressed = gamepad1.dpad_right; //Set variable dpadRightPressed to the raw boolean value of the right dpad
+        bothBlockCounter=Range.clip(bothBlockCounter, 0, 500);
 
         if(dpadRightPressed) //If dpadRightPressed is true
         {
@@ -254,199 +241,43 @@ public class TeleopLimits extends OpMode {
         }
 
         //Telemetry
-        telemetry.addData("dpad right", dpadRightPressed);
-        telemetry.addData("current", currentStatus);
+        //   telemetry.addData("dpad right", dpadRightPressed);
+        // telemetry.addData("current", currentStatus);
 
         //DRIVING
-        telemetry.addData("Left X Joy Raw: ", gamepad1.left_stick_x); //The raw value of left stick x
-        telemetry.addData("Right X Joy Raw: ", gamepad1.right_stick_x); //The raw value of right stick x
-        telemetry.addData("Right Y Joy Raw: ", gamepad1.right_stick_y); //The raw value of right stick y
+        //telemetry.addData("Left X Joy Raw: ", gamepad1.left_stick_x); //The raw value of left stick x
+        //telemetry.addData("Right X Joy Raw: ", gamepad1.right_stick_x); //The raw value of right stick x
+        //telemetry.addData("Right Y Joy Raw: ", gamepad1.right_stick_y); //The raw value of right stick y
 
-        //Set leftStickX1 to the left stick x value of gamepad 1 times the absolute value of this left stick x value
-        leftStickX1 = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x);
-        //Set rightStickX1 to the right stick x value of gamepad 1 times the absolute value of this right stick x value
-        rightStickX1 = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x);
-        //Set rightStickY1 to the right stick y value of gamepad 1 times the absolute value of this right stick y value
-        rightStickY1 = gamepad1.right_stick_y * Math.abs(gamepad1.right_stick_y);
 
         //Set driving variables to values specified in the variable declaration section
-        linLeftPower = leftStickX1;
-        linRightPower = -leftStickX1;
-        linFrontPower = -rightStickX1;
-        linBackPower = rightStickX1;
-        rotLeftPower = -rightStickY1;
-        rotRightPower = -rightStickY1;
-        testLeftPower = linLeftPower + rotLeftPower;
-        testRightPower = linRightPower + rotRightPower;
-        testBackPower = linBackPower;
-        testFrontPower = linFrontPower;
 
-        if (Math.abs(testLeftPower) > 1) //Tests if each Math.abs(testLeftPower) is over 1
-        {
-            leftOverOne = 1;
-            direction = 1;
-        } else {
-            leftOverOne = 0;
-        }
+        finRightPower = -1*rightStickY1Raw-.2*rightStickX1Raw-.5*leftStickX1Raw;
+        finLeftPower = -1*rightStickY1Raw +.2*rightStickX1Raw +.5*leftStickX1Raw;
+        finBackPower = rightStickX1Raw;
 
-        if (Math.abs(testRightPower) > 1) { //Tests if each Math.abs(testRightPower) is over 1
-            rightOverOne = 1;
-            direction = 2;
-        } else {
-            rightOverOne = 0;
-        }
-
-        if (Math.abs(testFrontPower) > 1) { //Tests if each Math.abs(testFrontPower) is over 1
-            frontOverOne = 1;
-            direction = 3;
-        } else {
-            frontOverOne = 0;
-        }
-
-        if (Math.abs(testBackPower) > 1) { //Tests if each Math.abs(testBackPower) is over 1
-            backOverOne = 1;
-            direction = 4;
-        } else {
-            backOverOne = 0;
-        }
-
-        if ((leftOverOne + rightOverOne + frontOverOne + backOverOne) > 1) //Test if sum of "OverOne" values is over 1
-        {
-            single = false;
-            over = 1;
-        } else if ((leftOverOne + rightOverOne + frontOverOne + backOverOne) == 1) {
-            single = true;
-            over = 1;
-        } else {
-            over = 0;
-        }
-
-
-        switch (over) { //Switch statement with int over
-            case 0: //if over equals 1
-                //Set all fin powers to their respective test powers
-                finLeftPower = testLeftPower;
-                finRightPower = testRightPower;
-                finFrontPower = testFrontPower;
-                finBackPower = testBackPower;
-                break; //End case 0
-            case 1:
-                if (single == true) { //If single is true
-                    switch (direction) { //Switch statement with int direction
-                        case 1: //If direction equals 1
-                            //Set all fin powers to their respective test powers divided by the absolute values of their respective test powers
-                            finLeftPower = testLeftPower / Math.abs(testLeftPower);
-                            finRightPower = testRightPower / Math.abs(testLeftPower);
-                            finFrontPower = testFrontPower / Math.abs(testLeftPower);
-                            finBackPower = testBackPower / Math.abs(testLeftPower);
-                            break; //End case 1
-                        case 2: //If direction equals 2
-                            finLeftPower = testLeftPower / Math.abs(testRightPower); //Set finLeftPower to testLeftPower divided by the absolute value of testRightPower
-                            finRightPower = testRightPower / Math.abs(testRightPower); //Set finRightPower to testRightPower divided by the absolute value of testRightPower
-                            finFrontPower = testFrontPower / Math.abs(testRightPower); //Set finFrontPower to testFrontPower divided by the absolute value of testRightPower
-                            finBackPower = testBackPower / Math.abs(testRightPower); //Set finBackPower to testBackPower divided by the absolute value of testRightPower
-                            break; //End case 2
-                        case 3: //If direction equals 3
-                            finLeftPower = testLeftPower / Math.abs(testFrontPower); //Set finLeftPower to testLeftPower divided by the absolute value of testFrontPower
-                            finRightPower = testRightPower / Math.abs(testFrontPower); //Set finRightPower to testRightPower divided by the absolute value of testFrontPower
-                            finFrontPower = testFrontPower / Math.abs(testFrontPower); //Set finFrontPower to testLeftPower divided by the absolute value of testFrontPower
-                            finBackPower = testBackPower / Math.abs(testFrontPower); //Set finBackPower to testBackPower divided by the absolute value of testFrontPower
-                            break; //End case 3
-                        case 4: //If direction equals 4
-                            finLeftPower = testLeftPower / Math.abs(testBackPower); //Set finLeftPower to testLeftPower divided by the absolute value of testBackPower
-                            finRightPower = testRightPower / Math.abs(testBackPower); ////Set finRightPower to testRightPower divided by the absolute value of testBackPowerSet finRightPower to testRightPower divided by the absolute value of testBackPower
-                            finFrontPower = testFrontPower / Math.abs(testBackPower);  //Set finFrontPower to testFrontPower divided by the absolute value of testBackPower
-                            finBackPower = testBackPower / Math.abs(testBackPower); //Set finBackPower to testBackPower divided by the absolute value of testBackPower
-                            break; //End case 4
-                        default: //If direction is not any of the options above
-                            telemetry.addData("Return", "Less than 1"); //Telemetry signaling default case is active
-                            break; //End default case
-                    }
-                } else { //If single is not true
-                    //Set maxPower to the maximum value of the absolute values of all test values
-                    double maxPower = Math.max(Math.max(Math.abs(testLeftPower), Math.abs(testRightPower)), Math.max(Math.abs(testFrontPower), Math.abs(testBackPower)));
-                    finLeftPower = testLeftPower / maxPower; //Set finLeftPower to testLeftPower divided by maxPower
-                    finRightPower = testRightPower / maxPower; //Set finRightPower to finRightPower divided by maxPower
-                    finFrontPower = testFrontPower / maxPower; //Set finFrontPower to testFrontPower divided by maxPower
-                    finBackPower = testBackPower / maxPower; //Set finBackPower to testBackPower divided by maxPower
-                }
-                break; //End case 1
-            default: //If single neither true or not true
-                telemetry.addData("Something", "Messed up"); //Telemetry signaling error in execution
-                break; //End default case
-        }
-
-        //Squared driving
-        if (finBackPower<-.01) //If finBackPower is adequately negative
-        {
-            finBackPower= -1* finBackPower * finBackPower; //Set finBackPower to -1 times finBackPower squared
-        }
-        if (finBackPower>.01) //If finBackPower is adequately positive
-        {
-            finBackPower= finBackPower* finBackPower; //Set finBackPower to finBackPower squared
-        }
-
-        if (finLeftPower<-.01) //If finLeftPower is adequately negative
-        {
-            finLeftPower= -1* finLeftPower * finLeftPower; //Set finLeftPower to -1 times finLeftPower squared
-        }
-        if (finLeftPower>.01) //If finLeftPower is adequately positive
-        {
-            finLeftPower= finLeftPower* finLeftPower; //Set finLeftPower to finLeftPower squared
-        }
-
-        if (finRightPower<-.01) //If finRightPower is adequately negative
-        {
-            finRightPower= -1* finRightPower * finRightPower; //Set finRightPower to -1 times finRightPower squared
-        }
-        if (finRightPower>.01) //If finRightPower is adequately positive
-        {
-            finRightPower= finRightPower* finRightPower; //Set finRightPower to finRightPower squared
-        }
-
-
-        //Code to increase strafing power
-        if (Math.abs(gamepad1.right_stick_x) > 0.05) //If we are strafing at an adequate power
-        {
-            finLeftPower = finLeftPower+ .169*gamepad1.right_stick_x; //Add .3 times gamepad1.right_stick_x to finLeftPower
-            finRightPower = finRightPower - .169*gamepad1.right_stick_x; //Subtract .3 times gamepad1.right_stick_x from finRightPower
-
-        }
-
-        //Code to decrease leftMotor and rightMotor power
-        if (Math.abs(gamepad1.left_stick_x) > 0.05) //If we are using the left and right motors at adequate power
-        {
-            finLeftPower /= 1.969; //Divide finLeftPower by 1.6
-            finRightPower /= 1.969; //Divide finRightPower by 1.6
-        }
 
         //Clip final driving motor values between -1 and 1
         finBackPower = Range.clip(finBackPower, -1, 1);
         finRightPower = Range.clip(finRightPower, -1, 1);
         finLeftPower = Range.clip(finLeftPower, -1, 1);
 
-        //TRANSPORTING
-        //Controller Inputs
+        if (dpadLeftPressed)
+        {
+            touchServo.setPosition(.4);
+            touchServo2.setPosition(.4);
+        }
 
-        rightTrigger = gamepad1.right_trigger; //Set variable rightTrigger to the raw double value of the right trigger
-        rightBumper = gamepad1.right_bumper; //Set variable rightBumper to the raw boolean value of the right bumper
-        leftTrigger = gamepad1.left_trigger; //Set variable leftTrigger to the raw double value of the left trigger
-        leftBumper = gamepad1.left_bumper; //Set variable leftBumper to the raw boolean value of the left bumper
-        dpadLeftPressed = gamepad1.dpad_left; //Set variable dpadLeftPressed to the raw boolean value of the left dpad
-        dpadUpPressed = gamepad1.dpad_up; //Set variable dpadUpPressed to the raw boolean value of the up dpad
-        dpadDownPressed = gamepad1.dpad_down; //Set variable dpadDownPressed to the raw boolean value of the down dpad
-        aPressed =gamepad1.a; //Set variable aPressed to the raw boolean value of the a button
-        yPressed = gamepad1.y; //Set variable yPressed to the raw boolean value of the y button
-        xPressed = gamepad1.x; //Set boolean xPressed to gamepad1.x
-        bPressed = gamepad1.b; //Set boolean bPressed to gamepad1.b
-        rightStickButton = gamepad1.right_stick_button;
+
 
 
         if (!currentStatus) { //If currentStatus is false
 
-            if (bPressed)
+            feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Set feelerRaise to feelerRaiseUpPosition
+
+            if (bPressed && !dpadLeftPressed)
             {
-                touchServo.setPosition(.97);
+                touchServo.setPosition(.95);
                 touchServo2.setPosition(.95);
             }
 
@@ -470,21 +301,19 @@ public class TeleopLimits extends OpMode {
 
 
 
-            feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Set feelerRaise to feelerRaiseUpPosition
-
             if (rightTrigger > .05 && leftTrigger > .05) { //If both rightTrigger and leftTrigger are pressed, set intake powers to 0, as this is a conflicting command
                 leftIntakePower = 0; //Set leftIntakePower to 0
                 rightIntakePower = 0; //Set rightIntakePower to 0
-            } else if (rightTrigger > .05 && !bPressed) { //Else if rightTrigger if pressed
+            } else if (rightTrigger > .05 && !bPressed && !leftBumper && !dpadLeftPressed) { //Else if rightTrigger if pressed
                 leftIntakePower = Math.pow(rightTrigger, 2) * .7; //Set leftIntakePower to the square of rightTrigger times .75
                 rightIntakePower = Math.pow(rightTrigger, 2) * .7; //Set rightIntakePower to the square of rightTrigger times .85
                 touchServo.setPosition(.72);
-                touchServo2.setPosition(.70);
-            } else if (leftTrigger > .05 && !bPressed) { //Else if leftTrigger is pressed
+                touchServo2.setPosition(.72);
+            } else if (leftTrigger > .05 && !bPressed && !leftBumper && !dpadLeftPressed) { //Else if leftTrigger is pressed
                 leftIntakePower = -.7; //Set leftIntakePower to -.7
                 rightIntakePower = -.8; //Set rightIntakePower to -.7
                 touchServo.setPosition(.78);
-                touchServo2.setPosition(.76);
+                touchServo2.setPosition(.78);
             } else { //Else
                 leftIntakePower = 0; //Set leftIntakePower to 0
                 rightIntakePower = 0; //Set rightIntakePower to 0
@@ -503,10 +332,10 @@ public class TeleopLimits extends OpMode {
             }
             else if (dpadUpPressed && !dpadDownPressed || (score && !hasLifted)) //Else if dpad up is pressed and dpad down is not pressed
             {
-                panLiftingPower = -.69; //Set panLiftingPower to -.69
-                if (score && !hasLifted)
+                panLiftingPower = -.62; //Set panLiftingPower to -.69
+                if (score && !hasLifted && !dpadLeftPressed)
                 {
-                    touchServo.setPosition(.72);
+                    touchServo.setPosition(.70);
                     touchServo2.setPosition(.70);
                 }
             }
@@ -514,11 +343,11 @@ public class TeleopLimits extends OpMode {
             {
                 if (toggleLB)
                 {
-                    panLiftingPower = .5;
+                    panLiftingPower = .25;
                 }
                 else
                 {
-                    panLiftingPower = .99; //Set panLiftingPower to .95
+                    panLiftingPower = .5; //Set panLiftingPower to .95
                 }
 
             }
@@ -527,16 +356,10 @@ public class TeleopLimits extends OpMode {
                 panLiftingPower = 0; //Set panLiftingPower to 0
             }
 
-            if (dpadLeftPressed) //if dpad left is pressed
-            {
-                panBack.setPosition(.39); //Set panBack to position .39
-            }
-
-            if ((xPressed || bothBlockCounter>7) && !score && !bPressed && !score) //Else if x is pressed
+            if ((xPressed || bothBlockCounter>7) && !score && !leftBumper && !aPressed && !bPressed && !dpadLeftPressed && !toggleLB) //Else if x is pressed
             {
                 panSpinPosition = .42; //Set panSpinPosition to .3
-                panBack.setPosition(0.39); //Set panBack to position .39
-                touchServo.setPosition(.855);
+                touchServo.setPosition(.835);
                 touchServo2.setPosition(.835);
             }
 
@@ -548,7 +371,6 @@ public class TeleopLimits extends OpMode {
                 } else if (yPressed) //Else if y is pressed
                 {
                     panSpinPosition = panSpinPosition + .05; //Add .05 to panSpinPosition
-                    panBack.setPosition(.9); //Set panBack to position .9
                 } else if (aPressed) //Else if a is pressed
                 {
                     if (leftPanSpin.getPosition() > .37) {
@@ -559,21 +381,21 @@ public class TeleopLimits extends OpMode {
 
                 }
             }
-            else if (toggleLB && !score && bothBlockCounter<=7) //Else if b is pressed
+            else if (toggleLB && !score && bothBlockCounter<=7 && !leftBumper && !aPressed) //Else if b is pressed
             {
                 if (leftPanSpin.getPosition() > .37) {
-                    panSpinPosition = panSpinPosition - .05; //Subtract .05 from panSpinPosition
+                    panSpinPosition = panSpinPosition - .07; //Subtract .05 from panSpinPosition
                 } else {
-                    panSpinPosition = panSpinPosition - .02; //Subtract .025 from panSpinPosition
+                    panSpinPosition = panSpinPosition - .05; //Subtract .025 from panSpinPosition
                 }
             }
 
             if (score)
             {
-                if (hasLifted && !bPressed) {
+                if (hasLifted && !leftBumper) {
                     panLiftingPower=0;
                     panLifterMotor.setPower(0);
-                    pause(.1);
+                    //pause(.1);
                     leftPanSpin.setPosition(.8325);
                     rightPanSpin.setPosition(.8325);
                     panSpinPosition = .8325;
@@ -588,25 +410,26 @@ public class TeleopLimits extends OpMode {
             telemetry.addData("limitTop", limitTop.getState());
             telemetry.addData("limitBottom", limitBottom.getState());
 
-            panSpinPosition = Range.clip(panSpinPosition, .25, .84); //Ensure panSpinPosition is between .27 and .59
+            panSpinPosition = Range.clip(panSpinPosition, .235, .835); //Ensure panSpinPosition is between .27 and .59
         }
 
         //Else
         else
         {
+            if (!dpadLeftPressed) {
+                touchServo.setPosition(.95);
+                touchServo2.setPosition(.95);
+            }
 
-            touchServo.setPosition(.97);
-            touchServo2.setPosition(.95);
-
-            feelerRaise.setPosition(.65); //Set feelerRaise to position .65
+            feelerRaise.setPosition(.5); //Set feelerRaise to position .65
 
             if (dpadUpPressed) //If dPadUpPressed is true
             {
-                relicMotor.setPower(.95); //Set the power of relic motor to .6
+                relicMotor.setPower(.98); //Set the power of relic motor to .6
             }
             else if (dpadDownPressed) //Else if dpadDownPressed is true
             {
-                relicMotor.setPower(-.95); //Set the power of relic motor to -.6
+                relicMotor.setPower(-.98); //Set the power of relic motor to -.6
             }
             else
             {
@@ -617,13 +440,13 @@ public class TeleopLimits extends OpMode {
             {
                 //Do nothing due to conflicting commands
             }
-            else if (leftTrigger>.05) //Else if leftTrigger is adequately pressed
+            else if (leftTrigger>.05 && !xPressed) //Else if leftTrigger is adequately pressed
             {
-                grabPosition+=.01 * leftTrigger; //Add .01 times the value of leftTrigger to grabPosition
+                grabPosition+=.015 * leftTrigger; //Add .01 times the value of leftTrigger to grabPosition
             }
-            else if (rightTrigger>.05)
+            else if (rightTrigger>.05 && !xPressed)
             {
-                grabPosition-=.01 * rightTrigger; //Subtract .01 times the value of leftTrigger to grabPosition
+                grabPosition-=.015 * rightTrigger; //Subtract .01 times the value of leftTrigger to grabPosition
             }
             else //Else
             {
@@ -638,11 +461,11 @@ public class TeleopLimits extends OpMode {
             {
                 if (upDown.getPosition() < .69) //If the position of upDown is less than .69
                 {
-                    upDownPosition+=.003; //Add .003 to upDownPosition
+                    upDownPosition+=.006; //Add .003 to upDownPosition
                 }
                 else //Else
                 {
-                    upDownPosition+=.001; //Add .001 to upDownPosition
+                    upDownPosition+=.003; //Add .001 to upDownPosition
                 }
 
                 telemetry.addData("upDown", upDownPosition); //Telemetry
@@ -650,12 +473,12 @@ public class TeleopLimits extends OpMode {
             }
             else if (yPressed) //Else if yPressed is true
             {
-                upDownPosition-=.003; //Subract .003 from upDownPosition
+                upDownPosition-=.007; //Subract .003 from upDownPosition
             }
             else if (xPressed)
             {
-                upDownPosition=.7569696969;
-                grabPosition=.045;
+                upDownPosition=.75;
+                grabPosition=.1;
             }
             else //Else
             {
@@ -668,8 +491,8 @@ public class TeleopLimits extends OpMode {
             }
 
 
-            grabPosition=Range.clip(grabPosition, .045, .7); //Ensure grabPosition is between .045 and .7
-            upDownPosition=Range.clip(upDownPosition, .06969, .83); //Ensure upDownPosition is between .05 and .83
+            grabPosition=Range.clip(grabPosition, .1, .7); //Ensure grabPosition is between .1 and .7
+            upDownPosition=Range.clip(upDownPosition, .02, .83); //Ensure upDownPosition is between .05 and .83
         }
 
         //SET CONTROLS
