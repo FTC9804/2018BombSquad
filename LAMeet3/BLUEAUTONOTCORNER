@@ -50,7 +50,7 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
         pause(.15); //pause for .15 seconds
 
-        driveNewIMU(8.75, 10, -.25, false, 0); //Drive backwards 7.75 inches at -.25 power keeping a 0 degree heading with a 10 second limit
+        driveNewIMU(4.75, 10, -.25, false, 0); //Drive backwards 7.75 inches at -.25 power keeping a 0 degree heading with a 10 second limit
 
         pause(.8); //pause for .8 seconds
 
@@ -64,15 +64,15 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
         if (vuMarkOutput.equalsIgnoreCase("left")) //If vuforia reads left
         {
-            strafeNewIMU(3.5, 5, .65, 178); //Strafe to the right for 10.5 inches at .63 power keeping a 178 degree heading with a 5 second limit
+            strafeNewIMU(4, 5, .65, 178); //Strafe to the right for 10.5 inches at .63 power keeping a 178 degree heading with a 5 second limit
         }
         else if (vuMarkOutput.equalsIgnoreCase("right")) //If vuforia reads right
         {
-            strafeNewIMU(17.4, 5, .65, 178); //Strafe to the right for 26.5 inches at .63 power keeping a 178 degree heading with a 5 second limit
+            strafeNewIMU(17.9, 5, .65, 178); //Strafe to the right for 26.5 inches at .63 power keeping a 178 degree heading with a 5 second limit
         }
         else //Else
         {
-            strafeNewIMU(12, 5, .65, 178); //Strafe to the right for 18.5 inches at .63 power keeping a 178 degree heading with a 5 second limit
+            strafeNewIMU(12.5, 5, .65, 178); //Strafe to the right for 18.5 inches at .63 power keeping a 178 degree heading with a 5 second limit
         }
 
         pause(.1); //pause for .1 seconds
