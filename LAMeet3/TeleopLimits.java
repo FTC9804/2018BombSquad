@@ -24,11 +24,6 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 //Class declaration
 public class TeleopLimits extends OpMode {
 
-    double timeOne;
-    double timeTwo;
-
-    int bothBlockCounter;
-
     //MOTORS
 
     //Driving
@@ -37,51 +32,57 @@ public class TeleopLimits extends OpMode {
     DcMotor backMotor;  //Back drive motor, for driving sideways, a.k.a "strafing"
 
     //Relic
-    DcMotor relicMotor; //Motor to extend the relic scoring mechanism
+    DcMotor relicMotor; //Motor to extend the relic scoring mechanism to score the relic
 
     //Intake
-    DcMotor rightIntakeMotor; //Motor that controls the right intake/right wheel of the intake
-    DcMotor leftIntakeMotor; //Motor that controls the left intake/left wheel of the intake
+    DcMotor rightIntakeMotor; //Motor that controls the right intake/right wheel of the intake, used to intake glyphs
+    DcMotor leftIntakeMotor; //Motor that controls the left intake/left wheel of the intake, used to intake glyphs
 
     //Block Scoring
-    DcMotor panLifterMotor; //Motor that lifts and lowers the block scoring mechanism, known as the "pan"
-
-    boolean hasLifted = false;
+    DcMotor panLifterMotor; //Motor that lifts and lowers the block scoring mechanism, known as the "pan", to score blocks in the cryptobox
 
     //SERVOS
 
     //Block Rotation
     Servo leftPanSpin; //Servo on the left side of the robot that rotates the pan, or block scoring mechanism, in order to score blocks
     Servo rightPanSpin; //Servo on the right side of the robot that rotates the pan, or block scoring mechanism, in order to score blocks
-    Servo upDown; //Servo to raise the relic mechanism up and down
-    Servo grab; //Servo to grab the relic
-    Servo touchServo; //Servo that extends an arm from the front of the robot to detect when we are ready to score in autonomous
-    Servo touchServo2;
-    //Feeler
-    Servo feelerRaise; //Servo that lifts and lowers the ball scoring mechanism, known as the "feeler"
-    final double FEELER_RAISE_UP_POSITION = .65; //Position that the feelerRaise is set to when we are not scoring the ball
 
-    //Controls
+    //Relic
+    Servo upDown; //Servo to raise the relic mechanism up and down, in order to balance the relic in the third zone
+    Servo grab; //Servo to grab the relic
+
+    //Glyphs
+    Servo touchServo; //Servo that extends an arm from the front of the robot to detect when we are ready to score in autonomous
+                      //The arm is attached to a metal bar to block glyphs from entering the robot incorrectly in teleop
+
+    //Ball Scoring
+    Servo feelerRaise; //Servo that lifts and lowers the ball scoring mechanism, known as the "feeler"
+
+    //Servo variables
+    final double FEELER_RAISE_UP_POSITION = .65; //Position that the feelerRaise is set to in teleop
+    final double FEELER_RAISE_ENDGAME_POSITION = .5; //Position that the feelerRaise is set to in endgame, lower than FEELER_RAISE_UP_POSITION as to not interfere with the relic arm
+
+    //CONTROLS
+
     //Driving controls, all for gamepad 1
-    double leftStickX1Raw;
-    double rightStickX1Raw;
-    double rightStickY1Raw;
+    double leftStickX1Raw; //The raw value of the x-axis of the leftStick, used for determining if and how much the robot should rotate while driving
+    double rightStickX1Raw; //The raw value of the x-axis of the rightStick, used for determining if and how much the robot should strafe while driving
+    double rightStickY1Raw; //The raw value of the y-axis of the rightStick, used for determining if and how much the robot should drive forwards/backwards while driving
 
     //Cube movement controls, all for gamepad 1
-    double rightTrigger; //double for the extent to which rightTrigger is pressed. No press is 0, full press is 1
-    boolean rightBumper; //boolean for rightBumper. Set to true if rightBumper is pressed and set to false otherwise
-    double leftTrigger; //double for the extent to which leftTrigger is pressed. No press is 0, full press is 1
-    boolean leftBumper; //boolean for leftBumper. Set to true if leftBumper is pressed and set to false otherwise
-    boolean dpadDownPressed; //boolean for dpadDown. Set to true if dpadDown is pressed and set to false otherwise
-    boolean dpadUpPressed; //boolean for dpadUp. Set to true if dpadUp is pressed and set to false otherwise
+    double rightTrigger; //double for the extent to which rightTrigger is pressed. No press is 0, full press is 1. Used for intaking blocks in teleop and grabbing the relic in endgame.
+    boolean rightBumper; //boolean for rightBumper. Set to true if rightBumper is pressed and set to false otherwise. Used to score blocks in teleop.
+    double leftTrigger; //double for the extent to which leftTrigger is pressed. No press is 0, full press is 1. Used for outtaking blocks in teleop and releasing the relic in endgame.
+    boolean leftBumper; //boolean for leftBumper. Set to true if leftBumper is pressed and set to false otherwise. Used to lower the elevator and pan, or block scoring mechanism, in teleop.
+    boolean dpadDownPressed; //boolean for dpadDown. Set to true if dpadDown is pressed and set to false otherwise. Used to lower the elevator in teleop and to retract the relic scoring mechanism in endgame.
+    boolean dpadUpPressed; //boolean for dpadUp. Set to true if dpadUp is pressed and set to false otherwise. Used to raise the elevator in teleop and to extend the relic scoring mechanism in endgame.
     boolean dpadLeftPressed; //boolean for dpadLeft. Set to true if dpadLeft is pressed and set to false otherwise
     boolean yPressed; //boolean for the y button.  Set to true if y is pressed and set to false otherwise.
     boolean aPressed; //boolean for the a button.  Set to true if a is pressed and set to false otherwise.
     boolean xPressed; //boolean for the x button.  Set to true if x is pressed and set to false otherwise.
     boolean bPressed; //boolean for the b button.  Set to true if b is pressed and set to false otherwise.
-    boolean backPressed;
     boolean rightStickButton;
-
+    boolean leftStickButton;
 
     //Relic controls, all for gamepad 1
     boolean dpadRightPressed; //boolean for dpadRight. Set to true if dpadRight is pressed and set to false otherwise
@@ -121,11 +122,30 @@ public class TeleopLimits extends OpMode {
     boolean toggleLB;
     boolean score;
 
+    int bothBlockCounter;
+
+    boolean hasLifted = false;
+
+    double threeGlyphCounter;
+
+    boolean threeGlyphs;
+
+
+    double sensorAVal;
+    double sensorBVal;
+    double sensorCVal;
+
+    double touchServoPosition = .69;
+
+    double feelerRaisePosition;
+
+    double relicMotorPower;
+
 
     /* Initialize standard Hardware interfaces */
-    public void init() { // use hardwaremap here instead of hwmap or ahwmap provided in sample code
+    public void init() { //init method to configure hardware and set initial values before teleop begins
 
-        //Motor configurations in the hardware map
+        //Motor configurations in the hardware map. Used so that the robot controller can apply the correct motor powers depending on what port a motor is plugged into.
         rightMotor = hardwareMap.dcMotor.get("m1"); //m1
         leftMotor = hardwareMap.dcMotor.get("m2"); //m2
         backMotor = hardwareMap.dcMotor.get("m3"); //m3
@@ -134,28 +154,30 @@ public class TeleopLimits extends OpMode {
         panLifterMotor = hardwareMap.dcMotor.get("m6"); //m6
         relicMotor = hardwareMap.dcMotor.get("m7"); //m7
 
-        //Servo configurations in the hardware map
+        //Servo configurations in the hardware map. Used so that the robot controller can apply the correct servo positions depending on what port a servo is plugged into.
         leftPanSpin = hardwareMap.servo.get("s1"); //s1
         rightPanSpin = hardwareMap.servo.get("s2"); //s2
         grab = hardwareMap.servo.get("s6"); //s6
         feelerRaise = hardwareMap.servo.get("s8"); //s8
         upDown = hardwareMap.servo.get("s11"); //s11
         touchServo = hardwareMap.servo.get("s10"); //s10
-        touchServo2 = hardwareMap.servo.get("s13");
 
         //Code to extend the upDown Servo past 180 degrees
-        ServoControllerEx theControl = (ServoControllerEx) upDown.getController();
-        int thePort = upDown.getPortNumber();
-        PwmControl.PwmRange theRange = new PwmControl.PwmRange(353, 2700);
-        theControl.setServoPwmRange(thePort, theRange);
+        ServoControllerEx theControl = (ServoControllerEx) upDown.getController(); //Declare ServoController "the Control" and specify that upDown is the Servo that will have an extended range
+        int thePort = upDown.getPortNumber(); //Declare integer thePort and set it to the port number of upDown, to specify which port will be extended
+        PwmControl.PwmRange theRange = new PwmControl.PwmRange(353, 2700); //Specify the extended pwm range of the servo: 353 to 2700
+        theControl.setServoPwmRange(thePort, theRange); //Set the extended range to theControl, specifying the port of the extended range servo and the value of this range
 
+        //Digital channel configurations in the hardware map. Used so that the robot controller can apply the correct values to digital channels depending on what port a digital channel is plugged into.
         limitTop = hardwareMap.get(DigitalChannel.class, "d1"); //d1
         limitBottom = hardwareMap.get(DigitalChannel.class, "d2"); //d2
+
+        //Distance sensor configurations in the hardware map. Used so that the robot controller can apply the correct values to distance sensors depending on what port a distance sensor is plugged into.
         sensorA = hardwareMap.get(DistanceSensor.class, "i2"); //i2
         sensorB = hardwareMap.get(DistanceSensor.class, "i3"); //i3
         sensorC = hardwareMap.get(DistanceSensor.class, "i4"); //i4
 
-        // Motor directions
+        //Specify motor directions to ensure values given to motors cause rotation in the correct direction
         rightMotor.setDirection(REVERSE); //Set rightMotor to REVERSE direction
         leftMotor.setDirection(FORWARD); //Set leftMotor to FORWARD direction
         backMotor.setDirection(REVERSE); //Set backMotor to REVERSE direction
@@ -164,25 +186,28 @@ public class TeleopLimits extends OpMode {
         panLifterMotor.setDirection(REVERSE); //Set panLifterMotor to REVERSE direction
         relicMotor.setDirection(REVERSE); //Set relicMotor to REVERSE direction
 
-        // Servo directions
+        //Specify servo directions to ensure values given to servos cause rotation in the correct direction
         leftPanSpin.setDirection(Servo.Direction.REVERSE); //Set leftPanSpin to REVERSE direction
         rightPanSpin.setDirection(Servo.Direction.FORWARD); //Set rightPanSpin to FORWARD direction
         grab.setDirection(Servo.Direction.REVERSE); //Set grab to REVERSE direction
         upDown.setDirection(Servo.Direction.FORWARD); //Set upDown to FORWARD direction
         feelerRaise.setDirection(Servo.Direction.FORWARD); //Set feelerRaise to FORWARD direction
         touchServo.setDirection(Servo.Direction.REVERSE); //Set touchServo to REVERSE direction
-        touchServo2.setDirection(Servo.Direction.FORWARD);
 
-        //Init values
+        //Init values of servos to ensure at the beginning of teleop servos are in the correct position
         leftPanSpin.setPosition(.2575); //Set leftPanSpin to position .1875
         rightPanSpin.setPosition(.2725); //Set rightPanSpin to position .2075
         upDown.setPosition(0); //Set upDown to position 0
-        touchServo.setPosition(.95); //Set touchServo to position .65
-        touchServo2.setPosition(.95);
+        touchServo.setPosition(.69); //Set touchServo to position .65
 
         highGain = true;
         lowGain = false;
         gainToggle = true;
+
+        leftIntakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightIntakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftIntakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightIntakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public void loop () {
@@ -190,6 +215,11 @@ public class TeleopLimits extends OpMode {
         leftStickX1Raw = gamepad1.left_stick_x;
         rightStickX1Raw = gamepad1.right_stick_x;
         rightStickY1Raw = gamepad1.right_stick_y;
+
+        sensorAVal=sensorA.getDistance(DistanceUnit.CM);
+        sensorBVal=sensorB.getDistance(DistanceUnit.CM);
+        sensorCVal=sensorC.getDistance(DistanceUnit.CM);
+
 
         //TRANSPORTING
         //Controller Inputs
@@ -207,13 +237,18 @@ public class TeleopLimits extends OpMode {
         xPressed = gamepad1.x; //Set boolean xPressed to gamepad1.x
         bPressed = gamepad1.b; //Set boolean bPressed to gamepad1.b
         rightStickButton = gamepad1.right_stick_button;
+        leftStickButton = gamepad1.left_stick_button;
 
-        telemetry.addData("bothBlockCounter", bothBlockCounter);
-        telemetry.addData("score", score);
-        telemetry.addData("bPressed", bPressed);
-        telemetry.addData("toggle", toggleLB);
+        if (sensorAVal < 13 && sensorBVal < 13 && sensorCVal < 13)
+        {
+            threeGlyphCounter++;
+        }
+        else
+        {
+            threeGlyphCounter/=2;
+        }
 
-        if (sensorB.getDistance(DistanceUnit.CM) < 13 && sensorC.getDistance(DistanceUnit.CM) < 13)
+        if (sensorBVal < 13 && sensorCVal < 13)
         {
             bothBlockCounter++;
         }
@@ -222,7 +257,14 @@ public class TeleopLimits extends OpMode {
             bothBlockCounter/=2;
         }
 
-        bothBlockCounter=Range.clip(bothBlockCounter, 0, 500);
+        if (threeGlyphCounter>40)
+        {
+            threeGlyphs=true;
+        }
+        else
+        {
+            threeGlyphs=false;
+        }
 
         if(dpadRightPressed) //If dpadRightPressed is true
         {
@@ -241,13 +283,7 @@ public class TeleopLimits extends OpMode {
         }
 
         //Telemetry
-        //   telemetry.addData("dpad right", dpadRightPressed);
-        // telemetry.addData("current", currentStatus);
 
-        //DRIVING
-        //telemetry.addData("Left X Joy Raw: ", gamepad1.left_stick_x); //The raw value of left stick x
-        //telemetry.addData("Right X Joy Raw: ", gamepad1.right_stick_x); //The raw value of right stick x
-        //telemetry.addData("Right Y Joy Raw: ", gamepad1.right_stick_y); //The raw value of right stick y
 
 
         //Set driving variables to values specified in the variable declaration section
@@ -257,28 +293,16 @@ public class TeleopLimits extends OpMode {
         finBackPower = rightStickX1Raw;
 
 
-        //Clip final driving motor values between -1 and 1
-        finBackPower = Range.clip(finBackPower, -1, 1);
-        finRightPower = Range.clip(finRightPower, -1, 1);
-        finLeftPower = Range.clip(finLeftPower, -1, 1);
-
-        if (dpadLeftPressed)
-        {
-            touchServo.setPosition(.4);
-            touchServo2.setPosition(.4);
-        }
-
-
-
-
         if (!currentStatus) { //If currentStatus is false
 
-            feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Set feelerRaise to feelerRaiseUpPosition
+            if (leftStickButton)
+            {
+                panSpinPosition-=.08;
+            }
 
             if (bPressed && !dpadLeftPressed)
             {
-                touchServo.setPosition(.95);
-                touchServo2.setPosition(.95);
+                touchServoPosition=.95;
             }
 
             if (leftBumper && !aPressed && !yPressed && !xPressed && !dpadUpPressed)
@@ -299,29 +323,34 @@ public class TeleopLimits extends OpMode {
                 score = false;
             }
 
+            if (threeGlyphs)
+            {
+                leftIntakePower=-.95;
+                rightIntakePower=-.95;
+            }
 
 
-            if (rightTrigger > .05 && leftTrigger > .05) { //If both rightTrigger and leftTrigger are pressed, set intake powers to 0, as this is a conflicting command
+            if (rightTrigger > .05 && leftTrigger > .05 && !threeGlyphs) { //If both rightTrigger and leftTrigger are pressed, set intake powers to 0, as this is a conflicting command
                 leftIntakePower = 0; //Set leftIntakePower to 0
                 rightIntakePower = 0; //Set rightIntakePower to 0
-            } else if (rightTrigger > .05 && !bPressed && !leftBumper && !dpadLeftPressed) { //Else if rightTrigger if pressed
+            } else if (rightTrigger > .05 && !bPressed && !leftBumper && !dpadLeftPressed && !threeGlyphs) { //Else if rightTrigger if pressed
                 leftIntakePower = Math.pow(rightTrigger, 2) * .7; //Set leftIntakePower to the square of rightTrigger times .75
                 rightIntakePower = Math.pow(rightTrigger, 2) * .7; //Set rightIntakePower to the square of rightTrigger times .85
-                touchServo.setPosition(.72);
-                touchServo2.setPosition(.72);
-            } else if (leftTrigger > .05 && !bPressed && !leftBumper && !dpadLeftPressed) { //Else if leftTrigger is pressed
+                touchServoPosition=.74;
+            } else if (leftTrigger > .05 && !bPressed && !leftBumper && !dpadLeftPressed && !threeGlyphs) { //Else if leftTrigger is pressed
                 leftIntakePower = -.7; //Set leftIntakePower to -.7
                 rightIntakePower = -.8; //Set rightIntakePower to -.7
-                touchServo.setPosition(.78);
-                touchServo2.setPosition(.78);
+                touchServoPosition=.78;
             } else { //Else
-                leftIntakePower = 0; //Set leftIntakePower to 0
-                rightIntakePower = 0; //Set rightIntakePower to 0
+                if (!threeGlyphs) {
+                    leftIntakePower = 0; //Set leftIntakePower to 0
+                    rightIntakePower = 0; //Set rightIntakePower to 0
+                }
             }
 
 
             //If the state of limit Top is false and dpad up is pressed, or the state of limit Bottom is false and dpad down is pressed
-            if (!limitTop.getState() && (dpadUpPressed || score))
+            if (!limitTop.getState() && score)
             {
                 panLiftingPower = 0; //Set panLiftingPower to 0
                 hasLifted = true;
@@ -330,13 +359,12 @@ public class TeleopLimits extends OpMode {
             {
                 panLiftingPower=0;
             }
-            else if (dpadUpPressed && !dpadDownPressed || (score && !hasLifted)) //Else if dpad up is pressed and dpad down is not pressed
+            else if (dpadUpPressed && !dpadDownPressed || (score && !hasLifted)) //MIGHT NEED TO MAKE THIS AN IF...
             {
-                panLiftingPower = -.62; //Set panLiftingPower to -.69
+                panLiftingPower = -.55; //Set panLiftingPower to -.69
                 if (score && !hasLifted && !dpadLeftPressed)
                 {
-                    touchServo.setPosition(.70);
-                    touchServo2.setPosition(.70);
+                    touchServoPosition=.70;
                 }
             }
             else if ((dpadDownPressed && !dpadUpPressed) || toggleLB) //Else if dpad down is pressed and dpad up is not pressed
@@ -356,14 +384,26 @@ public class TeleopLimits extends OpMode {
                 panLiftingPower = 0; //Set panLiftingPower to 0
             }
 
-            if ((xPressed || bothBlockCounter>7) && !score && !leftBumper && !aPressed && !bPressed && !dpadLeftPressed && !toggleLB) //Else if x is pressed
+            if ((xPressed || bothBlockCounter>7) && !score && !leftStickButton && !aPressed && !bPressed && !dpadLeftPressed && !leftBumper && !toggleLB && panSpinPosition!=.8225) //Else if x is pressed
             {
                 panSpinPosition = .42; //Set panSpinPosition to .3
-                touchServo.setPosition(.835);
-                touchServo2.setPosition(.835);
+                if (!(leftTrigger>.2)) {
+                    touchServoPosition=.835;
+                }
             }
 
-            if (!toggleLB && !score) {
+            telemetry.addData("score", score);
+            telemetry.addData("aPress", aPressed);
+            telemetry.addData("bPressed", bPressed);
+            telemetry.addData("dpadleftpressed", dpadLeftPressed);
+            telemetry.addData("lb", leftBumper);
+            telemetry.addData("togglelb", toggleLB);
+            telemetry.addData("panSpinpos", panSpinPosition);
+            telemetry.addData("hasLifted", hasLifted);
+            telemetry.addData("bothBlockCounter", bothBlockCounter);
+            telemetry.addData("touchServo", touchServoPosition);
+
+            if (!toggleLB && !score && !leftStickButton) {
 
                 if (yPressed && aPressed) //If y and a are pressed
                 {
@@ -374,66 +414,63 @@ public class TeleopLimits extends OpMode {
                 } else if (aPressed) //Else if a is pressed
                 {
                     if (leftPanSpin.getPosition() > .37) {
-                        panSpinPosition = panSpinPosition - .05; //Subtract .05 from panSpinPosition
+                        panSpinPosition-= .05; //Subtract .05 from panSpinPosition
                     } else {
-                        panSpinPosition = panSpinPosition - .025; //Subtract .025 from panSpinPosition
+                        panSpinPosition-= .025; //Subtract .025 from panSpinPosition
                     }
 
                 }
             }
-            else if (toggleLB && !score && bothBlockCounter<=7 && !leftBumper && !aPressed) //Else if b is pressed
+            else if (toggleLB && !score && !leftBumper && !aPressed && !leftStickButton) //Else if b is pressed
             {
-                if (leftPanSpin.getPosition() > .37) {
-                    panSpinPosition = panSpinPosition - .07; //Subtract .05 from panSpinPosition
-                } else {
-                    panSpinPosition = panSpinPosition - .05; //Subtract .025 from panSpinPosition
+                if (leftPanSpin.getPosition() > .37 && bothBlockCounter<=7) {
+                    panSpinPosition-= .07; //Subtract .05 from panSpinPosition
+                } else if (bothBlockCounter<=7){
+                    panSpinPosition-= .05; //Subtract .025 from panSpinPosition
+                }
+
+                if (panSpinPosition<.25)
+                {
+                    toggleLB=false;
                 }
             }
-
-            if (score)
+            
+            if (score && !toggleLB && !leftStickButton)
             {
                 if (hasLifted && !leftBumper) {
                     panLiftingPower=0;
-                    panLifterMotor.setPower(0);
-                    //pause(.1);
-                    leftPanSpin.setPosition(.8325);
-                    rightPanSpin.setPosition(.8325);
-                    panSpinPosition = .8325;
+                    panSpinPosition = .8225;
+                    score=false;
                     hasLifted = false;
                 }
             }
 
+            feelerRaisePosition=FEELER_RAISE_UP_POSITION;
 
-
-            //Telemetry
-            telemetry.addData("panLifting", panLiftingPower);
-            telemetry.addData("limitTop", limitTop.getState());
-            telemetry.addData("limitBottom", limitBottom.getState());
-
-            panSpinPosition = Range.clip(panSpinPosition, .235, .835); //Ensure panSpinPosition is between .27 and .59
         }
 
         //Else
         else
         {
-            if (!dpadLeftPressed) {
-                touchServo.setPosition(.95);
-                touchServo2.setPosition(.95);
-            }
-
-            feelerRaise.setPosition(.5); //Set feelerRaise to position .65
-
-            if (dpadUpPressed) //If dPadUpPressed is true
-            {
-                relicMotor.setPower(.98); //Set the power of relic motor to .6
-            }
-            else if (dpadDownPressed) //Else if dpadDownPressed is true
-            {
-                relicMotor.setPower(-.98); //Set the power of relic motor to -.6
+            if (!leftBumper) {
+                touchServoPosition=.69;
             }
             else
             {
-                relicMotor.setPower(0); //Set the power of relic motor to 0
+                touchServoPosition=.4;
+            }
+
+            if (dpadUpPressed) //If dPadUpPressed is true
+            {
+                relicMotorPower=.98;
+            }
+            else if (dpadDownPressed) //Else if dpadDownPressed is true
+            {
+                relicMotorPower=-.98;
+            }
+            else
+            {
+                relicMotorPower=0;
             }
 
             if (rightTrigger > .05  && leftTrigger > .05) //If rightTrigger and leftTrigger are adequately pressed
@@ -442,16 +479,17 @@ public class TeleopLimits extends OpMode {
             }
             else if (leftTrigger>.05 && !xPressed) //Else if leftTrigger is adequately pressed
             {
-                grabPosition+=.015 * leftTrigger; //Add .01 times the value of leftTrigger to grabPosition
+                grabPosition+=.035 * leftTrigger; //Add .01 times the value of leftTrigger to grabPosition
             }
             else if (rightTrigger>.05 && !xPressed)
             {
-                grabPosition-=.015 * rightTrigger; //Subtract .01 times the value of leftTrigger to grabPosition
+                grabPosition-=.035 * rightTrigger; //Subtract .01 times the value of leftTrigger to grabPosition
             }
             else //Else
             {
 
             }
+
 
             if (yPressed && aPressed) //If yPressed and aPressed are true
             {
@@ -461,11 +499,11 @@ public class TeleopLimits extends OpMode {
             {
                 if (upDown.getPosition() < .69) //If the position of upDown is less than .69
                 {
-                    upDownPosition+=.006; //Add .003 to upDownPosition
+                    upDownPosition+=.0075; //Add .003 to upDownPosition
                 }
                 else //Else
                 {
-                    upDownPosition+=.003; //Add .001 to upDownPosition
+                    upDownPosition+=.005; //Add .001 to upDownPosition
                 }
 
                 telemetry.addData("upDown", upDownPosition); //Telemetry
@@ -473,12 +511,24 @@ public class TeleopLimits extends OpMode {
             }
             else if (yPressed) //Else if yPressed is true
             {
-                upDownPosition-=.007; //Subract .003 from upDownPosition
+                upDownPosition-=.01; //Subract .003 from upDownPosition
             }
             else if (xPressed)
             {
-                upDownPosition=.75;
-                grabPosition=.1;
+                upDownPosition=.77;
+                grabPosition=.4;
+            }
+            else if (bPressed)
+            {
+                if (upDownPosition>.5)
+                {
+                    upDownPosition-=.01;
+                }
+            }
+            else if (rightBumper)
+            {
+                upDownPosition=.82;
+                grabPosition=.4;
             }
             else //Else
             {
@@ -490,12 +540,22 @@ public class TeleopLimits extends OpMode {
                 relicMotor.setPower(.99);
             }
 
+            feelerRaisePosition = FEELER_RAISE_ENDGAME_POSITION;
 
-            grabPosition=Range.clip(grabPosition, .1, .7); //Ensure grabPosition is between .1 and .7
-            upDownPosition=Range.clip(upDownPosition, .02, .83); //Ensure upDownPosition is between .05 and .83
         }
 
         //SET CONTROLS
+
+        bothBlockCounter=Range.clip(bothBlockCounter, 0, 500);
+        threeGlyphCounter=Range.clip(threeGlyphCounter,0,500);
+        grabPosition=Range.clip(grabPosition, .1, .45); //Ensure grabPosition is between .1 and .7
+        upDownPosition=Range.clip(upDownPosition, .02, .83); //Ensure upDownPosition is between .05 and .83
+        panSpinPosition = Range.clip(panSpinPosition, .245, .825); //Ensure panSpinPosition is between .27 and .59
+        //Clip final driving motor values between -1 and 1
+        finBackPower = Range.clip(finBackPower, -1, 1);
+        finRightPower = Range.clip(finRightPower, -1, 1);
+        finLeftPower = Range.clip(finLeftPower, -1, 1);
+
 
         leftPanSpin.setPosition(panSpinPosition); //Set the position of leftPanSpin to panSpinPosition
         rightPanSpin.setPosition(panSpinPosition + .015); //Set the position of rightPanSpin to panSpinPosition plus .015
@@ -507,21 +567,12 @@ public class TeleopLimits extends OpMode {
         backMotor.setPower(finBackPower); //Set the power of backMotor to finBackPower
         grab.setPosition(grabPosition); //Set the power of grab to grabPosition
         upDown.setPosition(upDownPosition); //Set the power of upDown to upDownPosition
+        touchServo.setPosition(touchServoPosition);
+        feelerRaise.setPosition(feelerRaisePosition);
+        relicMotor.setPower(relicMotorPower);
 
         //Update telemetry
         telemetry.update();
     } // end loop
-
-    //Method to stop all action for a given amount of time
-    public void pause(double time) {
-        //Set timeOne and timeTwo to this.getRuntime()
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        //Pause for variable time seconds
-        while (timeTwo - timeOne < time) {
-            timeTwo = this.getRuntime();
-        }
-    }
 
 } // End class
