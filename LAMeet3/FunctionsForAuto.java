@@ -3,8 +3,6 @@
 //Package statement
 package org.firstinspires.ftc.teamcode;
 
-//PID IN AUTO?????
-
 //Import statements
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -41,23 +39,20 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     //MOTORS
 
-    double timeThree;
-    double timeFour;
-
     //Driving
     DcMotor rightMotor; //Right drive motor, for driving forwards and backwards
     DcMotor leftMotor;  //Left drive motor, for driving forwards and backwards
     DcMotor backMotor;  //Back drive motor, for driving sideways, a.k.a "strafing"
 
     //Relic
-    DcMotor relicMotor; //Motor to extend the relic scoring mechanism
+    DcMotor relicMotor; //Motor to extend the relic scoring mechanism to score the relic
 
     //Intake
-    DcMotor rightIntakeMotor; //Motor that controls the right intake/right wheel of the intake
-    DcMotor leftIntakeMotor; //Motor that controls the left intake/left wheel of the intake
+    DcMotor rightIntakeMotor; //Motor that controls the right intake/right wheel of the intake, used to intake glyphs
+    DcMotor leftIntakeMotor; //Motor that controls the left intake/left wheel of the intake, used to intake glyphs
 
     //Block Scoring
-    DcMotor panLifterMotor; //Motor that lifts and lowers the block scoring mechanism, known as the "pan"
+    DcMotor panLifterMotor; //Motor that lifts and lowers the block scoring mechanism, known as the "pan", to score blocks in the cryptobox
 
     //SERVOS
 
@@ -67,25 +62,30 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     //Block Rotation
     Servo leftPanSpin; //Servo on the left side of the robot that rotates the pan, or block scoring mechanism, in order to score blocks
-    Servo rightPanSpin; //Servo on the right side of the robot that rotates the pan, or block scoring mechanism, in order to score blocks
 
     //Touch driving
     Servo touchServo; //Servo that extends an arm from the front of the robot to detect when we are ready to score in autonomous
-    Servo touchServo2;
+    //The arm is attached to a metal bar to block glyphs from entering the robot incorrectly in teleop
 
     //COLOR SENSOR
     ColorSensor sensorColorFeeler; //Color sensor for detecting ball color in autonomous
 
-    //BLOCK SENSORS
+    //DISTANCESENSORS
 
+    //Distance sensors to detect glyphs. If sensor B and sensor C see blocks, that means we are ready to score, so we lift up the pan.
+    //If all three see glyphs for too long, that means we have three glyphs, so we outtake as this is a penalty.
     DistanceSensor sensorA; //Distance sensor closest to the intake to see how far away potential blocks are
     DistanceSensor sensorB; //Distance sensor between A and C, to see how far potential blocks are
     DistanceSensor sensorC; //Distance sensor farthest from intake, to see how far potential blocks are
+
     DistanceSensor sensorTouch; //Distance sensor on the front of the robot to see how far we are from the cryptobox
 
     //Time variables set to current run time throughout the code, typically set to this.getRunTime()
     double timeOne; //timeOne, first time variable
     double timeTwo; //timeTwo, second time variable
+    double timeThree; //timeThree, third time variable
+    double timeFour; //timeFour, fourth time variable
+    double threeGlyphTimeOne; //fifth time variable, calculates run time at the beginning of auto to see if we later have time to collect two more glyphs
 
     //Driving variables
     double inches, inches2; //Desired number of inches to drive
@@ -117,12 +117,14 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     String vuMarkChecker = new String(); //Variable to store the reading from Vuforia in String form
     VuforiaTrackable relicTemplate; //Variable to load the VuMarks in Relic Recovery
     VuforiaTrackables relicTrackables; //Variable to load the VuMarks in Relic Recovery
+    String vuMarkReturn; //The string that our vuforia method returns to tell us where to score, either left, center, or right
+
 
     //Limit Switches
     DigitalChannel limitTop; //Limit Switch that tells us if we reach the top of the robot with the Pan
     DigitalChannel limitBottom; //Limit switch that tells us if we reach the bottom of the robot with the Pan
-    DigitalChannel touchEnd;
-    DigitalChannel limitMid;
+    DigitalChannel limitMid; //Limit Switch that tells us if we reach the middle of the elevator
+    DigitalChannel touchEnd; //Touch sensor on the arm in front of the robot, which tells us when we touch the back of the cryptobox to know when to score a block in autonomous
 
     //IMU
     BNO055IMU imu; //IMU sensor for detecting the angle of the robot
@@ -134,15 +136,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     double correction; //A value to add to or subtract from our driving power based on our angle error
 
     //Pan spin variables
-    final double PAN_SPIN_UP = .66; //The value to which we set the pan spin motors when we are scoring blocks
-    double PAN_SPIN_DOWN = .3; //The value to which we set the pan spin motors when we are not scoring/intaking blocks
     double bothBlockCounter = 0; //Double representing the number of iterations of a loop in which sensors B and C both see a block
-
-    String vuMarkReturn;
-
-    double threeGlyphTimeOne;
-
-    boolean timeOutGetBlocks=false;
 
     //Configures all hardware devices, and sets them to their initial values, if necessary
     public void configure( String initialAllianceColor, String initialRobotStartingPosition ) {
@@ -177,11 +171,9 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         //Servo configurations in the hardware map
         leftPanSpin = hardwareMap.servo.get("s1"); //s1
-        rightPanSpin = hardwareMap.servo.get("s2"); //s2
         feelerRaise = hardwareMap.servo.get("s8"); //s8
         feelerSwipe = hardwareMap.servo.get("s9"); //s9
         touchServo = hardwareMap.servo.get("s10"); //s10
-        touchServo2 = hardwareMap.servo.get("s13");
 
         //Set up the parameters with which we will use the IMU
         BNO055IMU.Parameters IMUparameters = new BNO055IMU.Parameters();
@@ -218,19 +210,15 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         //Servo directions
         leftPanSpin.setDirection(Servo.Direction.REVERSE); //Set leftPanSpin to REVERSE direction
-        rightPanSpin.setDirection(Servo.Direction.FORWARD); //Set rightPanSpin to FORWARD direction
         feelerRaise.setDirection(Servo.Direction.FORWARD); //Set feelerRaise to FORWARD direction
         feelerSwipe.setDirection(Servo.Direction.REVERSE); //Set feelerSwipe to REVERSE direction
         touchServo.setDirection(Servo.Direction.REVERSE); //Set touchServo to REVERSE direction
-        touchServo2.setDirection(Servo.Direction.FORWARD); //Set touchServo to REVERSE direction
 
         //Init values
-        feelerSwipe.setPosition(FEELER_SWIPE_CCW_POSITION); //Set feelerSwipe to FEELER_SWIPE_CCW_POSITION
-        feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Set feelerRaise to FEELER_RAISE_UP_POSITION
-        leftPanSpin.setPosition(.21); //Set the position of leftPanSpin to .2175
-        rightPanSpin.setPosition(.21); //Set the position of rightPanSpin to .2375
-        touchServo.setPosition(.68); //Set the position of touchServo to .65
-        touchServo2.setPosition(.68);
+        feelerSwipe.setPosition(FEELER_SWIPE_CCW_POSITION); //Set feelerSwipe to FEELER_SWIPE_CCW_POSITION, so the jewel arm stays within 18 inches
+        feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Set feelerRaise to FEELER_RAISE_UP_POSITION, so the jewel arm is pressed against the robot
+        leftPanSpin.setPosition(.21); //Set the position of leftPanSpin to .21, so the pan is down as does not interfere with the first block being scored
+        touchServo.setPosition(.68); //Set the position of touchServo to .68, so the bar stays within 18 inches
     }
 
     //Method to calibrate the IMU gyro
@@ -245,41 +233,39 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     //Method to introduce the angle of the robot at the beginning of a method
     public void introduceAngle()
     {
-        realAngle(); //Call getAngleSimple(), which returns the current angle of the robot
+        realAngle(); //Call realAngle(), which returns the current angle of the robot
     }
 
     //Method to score either one or two blocks during autonomous
     public void scoreBlock (double angle) {
-        //Set timeOne and timeTwo to this.getRuntime()
-        //For .775 seconds, set panLifterMotor to .55 power and during this time, set leftPanSpin to the .3 position and rightPanSpin to the .32 position
-        touchServo.setPosition(.35);
-        touchServo2.setPosition(.35);
 
-        pause(.15);
+        touchServo.setPosition(.35); //Set the positon of touchServo to .35 which will raise the bar down to not interfere with scoring
 
-        while (limitMid.getState())
+        pause(.15); //Pause for .15 seconds to allow the touchServo to get to position
+
+        while (limitMid.getState()) //Lift panLifterMotor until limitMid sees the elevator
         {
-            panLifterMotor.setPower(.75);
+            panLifterMotor.setPower(.75); //Set panLifterMotor to .75 power
         }
+
         panLifterMotor.setPower(0); //Stop the movement of panLifterMotor
-        driveNewIMU(3.2, .8, .3, true, angle);
-        leftPanSpin.setPosition(.835);
+        driveNewIMU(3.2, .8, .3, true, angle); //Drive forward 3.2 inches to allow room for block scoring
+        leftPanSpin.setPosition(.835); //Set leftPanSpin to position .835 to score
+        pause(.82); //pause for .82 seconds to allow leftPanSpin to get to position
 
-        //  leftPanSpin.setPosition(.835); //Set leftPanSpin to the PAN_SPIN_UP position
-        pause(.82);
-
-        //pause for .7 seconds
-
-        driveNewIMU(2.7, .8, -.3, true, angle); //Drive forward for 2.8 inches at .3 power, with a 5 second time limit, maintaining the parameter angle degree heading
-        driveNewIMU(4.8, .8, .3, true, angle); //Drive forward for 2.8 inches at .3 power, with a 5 second time limit, maintaining the parameter angle degree heading
+        //Driving motions to wedge glyph(s) in cryptobox
+        driveNewIMU(2.7, .8, -.3, true, angle); //Drive forward for 2.7 inches at .3 power, with a 5 second time limit, maintaining the parameter angle degree heading
+        driveNewIMU(4.8, .8, .3, true, angle); //Drive forward for 4.8 inches at .3 power, with a 5 second time limit, maintaining the parameter angle degree heading
 
     }
 
+
+    //Method to drive forward until our touch sensor, attatched to the front bar, hits the cryptobox, to help us allign to score glyphs
     public void driveToTouch (double power, double desiredAngle)
     {
-        touchServo.setPosition(.28);
-        touchServo2.setPosition(.28);
+        touchServo.setPosition(.24); //Set touchServo to position .27, so the touch sensor has an optimal chance of hitting the back of the cryptobo
 
+        //Usually we give the touchServo time to lower to .27 during our first spin in auto, but on red relic side there is no spin, so we give said time here
         if (allianceColor.equalsIgnoreCase("red") && robotStartingPosition.equalsIgnoreCase("relicSide"))
         {
             pause(.5);
@@ -304,48 +290,49 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             timeTwo=this.getRuntime();
         }
 
+        //Stop the movement of leftMotor and rightMotor
         leftMotor.setPower(0);
         rightMotor.setPower(0);
     }
 
+    //Method to drive until the touch sensor is pressed, then strafe until the front distance sensor sees the cryptobox, and then score a glyph
     public void touch (boolean blue, boolean blueCorner, boolean redCorner)
     {
-        if (blue) { //If blue is true
-            if (blueCorner) { //If blueCorner is true
-                driveToTouch(.3, -90);
+        if (blue) { //If blue is true, meaning we are the blue alliance
+            if (blueCorner) { //If blueCorner is true, meaning we are scoring from the balancing stone in the corner position
+                driveToTouch(.3, -90); //Run method driveToTouch at .3 power and -90 degrees to touch the back of the cryptobox
 
-                pause(.025); //Pause for .1 seconds
+                pause(.025); //Pause for .025 seconds
 
-                driveNewIMU(1.2, 3, -.3, false, -90); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
+                driveNewIMU(1.2, 3, -.3, false, -90); //Drive backwards for 1.2 inches at -.3 power with a 3 second limit maintaining a -90 degree heading to give the arm breathing room so strafe
 
-                pause(.025); //Pause for .1 seconds
+                pause(.025); //Pause for .025 seconds
 
-                strafeToTouch(3.5, .65, -90); //Run strafeToTouch method at -90 degrees and .63 power, with a 2.5 second timeout
+                strafeToTouch(3.5, .65, -90); //Run strafeToTouch method at -90 degrees and .65 power, with a 3.5 second timeout, to align with the cryptobox
 
-                pause(.025); //Pause for .2 seconds
+                pause(.025); //Pause for .025 seconds
 
-                driveNewIMU(2.8, 3, -.3, false, -90);
+                driveNewIMU(2.8, 3, -.3, false, -90); //Drive backwards for 2.8 inches at -.3 power with a 3 second timeout at -90 degrees, to give the bar room to raise
 
-                pause(.025);
+                pause(.025); //Pause for .025 seconds
 
-                touchServo.setPosition(.66); //Set the position of touchServo to .65
-                touchServo2.setPosition(.66);
+                touchServo.setPosition(.66); //Set the position of touchServo to .66 to give the pre-loaded glyph space to exit the robot
 
-                pause(.05); //Pause for .2 Seconds
+                pause(.05); //Pause for .05 Seconds to give the touchServo time to get to position .66
 
-                driveNewIMU(6.4, 4, .4, true, -90);
+                driveNewIMU(6.4, 4, .4, true, -90); //Drive forward for 6.4 inches at a -90 degree heading with a 4 second time limit to prepare glyph for entry into the cryptobox
 
-                pause(.05);
+                pause(.05); //Pause for .05 seconds
 
-                //Set leftIntakeMotor to -.6 power and rightIntakeMotor to -.7 power
+                //Set leftIntakeMotor to -.6 power and rightIntakeMotor to -.7 power for outtaking, set to different powers so block comes out diagonally and we have a higher chance of scoring
                 leftIntakeMotor.setPower(-.6);
-                rightIntakeMotor.setPower(-.6);
+                rightIntakeMotor.setPower(-.7);
 
-                pause(.25);
+                pause(.25); //Pause for .25 seconds to give intake motors time to speed up
 
-                driveNewIMU(2.65, 5, -.4, false, -90); //Drive backwards 2.25 inches at -.4 power keeping a -90 degree heading with a 5 second limit
+                driveNewIMU(2.65, 5, -.4, false, -90); //Drive backwards 2.65 inches at -.4 power keeping a -90 degree heading with a 5 second limit to allow room for the glyph to exit the robot
 
-                //Outtake for 2 seconds
+                //Outtake for 1 seconds
                 timeOne = this.getRuntime();
                 timeTwo = this.getRuntime();
 
@@ -355,68 +342,49 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                     timeTwo = this.getRuntime();
                 }
 
-                pause(.05);
-
-                //Stop the motion of the intake motors
+                //Stop the motion of the intake motors, as we are now (hopefully) done scoring the glyphs
                 leftIntakeMotor.setPower(0);
                 rightIntakeMotor.setPower(0);
 
-                driveNewIMU(3.5, 2, -.4, false, -90); //Drive backwards 4 inches at -.4 power keeping a -90 degree heading with a 2 second limit
+                pause(.025); //pause for .025 seconds
 
-                pause(.025); //pause for .15 seconds
-
-//                //Set the power of leftIntakeMotor to -.15 and the power of rightIntakeMotor to -.17
-//                leftIntakeMotor.setPower(-.15);
-//                rightIntakeMotor.setPower(-.17);
-//
-//                driveNewIMU(16, 2.4, .4, true, -90); //Drive forwards 24 inches at .4 power keeping a -90 degree heading with a 4 second limit
-//
-//                pause(.15); //pause for .15 seconds
-//
-//                driveNewIMU(4, 3, -.4, false, -90); //Drive backwards 4 inches at -.4 power keeping a -90 degree heading with a 3 second limit
-//
-//                //Stop the motion of the intake motors
-//                leftIntakeMotor.setPower(0);
-//                rightIntakeMotor.setPower(0);
-
+                driveNewIMU(3.5, 2, -.4, false, -90); //Drive backwards 3.5 inches at -.4 power keeping a -90 degree heading with a 2 second limit, to make sure we are not touching the glyph that we scored
             }
 
-            else
-            {
-                driveToTouch(.3, 180);
+            else {
+                driveToTouch(.3, 180); //Run method driveToTouch at .3 power and 180 degrees to touch the back of the cryptobox
 
-                pause(.025); //Pause for .1 seconds
+                pause(.025); //Pause for .025 seconds
 
-                driveNewIMU(1.2, 3, -.3, false, 180); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
+                driveNewIMU(1.2, 3, -.3, false, 180); //Drive backwards for 1.2 inches at -.3 power with a 3 second limit maintaining a 180 degree heading to give the arm breathing room so strafe
 
-                pause(.025); //Pause for .1 seconds
+                pause(.025); //Pause for .025 seconds
 
-                strafeToTouch(3.5, .65, 178); //Run strafeToTouch method at 178 degrees and .63 power, with a 3.5 second timeout
+                strafeToTouch(3.5, .65, 180); //Run strafeToTouch method at 180 degrees and .65 power, with a 3.5 second timeout, to align with the cryptobox
 
-                pause(.025);
+                pause(.025); //Pause for .025 seconds
 
-                driveNewIMU(2.8, 3, -.3, false, 180);
+                driveNewIMU(2.8, 3, -.3, false, 180); //Drive backwards for 2.8 inches at -.3 power with a 3 second timeout at 180 degrees, to give the bar room to raise
 
-                pause(.025); //Pause for .2 seconds
+                pause(.025); //Pause for .025 seconds
 
-                touchServo.setPosition(.66); //Set the position of touchServo to .65
-                touchServo2.setPosition(.66);
+                touchServo.setPosition(.66); //Set the position of touchServo to .66 to give the pre-loaded glyph space to exit the robot
 
-                pause(.025); //Pause for .2 Seconds
+                pause(.05); //Pause for .05 Seconds
 
-                driveNewIMU(6.4, 4, .4, true, 180);
+                driveNewIMU(6.4, 4, .4, true, 180); //Drive forward for 6.4 inches at a 180 degree heading with a 4 second time limit to prepare glyph for entry into the cryptobox
 
                 pause(.05); //Pause for .2 Seconds
-                //Set leftIntakeMotor to -.6 power and rightIntakeMotor to -.7 power
+
+                //Set leftIntakeMotor to -.6 power and rightIntakeMotor to -.7 power for outtaking, set to different powers so block comes out diagonally and we have a higher chance of scoring
                 leftIntakeMotor.setPower(-.6);
-                rightIntakeMotor.setPower(-.6);
+                rightIntakeMotor.setPower(-.7);
 
-                pause(.25); //Pause for .2 seconds
+                pause(.25); //Pause for .25 seconds to give intake motors time to speed up
 
-                driveNewIMU(2.65, 5, -.4, false, 179); //Drive backwards 2.25 inches at -.4 power keeping a 179 degree heading with a 5 second limit
+                driveNewIMU(2.65, 5, -.4, false, 180); //Drive backwards 2.65 inches at -.4 power keeping a 180 degree heading with a 5 second limit to allow room for the glyph to exit the robot
 
-
-                //Outtake for 2 seconds
+                //Outtake for 1 second
                 timeOne = this.getRuntime();
                 timeTwo = this.getRuntime();
 
@@ -426,72 +394,51 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                     timeTwo = this.getRuntime();
                 }
 
-                pause(.05); //pause for .15 seconds
-
-
-                //Stop the motion of the intake motors
+                //Stop the motion of the intake motors, as we are now (hopefully) done scoring the glyphs
                 leftIntakeMotor.setPower(0);
                 rightIntakeMotor.setPower(0);
 
-                pause(.05); //.1 second pause
+                pause(.025); //pause for .025 seconds
 
-                driveNewIMU(3.5, 2, -.4, false, 179); //Drive backwards 4 inches at -.4 power keeping a 179 degree heading with a 2 second limit
-
-//                //Set the power of leftIntakeMotor to -.15 and the power of rightIntakeMotor to -.17
-//                leftIntakeMotor.setPower(-.15);
-//                rightIntakeMotor.setPower(-.17);
-//
-//                driveNewIMU(16, 2.4, .4, true, 179); //Drive forwards 24 inches at .4 power keeping a 179 degree heading with a 4 second limit
-//
-//                pause(.15); //pause for .15 seconds
-//
-//                driveNewIMU(4, 3, -.4, false, 179); //Drive backwards 4 inches at -.4 power keeping a 179 degree heading with a 3 second limit
-//
-//                //Stop the motion of the intake motors
-//                leftIntakeMotor.setPower(0);
-//                rightIntakeMotor.setPower(0);
-
+                driveNewIMU(3.5, 2, -.4, false, 180); //Drive backwards 3.5 inches at -.4 power keeping a 180 degree heading with a 2 second limit, to make sure we are not touching the glyph that we scored
             }
         }
 
         else {
             if (redCorner) {
-                driveToTouch(.3, -90);
+                driveToTouch(.3, -90); //Run method driveToTouch at .3 power and -90 degrees to touch the back of the cryptobox
 
-                pause(.025); //Pause for .1 seconds
+                pause(.025); //Pause for .025 seconds
 
-                driveNewIMU(1.2, 3, -.3, false, -90); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
+                driveNewIMU(1.2, 3, -.3, false, -90); //Drive backwards for 1.2 inches at -.3 power with a 3 second limit maintaining a -90 degree heading to give the arm breathing room so strafe
 
-                pause(.025); //Pause for .1 seconds
+                pause(.025); //Pause for .025 seconds
 
-                strafeToTouch(3.5, .65, -88); //Run strafeToTouch method at -88 degrees and .63 power, with a 3.5 second timeout
+                strafeToTouch(3.5, .65, -90); //Run strafeToTouch method at -90 degrees and .65 power, with a 3.5 second timeout, to align with the cryptobox
 
-                pause(.025); //Pause for .2 seconds
+                pause(.025); //Pause for .025 seconds
 
-                driveNewIMU(2.8, 3, -.3, false, -90);
+                driveNewIMU(2.8, 3, -.3, false, -90); //Drive backwards for 2.8 inches at -.3 power with a 3 second timeout at -90 degrees, to give the bar room to raise
 
-                pause(.025);
+                pause(.025); //Pause for .025 seconds
 
-                touchServo.setPosition(.66); //Set the position of touchServo to .65
-                touchServo2.setPosition(.66);
+                touchServo.setPosition(.66); //Set the position of touchServo to .66 to give the pre-loaded glyph space to exit the robot
 
-                pause(.05); //Pause for .2 Seconds
+                pause(.05); //Pause for .05 Seconds to give the touchServo time to get to position .66
 
-                driveNewIMU(6.4, 4, .4, true, -90);
+                driveNewIMU(6.4, 4, .4, true, -90); //Drive forward for 6.4 inches at a -90 degree heading with a 4 second time limit to prepare glyph for entry into the cryptobox
 
-                pause(.05); //Pause for .2 Seconds
+                pause(.05); //Pause for .05 seconds
 
-                //Set leftIntakeMotor to -.6 power and rightIntakeMotor to -.7 power
+                //Set leftIntakeMotor to -.6 power and rightIntakeMotor to -.7 power for outtaking, set to different powers so block comes out diagonally and we have a higher chance of scoring
                 leftIntakeMotor.setPower(-.6);
                 rightIntakeMotor.setPower(-.7);
 
-                pause(.25); //Pause for .2 seconds
+                pause(.25); //Pause for .25 seconds to give intake motors time to speed up
 
-                driveNewIMU(2.65, 5, -.4, false, -90); //Drive backwards 2.25 inches at -.4 power keeping a -90 degree heading with a 5 second limit
+                driveNewIMU(2.65, 5, -.4, false, -90); //Drive backwards 2.65 inches at -.4 power keeping a -90 degree heading with a 5 second limit to allow room for the glyph to exit the robot
 
-                pause(.05); //pause for .15 seconds
-
-                //Outtake for 2 seconds
+                //Outtake for 1 seconds
                 timeOne = this.getRuntime();
                 timeTwo = this.getRuntime();
 
@@ -501,56 +448,41 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                     timeTwo = this.getRuntime();
                 }
 
-                //Stop the motion of the intake motors
+                //Stop the motion of the intake motors, as we are now (hopefully) done scoring the glyphs
                 leftIntakeMotor.setPower(0);
                 rightIntakeMotor.setPower(0);
 
-                pause(.025); //.1 second pause
+                pause(.025); //pause for .025 seconds
 
-                driveNewIMU(3.5, 2, -.4, false, -90); //Drive backwards 4 inches at -.4 power keeping a -90 degree heading with a 2 second limit
-
-//                //Set the power of leftIntakeMotor to -.15 and the power of rightIntakeMotor to -.17
-//                leftIntakeMotor.setPower(-.15);
-//                rightIntakeMotor.setPower(-.17);
-//
-////                driveNewIMU(16, 2.4, .4, true, -90); //Drive forwards 24 inches at .4 power keeping a -90 degree heading with a 4 second limit
-//
-//                pause(.15); //pause for .15 seconds
-//
-//                driveNewIMU(4, 3, -.4, false, -90); //Drive backwards 4 inches at -.4 power keeping a 90 degree heading with a 3 second limit
-//
-//                //Stop the motion of the intake motors
-//                leftIntakeMotor.setPower(0);
-//                rightIntakeMotor.setPower(0);
+                driveNewIMU(3.5, 2, -.4, false, -90); //Drive backwards 3.5 inches at -.4 power keeping a -90 degree heading with a 2 second limit, to make sure we are not touching the glyph that we scored
             }
             else
             {
-                driveToTouch(.3, 0);
+                driveToTouch(.3, -90); //Run method driveToTouch at .3 power and 0 degrees to touch the back of the cryptobox
 
-                pause(.025); //Pause for .1 seconds
+                pause(.025); //Pause for .025 seconds
 
-                driveNewIMU(1.2, 3, -.3, false, 0); //Drive backwards for 2.94 inches at -.4 power with a 3 second limit maintaining a -90 degree heading
+                driveNewIMU(1.2, 3, -.3, false, 0); //Drive backwards for 1.2 inches at -.3 power with a 3 second limit maintaining a 0 degree heading to give the arm breathing room so strafe
 
-                pause(.025); //Pause for .1 seconds
+                pause(.025); //Pause for .025 seconds
 
-                strafeToTouch(3.5, .65, 0); //Run strafeToTouch method at 0 degrees and .63 power, with a 3.5 second timeout
+                strafeToTouch(3.5, .65, 0); //Run strafeToTouch method at 0 degrees and .65 power, with a 3.5 second timeout, to align with the cryptobox
 
-                pause(.025); //Pause for .2 seconds
+                pause(.025); //Pause for .025 seconds
 
-                driveNewIMU(2.8, 3, -.3, false, 0);
+                driveNewIMU(2.8, 3, -.3, false, 0); //Drive backwards for 2.8 inches at -.3 power with a 3 second timeout at 0 degrees, to give the bar room to raise
 
-                pause(.025);
+                pause(.025); //Pause for .025 seconds
 
-                touchServo.setPosition(.66); //Set the position of touchServo to .65
-                touchServo2.setPosition(.66);
+                touchServo.setPosition(.66); //Set the position of touchServo to .66 to give the pre-loaded glyph space to exit the robot
 
-                pause(.025); //Pause for .2 Seconds
+                pause(.05); //Pause for .05 Seconds to give the touchServo time to get to position .66
 
-                driveNewIMU(8.6, 4, .4, true, 0);
+                driveNewIMU(8.6, 4, .4, true, 0); //Drive forward for 8.6 inches at a 0 degree heading with a 4 second time limit to prepare glyph for entry into the cryptobox
 
-                pause(.025); //Pause for .2 Seconds
+                pause(.05); //Pause for .05 seconds
 
-                //Set leftIntakeMotor to -.6 power and rightIntakeMotor to -.7 power
+                //Set leftIntakeMotor to -.6 power and rightIntakeMotor to -.7 power for outtaking, set to different powers so block comes out diagonally and we have a higher chance of scoring
                 leftIntakeMotor.setPower(-.6);
                 rightIntakeMotor.setPower(-.7);
 
@@ -558,9 +490,9 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 driveNewIMU(2.65, 5, -.4, false, 0); //Drive backwards 2.25 inches at -.4 power keeping a 0 degree heading with a 5 second limit
 
-                pause(.05); //pause for .15 seconds
+                pause(.25); //Pause for .25 seconds to give intake motors time to speed up
 
-                //Outtake for 2 seconds
+                //Outtake for 1 second
                 timeOne = this.getRuntime();
                 timeTwo = this.getRuntime();
 
@@ -570,27 +502,13 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                     timeTwo = this.getRuntime();
                 }
 
-                //Stop the motion of the intake motors
+                //Stop the motion of the intake motors, as we are now (hopefully) done scoring the glyphs
                 leftIntakeMotor.setPower(0);
                 rightIntakeMotor.setPower(0);
 
-                pause(.05); //.1 second pause
+                pause(.025); //pause for .025 seconds
 
-                driveNewIMU(3.5, 2, -.4, false, 0); //Drive backwards 4 inches at -.4 power keeping a 0 degree heading with a 2 second limit
-
-//                //Set the power of leftIntakeMotor to -.15 and the power of rightIntakeMotor to -.17
-//                leftIntakeMotor.setPower(-.15);
-//                rightIntakeMotor.setPower(-.17);
-//
-//                driveNewIMU(16, 2.4, .4, true, 0); //Drive forwards 24 inches at .4 power keeping a 0 degree heading with a 4 second limit
-//
-//                pause(.15); //pause for .15 seconds
-//
-//                driveNewIMU(4, 3, -.4, false, 0); //Drive backwards 4 inches at -.4 power keeping a 0 degree heading with a 3 second limit
-//
-//                //Stop the motion of the intake motors
-//                leftIntakeMotor.setPower(0);
-//                rightIntakeMotor.setPower(0);
+                driveNewIMU(3.5, 2, -.4, false, 0); //Drive backwards 3.5 inches at -.4 power keeping a 0 degree heading with a 2 second limit, to make sure we are not touching the glyph that we scored
             }
         }
 
@@ -600,8 +518,6 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     //Method to collect blocks during autonomous
     public void getBlocks(double distance) {
-
-        timeOutGetBlocks=false;
 
         inches = distance; //Set inches to parameter distance
         rotations = inches / (Math.PI * WHEEL_DIAMETER); //Set rotations to inches divided by pi, approximately 3.14, divided by the wheel diameter
@@ -613,132 +529,128 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         rotations2 = inches2 / (Math.PI * WHEEL_DIAMETER); //Set rotations2 to inches2 divided by pi, approximately 3.14, divided by the wheel diameter
         counts2= ENCODER_CPR * rotations2 * GEAR_RATIO; //Set counts2 to the encoder CPR times rotations2 times the gear ratio
 
-        leftPanSpin.setPosition(.21); //Set the position of leftPanSpin to .2175
-        rightPanSpin.setPosition(.21); //Set the position of rightPanSpin to .2375
+        leftPanSpin.setPosition(.21); //Set the position of leftPanSpin to .21 to prepare for intaking
 
-        touchServo.setPosition(.42);
-        touchServo2.setPosition(.42);
+        touchServo.setPosition(.42); //Set touchServo to .42 to block bad glyphs from coming into the robot
 
-        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Set run mode of frontMotor1 to STOP_AND_RESET_ENCODER
-        rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //check should to bottom too?
+        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); //Set run mode of rightMotor to STOP_AND_RESET_ENCODER
+        rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); ////Set run mode of rightMotor to RUN_USING_ENCODER
 
         //Set timeOne and timeTwo to this.getRuntime()
         timeThree= this.getRuntime();
         timeFour=this.getRuntime();
 
-        //While bothBlockCounter is under 5 and the current position of rightMotor is less than counts2 and less than 10 seconds have elapsed
+        //While bothBlockCounter is under 5 and the current position of rightMotor is less than counts2 and less than 4.5 seconds have elapsed
         while (bothBlockCounter < 5 && rightMotor.getCurrentPosition()<(counts2) && timeFour-timeThree < 4.5)
         {
-            leftIntakeMotor.setPower(.73); //Set leftIntakeMotor to .85 power
-            rightIntakeMotor.setPower(.73); //Set rightIntakeMotor to 1 power
-            timeFour=this.getRuntime(); //Set timeTwo to this.getRuntime()
-            //loopCounter++; //Positively increment loopCounter by 1
+            leftIntakeMotor.setPower(.73); //Set leftIntakeMotor to .73 power to intake blocks
+            rightIntakeMotor.setPower(.73); //Set rightIntakeMotor to 73 power to intake blocks
+            timeFour=this.getRuntime(); //Set timeFOUR to this.getRuntime()
 
-            //currentAngle = this.realAngle(); //Set currentAngle to the current angle of the robot
-
-            if (allianceColor.equalsIgnoreCase("red")&&robotStartingPosition.equalsIgnoreCase("corner")) {
-                //If the distance sensed by sensors B and C are less than 13, positively increment bothBlockCounter by 1
+            if (allianceColor.equalsIgnoreCase("red") &&  robotStartingPosition.equalsIgnoreCase("corner")) { //If starting position is red corner
+                //If the distance sensed by sensors B and C are less than 13, meaning we have 2 glyphs, positively increment bothBlockCounter by 1
                 if (sensorB.getDistance(DistanceUnit.CM) < 13 && sensorC.getDistance(DistanceUnit.CM) < 13) {
                     bothBlockCounter++;
                 }
 
-                if (timeTwo - timeOne < .6) {
+                if (timeTwo - timeOne < .6) { //Drive forward for .6 seconds to go to the glyph pile
                     leftMotor.setPower(.34);
                     rightMotor.setPower(.34);
                 }
 
 
-                if (timeTwo - timeOne >= .6 && timeTwo - timeOne < 1) {
+                if (timeTwo - timeOne >= .6 && timeTwo - timeOne < 1) { //Stop driving for .4 seconds so we do not ram the glyph pile too hard
                     leftMotor.setPower(0);
                     rightMotor.setPower(0);
                 }
 
-                if (timeTwo - timeOne >= 1 && timeTwo - timeOne < 1.6) {
+                if (timeTwo - timeOne >= 1 && timeTwo - timeOne < 1.6) { //Spin for .6 seconds to see if we can collect glyphs better at a different angle
                     spinMove(75, false, .5, false);
                 }
 
 
-                if (timeTwo - timeOne >= 1.6 && timeTwo - timeOne < 2.8) {
+                if (timeTwo - timeOne >= 1.6 && timeTwo - timeOne < 2.8) { //Drive forward for 1.2 seconds to go further into the glyph pile
                     leftMotor.setPower(.2);
                     rightMotor.setPower(.2);
                 }
 
-                if (timeTwo - timeOne >= 2.8 && timeTwo - timeOne < 3.3) {
+                if (timeTwo - timeOne >= 2.8 && timeTwo - timeOne < 3.3) { //Stop the movement of the driving motors for .5 seconds to allow time for glyphs to be intaked
                     leftMotor.setPower(0);
                     rightMotor.setPower(0);
                 }
 
-                if (timeTwo - timeOne >= 3.3 && timeTwo - timeOne < 3.5) {
+                if (timeTwo - timeOne >= 3.3 && timeTwo - timeOne < 3.5) { //Drive back for .2 seconds to allow breathing room for our next intake attempt
                     leftMotor.setPower(-.24);
                     rightMotor.setPower(-.24);
                 }
 
-                if (timeTwo - timeOne >= 3.5 && timeTwo - timeOne < 4) {
+                if (timeTwo - timeOne >= 3.5 && timeTwo - timeOne < 4) { //Stop the movement of the driving motors to reset for next intaking attempt
                     leftMotor.setPower(0);
                     rightMotor.setPower(0);
                 }
 
-                if (timeTwo - timeOne >= 4 && timeTwo - timeOne < 4.9) {
+                if (timeTwo - timeOne >= 4 && timeTwo - timeOne < 4.9) { //Drive forward for .2 seconds to try to get more glyphs from the glyph pit
                     leftMotor.setPower(.2);
                     rightMotor.setPower(.2);
                 }
-
-
+                
             }
-            else if (allianceColor.equalsIgnoreCase("blue")&&robotStartingPosition.equalsIgnoreCase("corner"))
+            else if (allianceColor.equalsIgnoreCase("blue")&&robotStartingPosition.equalsIgnoreCase("corner")) //If starting position is red corner
             {
+                //If the distance sensed by sensors B and C are less than 13, meaning we have 2 glyphs, positively increment bothBlockCounter by 1
                 if (sensorB.getDistance(DistanceUnit.CM) < 13 && sensorC.getDistance(DistanceUnit.CM) < 13) {
                     bothBlockCounter++;
                 }
 
-                if (timeTwo - timeOne < .6) {
+                if (timeTwo - timeOne < .6) { //Drive forward for .6 seconds to go to the glyph pile
                     leftMotor.setPower(.34);
                     rightMotor.setPower(.34);
                 }
 
 
-                if (timeTwo - timeOne >= .6 && timeTwo - timeOne < 1) {
+                if (timeTwo - timeOne >= .6 && timeTwo - timeOne < 1) { //Stop driving for .4 seconds so we do not ram the glyph pile too hard
                     leftMotor.setPower(0);
                     rightMotor.setPower(0);
                 }
 
-                if (timeTwo - timeOne >= 1 && timeTwo - timeOne < 1.6) {
+                if (timeTwo - timeOne >= 1 && timeTwo - timeOne < 1.6) { //Spin for .6 seconds to see if we can collect glyphs better at a different angle
                     spinMove(75, false, .5, false);
                 }
 
 
-                if (timeTwo - timeOne >= 1.6 && timeTwo - timeOne < 2.8) {
+                if (timeTwo - timeOne >= 1.6 && timeTwo - timeOne < 2.8) { //Drive forward for 1.2 seconds to go further into the glyph pile
                     leftMotor.setPower(.2);
                     rightMotor.setPower(.2);
                 }
 
-                if (timeTwo - timeOne >= 2.8 && timeTwo - timeOne < 3.3) {
+                if (timeTwo - timeOne >= 2.8 && timeTwo - timeOne < 3.3) { //Stop the movement of the driving motors for .5 seconds to allow time for glyphs to be intaked
                     leftMotor.setPower(0);
                     rightMotor.setPower(0);
                 }
 
-                if (timeTwo - timeOne >= 3.3 && timeTwo - timeOne < 3.5) {
+                if (timeTwo - timeOne >= 3.3 && timeTwo - timeOne < 3.5) { //Drive back for .2 seconds to allow breathing room for our next intake attempt
                     leftMotor.setPower(-.24);
                     rightMotor.setPower(-.24);
                 }
 
-                if (timeTwo - timeOne >= 3.5 && timeTwo - timeOne < 4) {
+                if (timeTwo - timeOne >= 3.5 && timeTwo - timeOne < 4) { //Stop the movement of the driving motors to reset for next intaking attempt
                     leftMotor.setPower(0);
                     rightMotor.setPower(0);
                 }
 
-                if (timeTwo - timeOne >= 4 && timeTwo - timeOne < 4.9) {
+                if (timeTwo - timeOne >= 4 && timeTwo - timeOne < 4.9) { //Drive forward for .2 seconds to try to get more glyphs from the glyph pit
                     leftMotor.setPower(.2);
                     rightMotor.setPower(.2);
                 }
             }
-            else
+            else //Else, if we are in the red not corner position
             {
+                //If the distance sensed by sensors B and C are less than 13, meaning we have 2 glyphs, positively increment bothBlockCounter by 1
                 if (sensorB.getDistance(DistanceUnit.CM) < 13 && sensorC.getDistance(DistanceUnit.CM) < 13) {
                     bothBlockCounter++;
                 }
 
-                if (timeTwo - timeOne < 5) {
+                if (timeTwo - timeOne < 4.5) { //Drive forward into the glyph pile for 4.5 seconds to intake blocks
                     leftMotor.setPower(.34);
                     rightMotor.setPower(.34);
                 }
@@ -761,42 +673,42 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         loopCounter = 0;//Set loopCounter to 0
 
-        //Stop the motion of leftIntakeMotor and rightIntakeMotor
+        //Outtake with leftIntakeMotor and rightIntakeMotor in case a block is jammed in the intake
         leftIntakeMotor.setPower(-.6);
         rightIntakeMotor.setPower(-.6);
 
 
-        if (!timeOutGetBlocks) {
+        if (this.getRuntime()-threeGlyphTimeOne<50) { //If not too much time has elapsed, specifically 50 seconds since the start of auto
 
-            //Set the position of leftPanSpin to .3 and the position of rightPanSpin to .32
-            leftPanSpin.setPosition(.375);
-            touchServo.setPosition(.58);
-            touchServo2.setPosition(.58);
+            leftPanSpin.setPosition(.375); //Set the position of leftPanSpin to .375 (hold postion)
+            touchServo.setPosition(.58); //Raise touchServo to .58 to prevent glyphs from falling out of pan
             bothBlockCounter = 0; //Set the value of bothBlockCounter to 0
-            leftIntakeMotor.setPower(-.5);
-            rightIntakeMotor.setPower(-.5);
+
+            //Outtake with leftIntakeMotor and rightIntakeMotor in case a block is jammed in the intake
+            leftIntakeMotor.setPower(-.6);
+            rightIntakeMotor.setPower(-.6);
 
 
-            if (allianceColor.equalsIgnoreCase("red") && robotStartingPosition.equalsIgnoreCase("corner")) {
-                driveNewIMU(68, 2.2, -.45, false, 105); //Drive backwards for 88 inches at -.4 power, keeping a 90 degree heading and timing out after 5 seconds
-            } else if (allianceColor.equalsIgnoreCase("blue") && robotStartingPosition.equalsIgnoreCase("corner")) {
-                driveNewIMU(68, 2.2, -.55, false, 88);
+            if (allianceColor.equalsIgnoreCase("red") && robotStartingPosition.equalsIgnoreCase("corner")) //If position is red corner
+            {
+                driveNewIMU(68, 2.2, -.55, false, 105); //Drive backwards for 68 inches at -.55 power, keeping a 90 degree heading and timing out after 2.2 seconds, to return to the cryptobox for scoring a block
+            }
+            else if (allianceColor.equalsIgnoreCase("blue") && robotStartingPosition.equalsIgnoreCase("corner")) //If position is blue corner
+            {
+                driveNewIMU(68, 2.2, -.55, false, 87); //Drive backwards for 68 inches at -.55 power, keeping a 87 degree heading and timing out after 2.2 seconds, to return to the cryptobox for scoring a block
             }
             else
             {
-                driveNewIMU(68, 2.2, -.55, false, 160);
+                driveNewIMU(68, 2.2, -.55, false, 160); //Drive backwards for 68 inches at -.55 power, keeping a 160 degree heading and timing out after 2.2 seconds, to return to the cryptobox for scoring a block
             }
 
+            //Stop the motion of the intake motors as we are now done intaking glyphs
             leftIntakeMotor.setPower(0);
             rightIntakeMotor.setPower(0);
 
             pause(.05); //Pause for .05 seconds
 
-            touchServo.setPosition(.58);
-            touchServo2.setPosition(.58);
         }
-
-        // driveNewIMU(2.25, 4, .3, true, 90); //Drive forwards for 2.25 inches at .3 power, keeping a 90 degree heading and timing out after 5 seconds
 
     }
 
@@ -804,7 +716,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     //Method to detect the Vuforia reading
     public String detectVuMark(double timeToCheck) {
 
-        relicTrackables.activate(); //Activate relicTrackables
+        relicTrackables.activate(); //Activate relicTrackables to prepare vuforia reading
 
         //Set timeOne and timeTwo to this.getRuntime()
         timeOne = this.getRuntime();
@@ -836,12 +748,14 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
             timeTwo = this.getRuntime(); //Set timeTwo to this.getRuntime()
 
-            //Telemetry
+            //Telemetry to display time and the vuMark result
             telemetry.addData("Time: ", timeTwo - timeOne);
             telemetry.addData("Vu mark detector: ", vuMarkChecker);
-            telemetry.update();
+            telemetry.update(); //update telemetry
 
-            if (timeTwo - timeOne > .8 && timeTwo-timeOne <= 1.6)
+            if (timeTwo - timeOne > .8 && timeTwo-timeOne <= 1.6) //We want to start preparing to score the jewel during vuforia detection to save time
+                                                                  //so during this time interval we set feeler swipe to a neutral position so when feeler raise
+                                                                  //is lowered feeler swipe puts the jewel arm between the two balls for optimal color detection
             {
                 if (allianceColor.equalsIgnoreCase("blue")) {
                     feelerSwipe.setPosition(FEELER_SWIPE_NEUTRAL_POSITION_BLUE); //Set feelerSwipe to FEELER_SWIPE_NEUTRAL_POSITION_BLUE
@@ -852,9 +766,9 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                 }
             }
 
-            if (timeTwo - timeOne >1.6  && timeTwo-timeOne <= 2.3)
+            if (timeTwo - timeOne >1.6  && timeTwo-timeOne <= 2.3) //After the time interval above we lower the feelerRaise to get into jewel scoring position
             {
-                feelerRaise.setPosition(FEELER_RAISE_DOWN_POSITION); //
+                feelerRaise.setPosition(FEELER_RAISE_DOWN_POSITION); //Set feelerRaise to position FEELER_RAISE_DOWN_POSITION
             }
         }
         return vuMarkChecker; //Return the String vuMarkChecker
@@ -868,12 +782,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         return output; //return output
     }
 
-    // Sets all drive train motors to 0 power
-    public void stopDriving() {
-        leftMotor.setPower(0); //Set power of leftMotor to 0
-        rightMotor.setPower(0); //Set power of rightMotor to 0
-        backMotor.setPower(0); //Set power of backMotor to 0
-    }
+
 
     //Method to stop all action for a given amount of time
     public void pause(double time) {
@@ -884,8 +793,6 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         //Pause for variable time seconds
         while (timeTwo - timeOne < time) {
             timeTwo = this.getRuntime();
-            telemetry.addData("run", this.getRuntime());
-            telemetry.update();
         }
 
     }
@@ -893,12 +800,11 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     //Method to score the ball in autonomous
     public void dropFeelerMoveBallOnlyNewRobot() {
 
-        threeGlyphTimeOne = this.getRuntime();
+        threeGlyphTimeOne = this.getRuntime(); //Set threeGlyphTimeOne to the current run time, this variable (representime the run time at the beginning of the first action in auto, scoring the jewel) is later used to determine if we have time to collect two more glyphs
 
-        feelerRaise.setPosition(.49); //Set feelerRaise to position .6
+        feelerRaise.setPosition(.49); //Set feelerRaise to position .49 to lower the jewel arm
 
-        vuMarkReturn = detectVuMark(2.2);
-
+        vuMarkReturn = detectVuMark(2.2); //Run vuforia detection during the time when the feelerRaise is moving down, and set the output of detectVuMark to the String vuMarkReturn
 
         if (allianceColor.equalsIgnoreCase("red") && sensorColorFeeler.blue() >=  sensorColorFeeler.red()) { //If we are the red alliance and see a blue ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
@@ -947,18 +853,6 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     }
 
-    //Method to format the angle of the robot
-    public String formatAngle(AngleUnit angleUnit, double angle) {
-        //Return the formatDegrees angle using the parameters below
-        return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
-    }
-
-    //Method to return degree of the robot
-    public String formatDegrees(double degrees) {
-        //Return a String, formatted using the parameters below
-        return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
-    }
-
     //Method to make the robot drive sideways (strafe)
     public void strafeNewIMU(double distance, double time, double power, double desiredAngle) {
 
@@ -978,19 +872,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
             //While less seconds than the parameter time have elapsed and the absolute value of the position of backMotor is less than the absolute value of counts
             while (Math.abs(backMotor.getCurrentPosition()) < Math.abs(counts) && timeTwo - timeOne < time) {
-                //Set correction to the current angle minus the desired angle plus 7 (value to keep strafe straight found through experimental testing) times .027
+                //Set correction to the current angle minus the desired angle plus 9 (value to keep strafe straight found through experimental testing) times .027
                 correction = ((this.realAngle()-desiredAngle) + 9) * .017;
-
-                //Telemetry
-                telemetry.addData("1 imu heading", lastAngles.firstAngle);
-                telemetry.addData("2 global heading", globalAngle);
-                telemetry.addData("3 correction", correction);
-                telemetry.addData("Angle", this.realAngle());
-                telemetry.addData("inches", inches);
-                telemetry.addData("power", power);
-                telemetry.addData("pos", backMotor.getCurrentPosition());
-                telemetry.addData("counts", counts);
-                telemetry.update();
 
                 //Set the power of backMotor to parameter power
                 backMotor.setPower(power);
@@ -1020,7 +903,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             //While less seconds than the parameter time have elapsed and the absolute value of the position of backMotor is less than the absolute value of counts
             while (Math.abs(backMotor.getCurrentPosition()) < Math.abs(counts) && timeTwo - timeOne < time) {
 
-                //Set correction to the current angle minus the desired angle minus 8 (value to keep strafe straight found through experimental testing) times .027
+                //Set correction to the current angle minus the desired angle minus 2 (value to keep strafe straight found through experimental testing) times .027
                 correction = ((this.realAngle()-desiredAngle) - 2)  * .017;
 
                 //Telemetry
@@ -1076,24 +959,16 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         //While less seconds than the parameter time have elapsed and the absolute value of the position of rightMotor is less than the absolute value of counts
         while (Math.abs(rightMotor.getCurrentPosition())<counts && timeTwo-timeOne<time) {
 
-            if (distance==4)
+            if (distance==4.8) //Distance is only 4.8 when we are driving forward at the end of our three glyph auto, at this time we want to lower the pan to prepare for intaking glyphs during teleop
             {
-                leftPanSpin.setPosition(.21);
+                leftPanSpin.setPosition(.21); //Set leftPanSpin to position .21 to lower thepan
             }
 
             //Set currentAngle to this.getAngleSimple()
             currentAngle = this.realAngle();
 
-            //Set correction to the current angle minus the desired angle times .016
+            //Set correction to the current angle minus the desired angle times .016 gain to adjust heading
             correction = (this.realAngle()-desiredAngle) * .016;
-
-            //Telemetry
-            telemetry.addData("1 imu heading", lastAngles.firstAngle);
-            telemetry.addData("2 global heading", globalAngle);
-            telemetry.addData("3 correction", correction);
-            telemetry.addData("Angle", this.realAngle());
-            telemetry.addData("inches", inches);
-            telemetry.addData("power", power);
             telemetry.update();
 
             //Positively increment loopCounter by 1
@@ -1106,18 +981,13 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             //Set timeTwo to this.getRuntime()
             timeTwo=this.getRuntime();
 
-            if (distance==2.7)
-            {
-                leftPanSpin.setPosition(.21);
-            }
-
             //Lower the absolute value of the power of leftMotor and rightMotor as the drive progresses in order to brake
             if (forwards) { //If robot is moving forward
-                //If the absolute value of rightMotor's position is greater than the absolute value of counts - 700, and loopCounter is under 100
+                //If the absolute value of rightMotor's position is greater than the absolute value of counts - 900, and loopCounter is under 100
                 //This serves to not immediately start decreasing the speed of the motors and only brake when necessary
                 if (Math.abs(rightMotor.getCurrentPosition()) > Math.abs(counts - 900)) {
-                    power -= loopCounter * .0225; //Subtract loopCounter times .01 from power
-                    power = Range.clip(power, .18, 1); //Ensure power is between .27 and 1
+                    power -= loopCounter * .0225; //Subtract loopCounter times .0225 from power
+                    power = Range.clip(power, .18, 1); //Ensure power is between .18 and 1
                 }
             }
             //Lower the absolute value of the power of leftMotor and rightMotor as the drive progresses in order to brake
@@ -1139,22 +1009,14 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         loopCounter = 0; //Set loopCounter to 0
     }
 
-    private double getAngleSimple() {
-        //Set last Angles to the getAngularOrientation method of the imu, using the parameters specified below
-        lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        //Return the parseDouble method, using the parameters specified below.  This represents the current angle of the robot.
-        return Double.parseDouble(formatAngle(lastAngles.angleUnit, lastAngles.firstAngle));
-    }
-
-
 
     public void spinMove (double desiredAngle, boolean pointThree, double time, boolean down)
     {
-        if (pointThree) //If boolean pointThree is true, we set the initial spinPower to .3
+        if (pointThree) //If boolean pointThree is true, we set the initial spinPower to .3 for a slower turn
         {
-            spinPower = .29;
+            spinPower = .3;
         }
-        else { //Else set initial spinPower to .4445
+        else { //Else set initial spinPower to .4845
             spinPower = .4845;
         }
         //Set timeOne and timeTwo to this.getRuntime();
@@ -1173,15 +1035,14 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                     loopCounter++; //Positively increment loopCounter by 1
                     spinPower -= loopCounter * .0085; //Decrease spinPower by loopCounter times .0085
                 }
-                spinPower = Range.clip(spinPower, .27, 1); //Ensure spinPower is between .26 and 1
+                spinPower = Range.clip(spinPower, .27, 1); //Ensure spinPower is between .27 and 1
                 leftMotor.setPower(spinPower); //Set leftMotor's power to spinPower
                 rightMotor.setPower(-spinPower); //Set rightMotor's power to negative spinPower
                 timeTwo = this.getRuntime(); //Set timeTwo to the current run time
 
-                if (down)
+                if (down) //If down is true then we are about to run driveToTouch, and want to move the touchServo down to do so during spinMove to save time
                 {
-                    touchServo.setPosition(.27);
-                    touchServo2.setPosition(.27);
+                    touchServo.setPosition(.24);
                 }
             }
 
@@ -1195,15 +1056,14 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                     loopCounter++; //Positively increment loopCounter by 1
                     spinPower -= loopCounter * .0085; //Decrease spinPower by loopCounter times .0085
                 }
-                spinPower = Range.clip(spinPower, .27, 1); //Ensure spinPower is between .26 and 1
+                spinPower = Range.clip(spinPower, .27, 1); //Ensure spinPower is between .27 and 1
                 leftMotor.setPower(-spinPower); //Set leftMotor's power to negative spinPower
                 rightMotor.setPower(spinPower); //Set leftMotor's power to spinPower
                 timeTwo = this.getRuntime(); //Set timeTwo to the current run time
 
-                if (down)
+                if (down) //If down is true then we are about to run driveToTouch, and want to move the touchServo down to do so during spinMove to save time
                 {
-                    touchServo.setPosition(.28);
-                    touchServo2.setPosition(.28);
+                    touchServo.setPosition(.24);
                 }
             }
 
@@ -1223,6 +1083,9 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         // returned as 0 to +180 or 0 to -180 rolling back to -179 or +179 when rotation passes
         // 180 degrees. We detect this transition and track the total cumulative angle of rotation.
 
+
+        //The range of the imu is only -180 to 180, however we want this range to extend infinitely in both directions,
+        //and the algorithim below does this and outputs the value of the z-axis angle
         Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
         double deltaAngle = angles.firstAngle - lastAngles.firstAngle;
@@ -1239,11 +1102,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         return globalAngle;
     }
 
-    public double realAngle ()
+    public double realAngle () //Return this.getAngle() to output the angle of the robot
     {
         return this.getAngle();
     }
 
+    //Method to strafe until a distance sensor sees a wall of the cryptobox, at which time we score a glpyh
     public void strafeToTouch(double time, double power, double desiredAngle) {
 
         //Set timeOne and timeTwo to this.getRuntime()
@@ -1253,22 +1117,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         //If power is greater than 0
         if (power > 0) {
 
-            //While less seconds than the parameter time have elapsed and the centimeter value of sensorTouch is not less than 6
-            while (!(sensorTouch.getDistance(DistanceUnit.CM) < 6.5) && timeTwo - timeOne < time) {
+            //While less seconds than the parameter time have elapsed and the centimeter value of sensorTouch is not less than 5
+            while (!(sensorTouch.getDistance(DistanceUnit.CM) < 7) && timeTwo - timeOne < time) {
                 //Set correction to the current angle minus the desired angle plus 7 (value to keep strafe straight found through experimental testing) times .027
                 correction = ((this.realAngle()-desiredAngle) + 7) * .027;
-
-                //Telemetry
-                telemetry.addData("1 imu heading", lastAngles.firstAngle);
-                telemetry.addData("2 global heading", globalAngle);
-                telemetry.addData("3 correction", correction);
-                telemetry.addData("Angle", this.realAngle());
-                telemetry.addData("inches", inches);
-                telemetry.addData("power", power);
-                telemetry.addData("pos", backMotor.getCurrentPosition());
-                telemetry.addData("counts", counts);
-                telemetry.addData("distance", sensorTouch.getDistance(DistanceUnit.CM));
-                telemetry.update();
 
                 //Set the power of backMotor to parameter power
                 backMotor.setPower(power);
@@ -1296,22 +1148,10 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         else { //Else
 
             //While less seconds than the parameter time have elapsed and the centimeter value of sensorTouch is not less than 6
-            while (!(sensorTouch.getDistance(DistanceUnit.CM) < 5) && timeTwo - timeOne < time) {
+            while (!(sensorTouch.getDistance(DistanceUnit.CM) < 7) && timeTwo - timeOne < time) {
 
                 //Set correction to the current angle minus the desired angle minus 8 (value to keep strafe straight found through experimental testing) times .027
                 correction = ((this.realAngle()-desiredAngle) - 8) * .027;
-
-                //Telemetry
-                telemetry.addData("1 imu heading", lastAngles.firstAngle);
-                telemetry.addData("2 global heading", globalAngle);
-                telemetry.addData("3 correction", correction);
-                telemetry.addData("Angle", this.realAngle());
-                telemetry.addData("inches", inches);
-                telemetry.addData("power", power);
-                telemetry.addData("pos", backMotor.getCurrentPosition());
-                telemetry.addData("counts", counts);
-                telemetry.addData("distance", sensorTouch.getDistance(DistanceUnit.CM));
-                telemetry.update();
 
                 //Set the power of backMotor to parameter power
                 backMotor.setPower(power);
