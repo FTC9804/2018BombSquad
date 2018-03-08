@@ -63,32 +63,33 @@ public class TeleopLimits extends OpMode {
 
     //Distance sensors to detect glyphs. If sensor B and sensor C see blocks, that means we are ready to score, so we lift up the pan.
     //If all three see glyphs for too long, that means we have three glyphs, so we outtake as this is a penalty.
-    DistanceSensor sensorA; //Distance sensor closest to the intake to see how far away potential blocks are
+    //  DistanceSensor sensorA; //Distance sensor closest to the intake to see how far away potential blocks are
     DistanceSensor sensorB; //Distance sensor between A and C, to see how far potential blocks are
     DistanceSensor sensorC; //Distance sensor farthest from intake, to see how far potential blocks are
 
     //Limit Switches on the elevator. We use these switches to ensure that the elevator does not go to low or to high.
     DigitalChannel limitTop; //Limit Switch that tells us if we reach the top of the robot with the elevator, which is the scoring position for scoring the third and fourth blocks of a column
     DigitalChannel limitBottom; //Limit switch that tells us if we reach the bottom of the robot with the elevator
-    DigitalChannel limitMid; //Limit Switch that tells us if we reach the middle of the elevator, which is the scoring position for the first and seocnd blocks of a column
+    DigitalChannel limitMid; //Limit Switch that tells us if we reach the middle of the elevator, which is the scoring position for the first and secnd blocks of a column
 
+    /*
     //CONTROLS, all for gamepad 1
     double leftStickX1Raw; //The raw value of the x-axis of the leftStick, used for determining if and how much the robot should rotate while driving
     double rightStickX1Raw; //The raw value of the x-axis of the rightStick, used for determining if and how much the robot should strafe while driving
     double rightStickY1Raw; //The raw value of the y-axis of the rightStick, used for determining if and how much the robot should drive forwards/backwards while driving
     double rightTrigger; //double for the extent to which rightTrigger is pressed. No press is 0, full press is 1. Used for intaking blocks in teleop and grabbing the relic in endgame.
-    boolean rightBumper; //boolean for rightBumper. Set to true if rightBumper is pressed and set to false otherwise. Used to score blocks in teleop.
-    double leftTrigger; //double for the extent to which leftTrigger is pressed. No press is 0, full press is 1. Used for outtaking blocks in teleop and releasing the relic in endgame.
-    boolean leftBumper; //boolean for leftBumper. Set to true if leftBumper is pressed and set to false otherwise. Used to lower the elevator and pan, or block scoring mechanism, in teleop.
-    boolean dpadDownPressed; //boolean for dpadDown. Set to true if dpadDown is pressed and set to false otherwise. Used to lower the elevator in teleop and to retract the relic scoring mechanism in endgame.
-    boolean dpadUpPressed; //boolean for dpadUp. Set to true if dpadUp is pressed and set to false otherwise. Used to raise the elevator in teleop and to extend the relic scoring mechanism in endgame.
-    boolean yPressed; //boolean for the y button.  Set to true if y is pressed and set to false otherwise. Used to move the pan up in teleop and to raise the relic grabbing arm in endgame.
-    boolean aPressed; //boolean for the a button.  Set to true if a is pressed and set to false otherwise. Used to move the pan down in teleop and lowers the relic grabbing arm in endgame.
-    boolean xPressed; //boolean for the x button.  Set to true if x is pressed and set to false otherwise. Used to move the pan up to a set block holding position in teleop and moves the relic arm to a
-    //set "ready to score" position in endgame, slightly above where the arm will be when the relic is scored.
-    boolean bPressed; //boolean for the b button.  Set to true if b is pressed and set to false otherwise. Used to lower the pan to its lowest position in teleop.
-    boolean rightStickButton; //boolean for the left stick button. Set to true if the right stick button is pressed and set to false otherwise. Used to extend the relic motor in endgame while Kevin (our driver) is driving, so he can keep his hands on the joysticks
-    boolean dpadRightPressed; //boolean for dpadRight. Set to true if dpadRight is pressed and set to false otherwise. Used to enter in and out of the "endgame" mode, where buttons control the relic rather than the glyph intaking
+     boolean rightBumper; //boolean for rightBumper. Set to true if rightBumper is pressed and set to false otherwise. Used to score blocks in teleop.
+     double leftTrigger; //double for the extent to which leftTrigger is pressed. No press is 0, full press is 1. Used for outtaking blocks in teleop and releasing the relic in endgame.
+     boolean leftBumper; //boolean for leftBumper. Set to true if leftBumper is pressed and set to false otherwise. Used to lower the elevator and pan, or block scoring mechanism, in teleop.
+     boolean dpadDownPressed; //boolean for dpadDown. Set to true if dpadDown is pressed and set to false otherwise. Used to lower the elevator in teleop and to retract the relic scoring mechanism in endgame.
+     boolean dpadUpPressed; //boolean for dpadUp. Set to true if dpadUp is pressed and set to false otherwise. Used to raise the elevator in teleop and to extend the relic scoring mechanism in endgame.
+     boolean yPressed; //boolean for the y button.  Set to true if y is pressed and set to false otherwise. Used to move the pan up in teleop and to raise the relic grabbing arm in endgame.
+     boolean aPressed; //boolean for the a button.  Set to true if a is pressed and set to false otherwise. Used to move the pan down in teleop and lowers the relic grabbing arm in endgame.
+     boolean xPressed; //boolean for the x button.  Set to true if x is pressed and set to false otherwise. Used to move the pan up to a set block holding position in teleop and moves the relic arm to a
+     //set "ready to score" position in endgame, slightly above where the arm will be when the relic is scored.
+     boolean bPressed; //boolean for the b button.  Set to true if b is pressed and set to false otherwise. Used to lower the pan to its lowest position in teleop.
+     */boolean rightStickButton; //boolean for the left stick button. Set to true if the right stick button is pressed and set to false otherwise. Used to extend the relic motor in endgame while Kevin (our driver) is driving, so he can keep his hands on the joysticks
+    //  boolean dpadRightPressed; //boolean for dpadRight. Set to true if dpadRight is pressed and set to false otherwise. Used to enter in and out of the "endgame" mode, where buttons control the relic rather than the glyph intaking
 
     //Driving variables
     double finLeftPower; //The final power to be applied to leftMotor, one of our driving motors which makes the robot drive forwards or backwards, or rotate
@@ -96,9 +97,9 @@ public class TeleopLimits extends OpMode {
     double finBackPower; //The final power to be applied to backMotor, one of our driving motors which makes the robot strafe
 
     //Glyph variables
-    double leftIntakePower; //The power to which we set leftIntakeMotor, one of the motors to collect glyphs
-    double rightIntakePower; //The power to which we set rightIntakeMotor, one of the motors to collect glyphs
-    double panLiftingPower; //The power to which we set panLifterMotor, the motor that raises glyphs for scoring in the cryptobox
+    //   double leftIntakePower; //The power to which we set leftIntakeMotor, one of the motors to collect glyphs
+    //  double rightIntakePower; //The power to which we set rightIntakeMotor, one of the motors to collect glyphs
+    // double panLiftingPower; //The power to which we set panLifterMotor, the motor that raises glyphs for scoring in the cryptobox
     double panSpinPosition; //The position to which we set leftPanSpin the servo that rotates the pan to score in the cryptobox
 
     //Feeler variables
@@ -112,15 +113,16 @@ public class TeleopLimits extends OpMode {
     boolean currentStatus; //Boolean that is true if the current mode is endgame, and is false otherwise
     double bothBlockCounter; //Double that increments positively by 1 in the loop every time we see a block on sensors b and c, and decreased otherwise.
     //If bothBlockCounter is high enough, we know we are ready to score and we set the pan servos to a hold position
+    int blockCounterThreshold = 7; //Number of loops to indicate glyphs present in the pan
 
     boolean score; //Boolean for automated scoring. Boolean that is set to true if rightBumper is pressed. When score is true, that means we would like to score glyphs, and the elevator raises and the pan servos are set to a scoring position, and score is set to false
     boolean hasLifted = false; //Boolean to complement score that is initially set to false. If score is true, then the elevator lifts until the top limit switch sees the elevator, at which time hasLifted is set to true and the elevator stops moving upwards
     boolean toggleLB; //Boolean for automated lowering of the pan and elevator after we score. If the leftbumper is pressed, toggleLB is set to true, and the pan servos rotate to an intaking position, while the elevator lowers until the bottom limit switch sees it. Once these actions occur, toggleLB is set to false
 
     //Distance sensor variables, used to see how far away any block(s) are from each of the distance sensors on the pan
-    double sensorAVal; //The distance value of sensorA, to be measured in centimeters
-    double sensorBVal; //The distance value of sensorB, to be measured in centimeters
-    double sensorCVal; //The distance value of sensorC, to be measured in centimeters
+    //double sensorAVal; //The distance value of sensorA, to be measured in centimeters
+    // double sensorBVal; //The distance value of sensorB, to be measured in centimeters
+    //   double sensorCVal; //The distance value of sensorC, to be measured in centimeters
 
     //Relic variables
     double relicMotorPower; //The value that will be set to the relicMotor. If we are extending the relic, it will be positive, and if we are retracting the relic it will be negative
@@ -128,7 +130,20 @@ public class TeleopLimits extends OpMode {
     double upDownPosition; //The value that will be set to the upDown servo. Higher values indicate that upDown is lower, lower values indicate that upDown is higher
 
     //Touch servo variables
-    double touchServoPosition = .59; //The value that will be set to the touchServo, initially set to .69. Lower values indicate that the bar, which the touchServo controls, is closer to the tiles, and visa versa
+    // double touchServoPosition = .59; //The value that will be set to the touchServo, initially set to .69. Lower values indicate that the bar, which the touchServo controls, is closer to the tiles, and visa versa
+
+    boolean isAtTop;
+    boolean isAtMiddle;
+    boolean isAtBottom;
+
+    final double PAN_SPIN_INCREMENT_DOWN = .0625;
+    final double PAN_SPIN_INCREMENT_UP = .12;
+
+    double timeOne; //timeOne, first time variable
+    double timeTwo; //timeTwo, second time variable
+
+    double startTime;
+    //double stopTime;
 
     /* Initialize standard Hardware interfaces */
     public void init() { //init method to configure hardware and set initial values before teleop begins
@@ -144,7 +159,6 @@ public class TeleopLimits extends OpMode {
 
         //Servo configurations in the hardware map. Used so that the robot controller can apply the correct servo positions depending on what port a servo is plugged into.
         leftPanSpin = hardwareMap.servo.get("s1"); //s1
-
         grab = hardwareMap.servo.get("s6"); //s6
         feelerRaise = hardwareMap.servo.get("s8"); //s8
         upDown = hardwareMap.servo.get("s11"); //s11
@@ -162,7 +176,7 @@ public class TeleopLimits extends OpMode {
         limitMid = hardwareMap.get(DigitalChannel.class, "d3"); //d3
 
         //Distance sensor configurations in the hardware map. Used so that the robot controller can apply the correct values to distance sensors depending on what port a distance sensor is plugged into.
-        sensorA = hardwareMap.get(DistanceSensor.class, "i2"); //i2
+        // sensorA = hardwareMap.get(DistanceSensor.class, "i2"); //i2
         sensorB = hardwareMap.get(DistanceSensor.class, "i3"); //i3
         sensorC = hardwareMap.get(DistanceSensor.class, "i4"); //i4
 
@@ -199,6 +213,13 @@ public class TeleopLimits extends OpMode {
         rightIntakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         relicMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         panLifterMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+    }
+
+    public void start ()
+    {
+        startTime = this.getRuntime();
+        timeOne=this.getRuntime();
     }
 
     public void loop() { //Loop method to assign values to motors, servos, and sensors
@@ -207,42 +228,51 @@ public class TeleopLimits extends OpMode {
 
         //CONTROLLER INPUTS
 
-        rightTrigger = gamepad1.right_trigger; //Set variable rightTrigger to the raw double value of the right trigger
-        rightBumper = gamepad1.right_bumper; //Set variable rightBumper to the raw boolean value of the right bumper
-        leftTrigger = gamepad1.left_trigger; //Set variable leftTrigger to the raw double value of the left trigger
-        leftBumper = gamepad1.left_bumper; //Set variable leftBumper to the raw boolean value of the left bumper
-        leftStickX1Raw = gamepad1.left_stick_x; //Set leftStickX1Raw to gamepad1.left_stick_x, the value which will deterine if and to what extent the robot will rotate
-        rightStickX1Raw = gamepad1.right_stick_x; //Set rightStickX1Raw to gamepad1.right_stick_x, the value which will deterine if and to what extent the robot will strafe
-        rightStickY1Raw = gamepad1.right_stick_y; //Set rightStickY1Raw to gamepad1.right_stick_y, the value which will deterine if and to what extent the robot will drive forwards or backwards
-        sensorAVal = sensorA.getDistance(DistanceUnit.CM); //Set sensorAVal to the centimeter distance of sensor A
-        sensorBVal = sensorB.getDistance(DistanceUnit.CM); //Set sensorBVal to the centimeter distance of sensor B
-        sensorCVal = sensorC.getDistance(DistanceUnit.CM); //Set sensorCVal to the centimeter distance of sensor C
-        dpadRightPressed = gamepad1.dpad_right; //Set variable dpadRightPressed to the raw boolean value of the right dpad
-        dpadUpPressed = gamepad1.dpad_up; //Set variable dpadUpPressed to the raw boolean value of the up dpad
-        dpadDownPressed = gamepad1.dpad_down; //Set variable dpadDownPressed to the raw boolean value of the down dpad
-        aPressed = gamepad1.a; //Set boolean aPressed to the raw boolean value of the a button
-        yPressed = gamepad1.y; //Set boolean yPressed to the raw boolean value of the y button
-        xPressed = gamepad1.x; //Set boolean xPressed to the raw boolean value of gamepad1.x
-        bPressed = gamepad1.b; //Set boolean bPressed to the raw boolean value of gamepad1.b
+
+        //   rightTrigger = gamepad1.right_trigger; //Set variable rightTrigger to the raw double value of the right trigger
+        // rightBumper = gamepad1.right_bumper; //Set variable rightBumper to the raw boolean value of the right bumper
+        //  leftTrigger = gamepad1.left_trigger; //Set variable leftTrigger to the raw double value of the left trigger
+        //leftBumper = gamepad1.left_bumper; //Set variable leftBumper to the raw boolean value of the left bumper
+//        leftStickX1Raw = gamepad1.left_stick_x; //Set leftStickX1Raw to gamepad1.left_stick_x, the value which will deterine if and to what extent the robot will rotate
+//        rightStickX1Raw = gamepad1.right_stick_x; //Set rightStickX1Raw to gamepad1.right_stick_x, the value which will deterine if and to what extent the robot will strafe
+//        rightStickY1Raw = gamepad1.right_stick_y; //Set rightStickY1Raw to gamepad1.right_stick_y, the value which will deterine if and to what extent the robot will drive forwards or backwards
+        // sensorAVal = sensorA.getDistance(DistanceUnit.CM); //Set sensorAVal to the centimeter distance of sensor A
+        // sensorBVal = sensorB.getDistance(DistanceUnit.CM); //Set sensorBVal to the centimeter distance of sensor B
+        // sensorCVal = sensorC.getDistance(DistanceUnit.CM); //Set sensorCVal to the centimeter distance of sensor C
+        // dpadRightPressed = gamepad1.dpad_right; //Set variable dpadRightPressed to the raw boolean value of the right dpad
+        // dpadUpPressed = gamepad1.dpad_up; //Set variable dpadUpPressed to the raw boolean value of the up dpad
+        // dpadDownPressed = gamepad1.dpad_down; //Set variable dpadDownPressed to the raw boolean value of the down dpad
+        // aPressed = gamepad1.a; //Set boolean aPressed to the raw boolean value of the a button
+        //yPressed = gamepad1.y; //Set boolean yPressed to the raw boolean value of the y button
+        // xPressed = gamepad1.x; //Set boolean xPressed to the raw boolean value of gamepad1.x
+        // bPressed = gamepad1.b; //Set boolean bPressed to the raw boolean value of gamepad1.b
+
         if (currentStatus) { //Right stick button is only used in endgame, so we only check its value (to save cycle time) if currentStatus is true, which means we are in endgame
             rightStickButton = gamepad1.right_stick_button; //Set boolean value of rightStickButton to the raw boolean value of gamepad1.right_stick_button
+        }
+
+        //Relating to the limit switches on the elevator, if a sensor's getState is true, the sensor is not detecting anything
+        if (score)
+        {
+            isAtTop = !limitTop.getState();
+            isAtMiddle = !limitMid.getState();
+        }
+        else if (toggleLB || gamepad1.dpad_down)
+        {
+            isAtBottom = !limitBottom.getState();
+        }
+        else
+        {
+            isAtTop = false;
+            isAtMiddle = false;
+            isAtBottom = false;
         }
 
         //Glyph Sensing
 
 
-        //If pan distance sensors b and c see an object within 13 centimeters. If this is true, we have two glyphs in the pan
-        if (sensorBVal < 13 && sensorCVal < 13) {
-            bothBlockCounter++; //Add 1 to threeGlyphCounter, signifying we have had two glyphs in the pan for an iteration of loop
-        } else //Else
-        {
-            bothBlockCounter /= 2; //Divide bothBlockCounter by 2, signifying we have not had two glyphs in the pan for an iteration of loop.
-            //We divide by 2 so bothBlockCounter quickly decreases, so we know sooner when we do not have two glyphs
-            //and can more quickly adjust for this change
-        }
-
         //Toggle to alternate between regular teleop mode and endgame mode
-        if (dpadRightPressed) //If dpadRightPressed is true, signifying Kevin would like to alternate between modes
+        if (gamepad1.dpad_right) //If dpadRightPressed is true, signifying Kevin would like to alternate between modes
         {
             if (!previousStatus) //If previousStatus is false, meaning the previous mode was regular teleop
             {
@@ -258,10 +288,14 @@ public class TeleopLimits extends OpMode {
 
 
         //Set driving variables to values specified in the variable declaration section
-        finRightPower = -1 * rightStickY1Raw - .2 * rightStickX1Raw - .5 * leftStickX1Raw; //Set finRightPower, taking into account driving variables from each driving axis
-        finLeftPower = -1 * rightStickY1Raw + .2 * rightStickX1Raw + .5 * leftStickX1Raw; //Set finLeftPower, taking into account driving variables from each driving axis
-        finBackPower = rightStickX1Raw; //Sin finBackPower to the raw value of the x axis of the right stick, for strafing
-        if (finLeftPower/finRightPower>0 && currentStatus) //If we are in endgame, and finLeftPower and finRightPower are opposite signs, meaning we are rotating, decrease the power of rotation to allow Kevin to have finer rotation controls when trying to grab the relic
+
+        finRightPower = -1 * gamepad1.right_stick_y - .2 * gamepad1.right_stick_x - .5 * gamepad1.left_stick_x; //Set finRightPower, taking into account driving variables from each driving axis
+        finLeftPower = -1 * gamepad1.right_stick_y + .2 * gamepad1.right_stick_x + .5 * gamepad1.left_stick_x; //Set finLeftPower, taking into account driving variables from each driving axis
+
+
+        finBackPower = gamepad1.right_stick_x; //Sin finBackPower to the raw value of the x axis of the right stick, for strafing
+
+        if (finLeftPower/finRightPower<0 && currentStatus) //If we are in endgame, and finLeftPower and finRightPower are opposite signs, meaning we are rotating, decrease the power of rotation to allow Kevin to have finer rotation controls when trying to grab the relic
         {
             finLeftPower/=1.5; //Divide finLeftPower by 1.5
             finRightPower/=1.5; //Divide finRightPower by 1.5
@@ -270,160 +304,161 @@ public class TeleopLimits extends OpMode {
         if (!currentStatus) { //If currentStatus is false, meaning we are in regular teleop mode
 
 
+
+
             //If leftBumper is being pressed, Kevin wants to lower the pan and the elevator. We also make sure that no buttons of choice that also control the pan or elevator are
             //being pressed (a, y, x, dpad up, and dpad down) as to avoid giving conflicting values to servos or motors
-            if (leftBumper && !aPressed && !yPressed && !xPressed && !dpadUpPressed && !dpadDownPressed) {
-                toggleLB = true; //Set toggleLB to true
-            } else if (aPressed || yPressed || xPressed || dpadUpPressed || dpadDownPressed) //If certain other buttons that control the pan and elevator are pressed, set toggleLB to false so these buttons override toggleLB
+
+
+            if (gamepad1.left_bumper)
             {
-                toggleLB = false; //Set toggleLB to false
+                toggleLB = true; //Set toggleLB to true, this gets reset to false once the pan is back down
+                score = false;
             }
 
-            //If rightBumper is being pressed, Kevin wants to score glyphs. We also make sure that no buttons of choice that also control the pan or elevator are
-            //being pressed (dpad up, dpad down, a, left bumper, x, y and b) as to avoid giving conflicting values to servos or motors
-            if (rightBumper && !dpadUpPressed && !dpadDownPressed && !aPressed && !leftBumper && !xPressed && !yPressed && !bPressed) {
-                score = true; //Set score to true
-            } else if (dpadUpPressed || dpadDownPressed || aPressed || bPressed || xPressed || yPressed || leftBumper) //If certain other buttons that control the pan and elevator are pressed, set score to false so these buttons override score
+            if (gamepad1.right_bumper)
             {
-                score = false; //Set score to false
+                score = true;
             }
 
-            if (rightTrigger > .05 && leftTrigger > .05) { //If both rightTrigger and leftTrigger are pressed, set intake powers to 0, as this is a conflicting command
-                leftIntakePower = 0; //Set leftIntakePower to 0
-                rightIntakePower = 0; //Set rightIntakePower to 0
-            } else if (rightTrigger > .05 && !bPressed && !leftBumper) { //Else if rightTrigger if pressed, and b and leftBumper are not pressed, as to avoid conflicting commands for the intake powers
-                leftIntakePower = Math.pow(rightTrigger, 2) * .7; //Set leftIntakePower to the square of rightTrigger times .7. We square values so Kevin can have finer control over intake speeds
-                rightIntakePower = Math.pow(rightTrigger, 2) * .7; //Set rightIntakePower to the square of rightTrigger times .7. We square values so Kevin can have finer control over intake speeds
-                touchServoPosition = .45; //Set touchServoPosition to .74, which will set the touchServo to a position so the bar is just above 6 inches above the tiles, so good glyphs can enter the robot, but faulty glyphs cannot enter above where they should
-            } else if (leftTrigger > .05 && !bPressed && !leftBumper) { //Else if leftTrigger is pressed, and b and leftBumper are not pressed, as to avoid conflicting commands for the intake powers
-                leftIntakePower = -.7; //Set leftIntakePower to -.7. We set outtake powers differently so we can realign glyphs for reentry rather than outtaking them in the same orientation at which they entered
-                rightIntakePower = -.8; //Set rightIntakePower to -.8. We set outtake powers differently so we can realign glyphs for reentry rather than outtaking them in the same orientation at which they entered
-                touchServoPosition = .48; //Set touchServoPosition to .78, which will set the touchServo to a position so the bar is just above the intake position, .74, to give exiting glyphs slightly more room to exit the robot
+
+            if (gamepad1.right_trigger > .05) { //If rightTrigger if pressed, and b and leftBumper are not pressed, as to avoid conflicting commands for the intake powers
+                leftIntakeMotor.setPower(gamepad1.right_trigger * gamepad1.right_trigger * .7); ; //Set leftIntakePower to the square of rightTrigger times .7. We square values so Kevin can have finer control over intake speeds
+                rightIntakeMotor.setPower(gamepad1.right_trigger * gamepad1.right_trigger * .7); //Set rightIntakePower to leftIntakePower
+                touchServo.setPosition(.45 ); //Set touchServoPosition to .45, which will set the touchServo to a position so the bar is just above 6 inches above the tiles, so good glyphs can enter the robot, but faulty glyphs cannot enter above where they should
+            } else if (gamepad1.left_trigger > .05) { //Else if leftTrigger is pressed, and b and leftBumper are not pressed, as to avoid conflicting commands for the intake powers
+                leftIntakeMotor.setPower(-.7); //Set leftIntakePower to -.7. We set outtake powers differently so we can realign glyphs for reentry rather than outtaking them in the same orientation at which they entered
+                rightIntakeMotor.setPower(-.8); //Set rightIntakePower to -.8. We set outtake powers differently so we can realign glyphs for reentry rather than outtaking them in the same orientation at which they entered
+                touchServo.setPosition(.48); //Set touchServoPosition to .48, which will set the touchServo to a position so the bar is just above the intake position, .74, to give exiting glyphs slightly more room to exit the robot
             } else { //Else
-                leftIntakePower = 0; //Set leftIntakePower to 0
-                rightIntakePower = 0; //Set rightIntakePower to 0
+                rightIntakeMotor.setPower(0); //Set leftIntakePower to 0
+                leftIntakeMotor.setPower(0);  //Set rightIntakePower to 0
 
             }
 
-            if ((!limitTop.getState() || !limitMid.getState()) && score) //If score is true and we have reached the top limit switch or the middle limit switch
+            //ELEVATOR CONTROL
+
+            if (score && !toggleLB) //If score is true, we check to see if we are at limit switches and whether we want to score
             {
-                if (!rightBumper) { //During the lift, the above if statement will first be entered when the limitMid detects the elevator
-                                    //At this time, if Kevin is not holding right bumper, we want to score at limitMid, so we set hasLifted to true
-                                    //and panLiftingPower to 0 to stop moving the elevator
+                if (isAtTop) { //If isAtTop, then we want to score
+                    hasLifted = true; //Set hasLifted to true
+                    panLifterMotor.setPower(0); //Set panLiftingPower to 0 to stop the motion of the elevator
+                }
+                else if (isAtMiddle && !gamepad1.right_bumper) { //During the lift, the above if statement will first be entered when the limitMid detects the elevator
+                    //At this time, if Kevin is not holding right bumper, we want to score at limitMid, so we set hasLifted to true
+                    //and panLiftingPower to 0 to stop moving the elevator
                     hasLifted = true;
-                    panLiftingPower = 0;
+                    panLifterMotor.setPower(0);
                 }
-
-                if (!limitTop.getState()) { //If the if(!rightBumper) statement was not entered, Kevin held rightBumper through the time limitMid saw the elevator
-                                            //which in our code means he wants to score in the high position. Thus, in this if statement we check if limitTop has seen
-                                            //the elevator.  If it does, we set hasLifted to true and panLiftingPower to 0 so the elevator stops moving and we can score
-                    hasLifted = true;
-                    panLiftingPower = 0;
+                else {
+                    panLifterMotor.setPower(-.4);  //Set panLiftingPower to -.16, to raise the elevator
+                    touchServo.setPosition(.4 ); //Set touchServoPosition to .70, which is higher than the outtaking and intaking positions, as to put the bar close to the blocks in the pan so they cannot fall out
                 }
-
             }
-            else if (!limitBottom.getState() && (dpadDownPressed || toggleLB)) //If we have reached the bottom limit switch, and we are lowering the elevator through dpadDown or from pressing leftbumper
+            else if (gamepad1.dpad_up) //If dpad up is pressed and dpad down is not, signifying we want to lift the elevator, or score is true and hasLifted is not, signifying we want to raise the elevator and then score blocks
             {
-                panLiftingPower = 0; //Set panLiftingPower to 0 so we do not exceed the bottom limit
+                panLifterMotor.setPower(-.4); ; //Set panLiftingPower to -.16, to raise the elevator
             }
-            else if (dpadUpPressed && !dpadDownPressed || (score && !hasLifted)) //If dpad up is pressed and dpad down is not, signifying we want to lift the elevator, or score is true and hasLifted is not, signifying we want to raise the elevator and then score blocks
+            else if ((gamepad1.dpad_down || toggleLB) && !isAtBottom) //If we have reached the bottom limit switch, and we are lowering the elevator through dpadDown or from pressing leftbumper
             {
-                panLiftingPower = -.22; //Set panLiftingPower to -.3, to raise the elevator
-                if (score && !hasLifted) //If score is true and hasLifted is false
-                {
-                    touchServoPosition = .4; //Set touchServoPosition to .70, which is higher than the outtaking and intaking positions, as to put the bar close to the blocks in the pan so they cannot fall out
-                }
-            } else if ((dpadDownPressed && !dpadUpPressed) || toggleLB) //Else if dpad down is pressed and dpad up is not pressed, or toggleLB is true, we want to lower the elevator
-            {
-                if (toggleLB) { //If toggleLB is true, we want to set the elevator to a lower power so the pan is lowered before or quickly after the elevator is lowered, so we can quickly start intaking glyphs again
-                    panLiftingPower = .2; //Set panLiftingPower to .2
-                } else {
-                    panLiftingPower = .4; //Set panLiftingPower to .4, higher than the toggleLB lowering power as Kevin wants manual controls to be fast for quick manuevering
-                }
-
-            } else //Else, if none of the elevator movement commands are being applied on the joystick
-            {
-                panLiftingPower = 0; //Set panLiftingPower to 0
+                panLifterMotor.setPower(.2); //Set panLiftingPower to .2 to go down with the elevator
             }
-
-            //Else if x is pressed or sensors b and c have seen blocks for more than 7 loop iterations, we want to adjust the pan to a hold, rather than intake or score, position
-            //We also make sure that no other commands that control panSpinPosition are being applied to avoid conflicting values
-            if ((xPressed || bothBlockCounter > 7) && !score && !aPressed && !bPressed && !leftBumper && !toggleLB && panSpinPosition != .82)
+            else //Else, if none of the elevator movement commands are being applied on the joystick
             {
-                panSpinPosition = .4; //Set panSpinPosition to .4, a hold position
-                if (!(leftTrigger > .2)) { //If we are not outtaking (which is what leftTrigger does) we want to set the touchServo/bar to a position close to the blocks that are holding so they do not fall out
-                                          //We include this statement because even if we have 2 glyphs Kevin may want to outtake to realign them
-                    touchServoPosition = .53; //Set touchServoPosition to .53 to prent holding glyphs from exiting hte pan
-                }
+                panLifterMotor.setPower(0); //Set panLiftingPower to 0
             }
 
 
-            if (!toggleLB && !score) { //If toggleLB and score are false, allow Kevin to control panSpinPosition manually with y and a
-
-                if (yPressed && aPressed) //If y and a are pressed
-                {
-                    //Do nothing due to conflicting commands
-                } else if (yPressed) //Else if y is pressed, we want to raise the pan
-                {
-                    panSpinPosition += .05; //Add .05 to panSpinPosition
-                } else if (aPressed) //Else if a is pressed
-                {
-                    panSpinPosition -= .04; //Subtract .04 from panSpinPosition to lower the pan
-                }
-            } else if (toggleLB && !score && !leftBumper && !aPressed && bothBlockCounter<=7) //Else if toggleLB is true, we want to lower the pan. We make sure that no conflicting pan commands
+            if (gamepad1.y) //Else if y is pressed, we want to raise the pan
             {
-                panSpinPosition -= .0625; //Subtract .0625 from panSpinPosition
+                panSpinPosition += .03; //Add .05 to panSpinPosition
+            }
+            else if (gamepad1.a) //Else if a is pressed
+            {
+                panSpinPosition -= .02; //Subtract .04 from panSpinPosition to lower the pan
+            }
 
-                if (panSpinPosition < .225) { //Once panSpinPosition is below .225, we set toggleLB to false so the pan stops lowering
+
+            if (toggleLB && bothBlockCounter<=blockCounterThreshold) //Else if toggleLB is true, we want to lower the pan. We make sure that no conflicting pan commands
+            {
+                panSpinPosition -= PAN_SPIN_INCREMENT_DOWN; //Subtract PAN_SPIN_INCREMENT_DOWN from panSpinPosition
+
+                if (panSpinPosition < .22) { //Once panSpinPosition is below .225, we set toggleLB to false so the pan stops lowering
                     toggleLB = false; //Set toggleLB to false
                 }
             }
 
-            if (score && !toggleLB) { //If score is true and toggleLB is false (to make sure we are not lowering the pan/elevator while we are trying to score), we may want to stop the elevator and score with the pan
-                if (hasLifted && !leftBumper) { //If hasLifted is true and leftBumper is not being pressed (to make sure Kevin is not trying to lower the pan/elevator while the code is trying to score) then we have lifted to the desired elevator location and want to stop the elevator and score with the pan
-                    panLiftingPower = 0; //Set panLiftingPower to 0 to stop the motion of the elevator
-                    if (panSpinPosition<.7)
-                    {
-                        panSpinPosition += .07;
-                    }
-                    else if (panSpinPosition<.82)
-                    {
-                        panSpinPosition=.82;
-                    }
 
-                    if (panSpinPosition>.8) {
-                        score = false; //Set score to false so we do not score glyphs again in an undesired fashion
-                        hasLifted = false; //Set hasLifted to false so we do not raise the elevator until we are ready to score again
-                    }
+            if (score && hasLifted) { //If score is true and toggleLB is false (to make sure we are not lowering the pan/elevator while we are trying to score), we may want to stop the elevator and score with the pan
+
+                if (panSpinPosition<.7) //If panSpinPosition is less than .7, we are still far from scoring and do not want to move the pan too fast as to score the blocks in a bad angle
+                //Thus, rather than setting panSpinPosition to a specific number, we add .07 to panSpinPosition for every loop
+                {
+                    panSpinPosition += PAN_SPIN_INCREMENT_UP; //Add .12 to panSpinPosition
+                }
+                else//Else, we are close to scoring and simply set panSpinPosition to .82 to score quickly, and then set score to false and hasLifted to false so we do not stay stuck in this if statement and keep setting panSpinPosition to .82
+                {
+                    panSpinPosition = .82; //Set panSpinPosition to .82
+                    score = false; //Set score to false so we do not score glyphs again in an undesired fashion
+                    hasLifted = false; //Set hasLifted to false so we do not raise the elevator until we are ready to score again
+                }
+
+
+
+
+            }
+
+            if (gamepad1.b) { //If b is pressed, we set the touchServo to a position so the bar will press against glyphs in the pan so they are secure
+                touchServo.setPosition (.6); //Set touchServoPosition to .6
+            }
+
+            //If x is pressed or sensors b and c have seen blocks for more than blockCounterThreshold loop iterations, we want to adjust the pan to a hold, rather than intake or score, position
+            //We also make sure that no other commands that control panSpinPosition are being applied to avoid conflicting values
+            if ((gamepad1.x || (bothBlockCounter > blockCounterThreshold)) && !score && !gamepad1.b && panSpinPosition < .82)
+            {
+                panSpinPosition = .4; //Set panSpinPosition to .4, a hold position
+                if (gamepad1.left_trigger <= .2) { //If we are not outtaking (which is what leftTrigger does) we want to set the touchServo/bar to a position close to the blocks that are holding so they do not fall out
+                    //We include this statement because even if we have 2 glyphs Kevin may want to outtake to realign them
+                    touchServo.setPosition (.45); //Set touchServoPosition to .53 to prent holding glyphs from exiting hte pan
                 }
             }
-
-            if (bPressed) { //If b is pressed, we set the touchServo to a position so the bar will press against glyphs in the pan so they are secure
-                touchServoPosition = .6; //Set touchServoPosition to .6
+            if (!score) {
+                //If pan distance sensors b and c see an object within 13 centimeters. If this is true, we have two glyphs in the pan
+                if (sensorB.getDistance(DistanceUnit.CM) < 13)
+                {
+                    if (sensorC.getDistance(DistanceUnit.CM) < 13) {
+                        bothBlockCounter++;
+                    }//Add 1 to bothBlockCounter, signifying we have had two glyphs in the pan for an iteration of loop
+                }
+                else //Else
+                {
+                    bothBlockCounter /= 2; //Divide bothBlockCounter by 2, signifying we have not had two glyphs in the pan for an iteration of loop.
+                    //We divide by 2 so bothBlockCounter quickly decreases, so we know sooner when we do not have two glyphs
+                    //and can more quickly adjust for this change
+                }
             }
-
-            telemetry.addData("loopCounter", loopCounter);
-
             feelerRaisePosition = FEELER_RAISE_UP_POSITION; //Set feelerRaisePosition to FEELER_RAISE_UP_POSITION, which will set the feelerRaise to a position so the jewel arm is pressed against the body of the robot
         }
+
+        //ENDGAME
 
         //Else
         else {
             //If there is a jewel in the cryptobox, we allow Kevin, in endgame mode, to lower the touchServo bar, which will allow Kevin to hit the jewel with the bar
             //Thus, if leftBumper is not pressed, we keep the touchServo at a neutral position in the robot, but if it is pressed we give the touchServo
             //a position so the bar will lower
-            if (!leftBumper) { //If leftBumper is not pressed
-                touchServoPosition = .6; //Set touchServoPosition to .69, a position that will keep the bar high above the tiles
+            if (!gamepad1.left_bumper) { //If leftBumper is not pressed
+                touchServo.setPosition(.6); //Set touchServoPosition to .69, a position that will keep the bar high above the tiles
             }
             else { //Else, if leftBumper is being pressed
-                touchServoPosition = .18; ////Set touchServoPosition to .4, a position that will keep the bar close to the tiles so Kevin can use the bar to remove jewels from the cryptobox
+                touchServo.setPosition(.15);; ////Set touchServoPosition to .4, a position that will keep the bar close to the tiles so Kevin can use the bar to remove jewels from the cryptobox
             }
 
-            if (dpadUpPressed || rightStickButton) //If dPadUpPressed is true or rightStickButton is true (so Kevin can extend the relic while driving), we want to extend the relic.
+            if (gamepad1.dpad_up || rightStickButton) //If dPadUpPressed is true or rightStickButton is true (so Kevin can extend the relic while driving), we want to extend the relic.
             {
                 relicMotorPower = .98; //Set relicMotorPower to .98, which will extend the relic
             }
-            else if (dpadDownPressed && !rightStickButton) //Else if dpadDownPressed is true, we want to retract the relic. Also make sure rightStickButton is false to avoid conflicting motor power commands.
+            else if (gamepad1.dpad_down && !rightStickButton) //Else if dpadDownPressed is true, we want to retract the relic. Also make sure rightStickButton is false to avoid conflicting motor power commands.
             {
                 relicMotorPower = -.98; //Set relicMotorPower to -.98, which will retract the relic
             }
@@ -432,42 +467,42 @@ public class TeleopLimits extends OpMode {
                 relicMotorPower = 0; //Set relicMotorPower to 0
             }
 
-            if (rightTrigger > .05 && leftTrigger > .05) //If rightTrigger and leftTrigger are adequately pressed
+            if (gamepad1.right_trigger > .05 && gamepad1.left_trigger > .05) //If rightTrigger and leftTrigger are adequately pressed
             {
                 //Do nothing due to conflicting commands, as rightTrigger increases grabPosition and leftTrigger decreases grabPosition
             }
-            else if (leftTrigger > .05 && !xPressed && !rightBumper) //Else if leftTrigger is adequately pressed, and x and right bumper are not pressed to avoid conflicting grab servo commands, as x and right bumper also control grab
+            else if (gamepad1.left_trigger > .05 && !gamepad1.x && !gamepad1.right_bumper) //Else if leftTrigger is adequately pressed, and x and right bumper are not pressed to avoid conflicting grab servo commands, as x and right bumper also control grab
             {
-                grabPosition += .035 * leftTrigger; //Add .035 (experimentally tested value to move grab to a speed of Kevin's liking) times the value of leftTrigger to grabPosition, which will open grab during each loop when the statement is triggered.
+                grabPosition += .035 * gamepad1.left_trigger; //Add .035 (experimentally tested value to move grab to a speed of Kevin's liking) times the value of leftTrigger to grabPosition, which will open grab during each loop when the statement is triggered.
             }
-            else if (rightTrigger > .05 && !xPressed && !rightBumper)  //Else if rightTrigger is adequately pressed, and x and right bumper are not pressed to avoid conflicting grab servo commands, as x and right bumper also control grab
+            else if (gamepad1.right_trigger > .05 && !gamepad1.x && !gamepad1.right_bumper)  //Else if rightTrigger is adequately pressed, and x and right bumper are not pressed to avoid conflicting grab servo commands, as x and right bumper also control grab
             {
-                grabPosition -= .055 * rightTrigger; //Subtract .055 (experimentally tested value to move grab to a speed of Kevin's liking) times the value of rightTrigger to grabPosition, which will close grab during each loop when the statement is triggered.
+                grabPosition -= .055 * gamepad1.right_trigger; //Subtract .055 (experimentally tested value to move grab to a speed of Kevin's liking) times the value of rightTrigger to grabPosition, which will close grab during each loop when the statement is triggered.
             }
 
-            if (yPressed && aPressed) //If yPressed and aPressed are true
+            if (gamepad1.y && gamepad1.a) //If yPressed and aPressed are true
             {
                 //Do nothing due to conflicting commands, as both y and a control upDown
             }
-            else if (aPressed) //Else if aPressed is true, Kevin wants to move the relic arm down
+            else if (gamepad1.a) //Else if aPressed is true, Kevin wants to move the relic arm down
             {
-                upDownPosition += .01; //Add .01 to upDownPosition
+                upDownPosition += .015; //Add .05 to upDownPosition
 
-            } else if (yPressed) //Else if yPressed is true, then Kevin wants to move the relic up
+            } else if (gamepad1.y) //Else if yPressed is true, then Kevin wants to move the relic up
             {
-                upDownPosition -= .018; //Subract .018 from upDownPosition
-            } else if (xPressed) { //Else if x is pressed, Kevin wants to move the relic arm down and release the relic, which is reflected in the upDownPosition and grab position.
-                                   //The upDownPosition is .77, which puts the arm higher than rightBumper does, as Kevin will press x when the relic motor linear slides are extended,
-                                   //Whch will lower the arm as more weight is extended.
+                upDownPosition -= .03; //Subract .03 from upDownPosition
+            } else if (gamepad1.x) { //Else if x is pressed, Kevin wants to move the relic arm down and release the relic, which is reflected in the upDownPosition and grab position.
+                //The upDownPosition is .77, which puts the arm higher than rightBumper does, as Kevin will press x when the relic motor linear slides are extended,
+                //Whch will lower the arm as more weight is extended.
                 upDownPosition = .77; //Set upDownPosition to .77
                 grabPosition = .44; //Set grabPosition to .44
-            } else if (bPressed) { //Else if b is pressed, Kevin wants to move the relic arm up to position .5. This position ensures the relic arm is not sotred, but is not all the way down, so Kevin can easily retrieve another relic if time allows
+            } else if (gamepad1.b) { //Else if b is pressed, Kevin wants to move the relic arm up to position .5. This position ensures the relic arm is not sotred, but is not all the way down, so Kevin can easily retrieve another relic if time allows
                 if (upDownPosition > .5) { //If upDownPosition is greater than .5
                     upDownPosition -= .01; //Subtract .01 from upDownPosition
                 }
-            } else if (rightBumper) { //Else if right bumper is being pressed, //Else if right bumper is pressed, Kevin wants to move the relic arm down and release the relic, which is reflected in the upDownPosition and grab position.
-                                    //The upDownPosition is .82, which puts the arm lower than x does, as Kevin will press right bumper when the relic motor linear slides are not extended,
-                                    //Which will keep the arm high as less weight is extended.
+            } else if (gamepad1.right_bumper) { //Else if right bumper is being pressed, //Else if right bumper is pressed, Kevin wants to move the relic arm down and release the relic, which is reflected in the upDownPosition and grab position.
+                //The upDownPosition is .82, which puts the arm lower than x does, as Kevin will press right bumper when the relic motor linear slides are not extended,
+                //Which will keep the arm high as less weight is extended.
                 upDownPosition = .82; //Set upDownPosition to .82
                 grabPosition = .44; //Set grabPosition to .44
             } else //Else, if no commands relating to upDown or grab are being triggered
@@ -483,7 +518,7 @@ public class TeleopLimits extends OpMode {
 
         bothBlockCounter = Range.clip(bothBlockCounter, 0, 500); //Clip bothBlockCounter from 0 to 500. This is because if the value gets too high, it will take to long to come back down when two glyphs are no longer seen, and visa versa
         grabPosition = Range.clip(grabPosition, .07, .48); //Ensure grabPosition is between .07 and .48, so the grabber does not grab the relic excessively tightly, which could stall the grab servo, and so that grab does not open up too much, which will make closing it take longer
-        upDownPosition = Range.clip(upDownPosition, .02, .83); //Ensure upDownPosition is between .02 and .83, so upDown does not run the arm into the robot when upDown is being stored, and so upDown does not go under the relic retrieving position
+        //upDownPosition = Range.clip(upDownPosition, .02, .83); //Ensure upDownPosition is between .02 and .83, so upDown does not run the arm into the robot when upDown is being stored, and so upDown does not go under the relic retrieving position
         panSpinPosition = Range.clip(panSpinPosition, .21, .825); //Ensure panSpinPosition is between .21 and .825. The lower limit is the collecting glyphs position, and the top limit is the scoring glyphs positin
 
         //Clip final driving motor values between -1 and 1, as DC motors only accept values in this range
@@ -494,22 +529,27 @@ public class TeleopLimits extends OpMode {
         //SET VALUES
 
         leftPanSpin.setPosition(panSpinPosition); //Set the position of leftPanSpin to panSpinPosition
-        panLifterMotor.setPower(panLiftingPower); //Set the power of panLifterMotor to panLiftingPower
-        leftIntakeMotor.setPower(leftIntakePower); //Set the power of leftIntakeMotor to leftIntakePower
-        rightIntakeMotor.setPower(rightIntakePower); //Set the power of rightIntakeMotor to rightIntakePower
+        //panLifterMotor.setPower(panLiftingPower); //Set the power of panLifterMotor to panLiftingPower
+        // leftIntakeMotor.setPower(leftIntakePower); //Set the power of leftIntakeMotor to leftIntakePower
+        //    rightIntakeMotor.setPower(rightIntakePower); //Set the power of rightIntakeMotor to rightIntakePower
         leftMotor.setPower(finLeftPower); //Set the power of leftMotor to finLeftPower
         rightMotor.setPower(finRightPower); //Set the power of rightMotor to finRightPower
         backMotor.setPower(finBackPower); //Set the power of backMotor to finBackPower
         grab.setPosition(grabPosition); //Set the power of grab to grabPosition
-        upDown.setPosition(upDownPosition); //Set the power of upDown to upDownPosition
-        touchServo.setPosition(touchServoPosition); //Set the position of touchServo to touchServoPosition
+        //   upDown.setPosition(upDownPosition); //Set the power of upDown to upDownPosition
+        // touchServo.setPosition(touchServoPosition); //Set the position of touchServo to touchServoPosition
         feelerRaise.setPosition(feelerRaisePosition); //Set the position of feelerRaise to feelerRaisePosition
         relicMotor.setPower(relicMotorPower); //Set the power of relicMotor to relicMotorPower
 
-        //Update telemetry to make sure telemetry values on the driver station are the most recent values available
+        timeTwo=this.getRuntime();
+
+        telemetry.addData("loopCounter", loopCounter);
+        telemetry.addData("lps", loopCounter/(timeTwo-timeOne));
         telemetry.update();
+
     } // end loop
 
+
+
+
 }
-
-
