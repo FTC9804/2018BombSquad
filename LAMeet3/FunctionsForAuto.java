@@ -106,9 +106,9 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     //Ball scoring variables
     final double FEELER_SWIPE_NEUTRAL_POSITION_BLUE = .43; //Straight position of feelerSwipe for blue
     final double FEELER_SWIPE_NEUTRAL_POSITION_RED = .41; //Straight position of feelerSwipe for red
-    final double FEELER_SWIPE_CW_POSITION = .17; //Clockwise turned position of feelerSwipe
-    final double FEELER_SWIPE_CCW_POSITION = .98; //Counter-clockwise turned position of feelerSwipe
-    final double FEELER_RAISE_UP_POSITION = .9; //Position that the feelerRaise is set to when we are not scoring the ball
+    final double FEELER_SWIPE_CW_POSITION = .15; //Clockwise turned position of feelerSwipe
+    final double FEELER_SWIPE_CCW_POSITION = .99; //Counter-clockwise turned position of feelerSwipe
+    final double FEELER_RAISE_UP_POSITION = .91; //Position that the feelerRaise is set to when we are not scoring the ball
     double FEELER_RAISE_DOWN_POSITION = .1; //Position that the feelerRaise is set to when we are scoring the ball
 
     //Vuforia
@@ -138,8 +138,31 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     //Pan spin variables
     double bothBlockCounter = 0; //Double representing the number of iterations of a loop in which sensors B and C both see a block
 
+    //OVERALL VARIABLES
+    double timeFive;
+    double timeSix;
+    int stepInMenu = 1;
+    boolean notAllChosen = true;
+    boolean choiceNotSelected = true;
+    boolean goBack = false;
+
+    //setTimeDelay() variables
+    int turnPosition;
+    String attackConfirmation;
+    boolean glyphPositionNotSelected = true;
+
+
     //Configures all hardware devices, and sets them to their initial values, if necessary
     public void configure( String initialAllianceColor, String initialRobotStartingPosition ) {
+
+        setGlyphAttackCorner();
+
+        telemetry.clearAll();
+        telemetry.addData("Glyph Attack Position = ", attackConfirmation);
+        telemetry.addLine("Executed");
+        telemetry.update();
+
+
 
         //Color and position
         allianceColor = initialAllianceColor; //Options: "red" or "blue"
@@ -246,15 +269,17 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         while (limitMid.getState()) //Lift panLifterMotor until limitMid sees the elevator
         {
             panLifterMotor.setPower(.75); //Set panLifterMotor to .75 power
+            telemetry.addData("time elapsed", this.getRuntime()-threeGlyphTimeOne); //Telemetry for time elapsed
+            telemetry.update();
         }
 
         panLifterMotor.setPower(0); //Stop the movement of panLifterMotor
-        driveNewIMU(3.2, .8, .3, true, angle); //Drive forward 3.2 inches to allow room for block scoring
+        driveNewIMU(5, .8, .3, true, angle); //Drive forward 3.2 inches to allow room for block scoring
         leftPanSpin.setPosition(.835); //Set leftPanSpin to position .835 to score
         pause(.82); //pause for .82 seconds to allow leftPanSpin to get to position
 
         //Driving motions to wedge glyph(s) in cryptobox
-        driveNewIMU(2.7, .8, -.3, true, angle); //Drive forward for 2.7 inches at .3 power, with a 5 second time limit, maintaining the parameter angle degree heading
+        driveNewIMU(3.7, .8, -.3, true, angle); //Drive forward for 2.7 inches at .3 power, with a 5 second time limit, maintaining the parameter angle degree heading
         driveNewIMU(4.8, .8, .3, true, angle); //Drive forward for 4.8 inches at .3 power, with a 5 second time limit, maintaining the parameter angle degree heading
 
     }
@@ -458,7 +483,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             }
             else
             {
-                driveToTouch(.3, -90); //Run method driveToTouch at .3 power and 0 degrees to touch the back of the cryptobox
+                driveToTouch(.3, 0); //Run method driveToTouch at .3 power and 0 degrees to touch the back of the cryptobox
 
                 pause(.025); //Pause for .025 seconds
 
@@ -531,7 +556,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         leftPanSpin.setPosition(.21); //Set the position of leftPanSpin to .21 to prepare for intaking
 
-        touchServo.setPosition(.42); //Set touchServo to .42 to block bad glyphs from coming into the robot
+        touchServo.setPosition(.41); //Set touchServo to .42 to block bad glyphs from coming into the robot
 
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); //Set run mode of rightMotor to STOP_AND_RESET_ENCODER
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); ////Set run mode of rightMotor to RUN_USING_ENCODER
@@ -541,7 +566,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         timeFour=this.getRuntime();
 
         //While bothBlockCounter is under 5 and the current position of rightMotor is less than counts2 and less than 4.5 seconds have elapsed
-        while (bothBlockCounter < 5 && rightMotor.getCurrentPosition()<(counts2) && timeFour-timeThree < 4.5)
+        while (bothBlockCounter < 5 && rightMotor.getCurrentPosition()<(counts2) && timeFour-timeThree < 3.8)
         {
             leftIntakeMotor.setPower(.73); //Set leftIntakeMotor to .73 power to intake blocks
             rightIntakeMotor.setPower(.73); //Set rightIntakeMotor to 73 power to intake blocks
@@ -662,6 +687,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             //Telemetry
             //telemetry.addData("left", leftMotor.getPower());
             //telemetry.addData("loopCounter", loopCounter);
+            telemetry.addData("time elapsed", this.getRuntime()-threeGlyphTimeOne); //Telemetry for time elapsed
+
             telemetry.addData("blocks", bothBlockCounter);
             telemetry.addData("time", timeFour-timeThree);
             telemetry.update();
@@ -802,53 +829,53 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         threeGlyphTimeOne = this.getRuntime(); //Set threeGlyphTimeOne to the current run time, this variable (representime the run time at the beginning of the first action in auto, scoring the jewel) is later used to determine if we have time to collect two more glyphs
 
-        feelerRaise.setPosition(.49); //Set feelerRaise to position .49 to lower the jewel arm
+        feelerRaise.setPosition(.65); //Set feelerRaise to position .49 to lower the jewel arm
 
-        vuMarkReturn = detectVuMark(2.2); //Run vuforia detection during the time when the feelerRaise is moving down, and set the output of detectVuMark to the String vuMarkReturn
+        vuMarkReturn = detectVuMark(3); //Run vuforia detection during the time when the feelerRaise is moving down, and set the output of detectVuMark to the String vuMarkReturn
 
         if (allianceColor.equalsIgnoreCase("red") && sensorColorFeeler.blue() >=  sensorColorFeeler.red()) { //If we are the red alliance and see a blue ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
             telemetry.addData("Value of RED: ", sensorColorFeeler.red());
             telemetry.addData("Value of BLUE: ", sensorColorFeeler.blue());
             telemetry.update(); //Update telemetry
-            pause(.1); //.1 second pause
+            pause(.5); //.1 second pause
             feelerSwipe.setPosition(FEELER_SWIPE_CW_POSITION); //Set feelerSwipe to its clockwise position
-            pause(.1); //.1 second pause
+            pause(.82); //.1 second pause
             feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Raise feelerRaise after ball is knocked off
-            pause(.1); //.1 second pause
+            pause(.5); //.1 second pause
         }
         else if ( allianceColor.equalsIgnoreCase("red") && sensorColorFeeler.red() >= sensorColorFeeler.blue()) { //If we are the red alliance and see a red ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
             telemetry.addData("Value of RED: ", sensorColorFeeler.red() );
             telemetry.addData("Value of BLUE: ", sensorColorFeeler.blue() );
             telemetry.update(); //Update telemetry
-            pause(.1); //.1 second pause
+            pause(.5); //.1 second pause
             feelerSwipe.setPosition(FEELER_SWIPE_CCW_POSITION); //Set feelerSwipe to its counter-clockwise position
-            pause(.1); //.1 second pause
+            pause(.8); //.1 second pause
             feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Raise feelerRaise after ball is knocked off
-            pause(.1); //.1 second pause
+            pause(.5); //.1 second pause
         }
         else if ( allianceColor.equalsIgnoreCase("blue") && sensorColorFeeler.blue() >= sensorColorFeeler.red()) { //If we are the blue alliance and see a blue ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
             telemetry.addData("Value of RED: ", sensorColorFeeler.red() );
             telemetry.addData("Value of BLUE: ", sensorColorFeeler.blue() );
             telemetry.update(); //Update telemetry
-            pause(.1); //.1 second pause
+            pause(.5); //.1 second pause
             feelerSwipe.setPosition(FEELER_SWIPE_CCW_POSITION); //Set feelerSwipe to its counter-clockwise position
-            pause(.1); //.1 second pause
+            pause(.8); //.1 second pause
             feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Raise feelerRaise after ball is knocked off
-            pause(.1); //.1 second pause
+            pause(.5); //.1 second pause
         }
         else if ( allianceColor.equalsIgnoreCase("blue") && sensorColorFeeler.red() >= sensorColorFeeler.blue()) { //If we are the blue alliance and see a red ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
             telemetry.addData("Value of RED: ", sensorColorFeeler.red() );
             telemetry.addData("Value of BLUE: ", sensorColorFeeler.blue() );
             telemetry.update(); //Update telemetry
-            pause(.1); //.1 second pause
+            pause(.5); //.1 second pause
             feelerSwipe.setPosition(FEELER_SWIPE_CW_POSITION); //Set feelerSwipe to its clockwise position
-            pause(.1); //.1 second pause
+            pause(.8); //.1 second pause
             feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Raise feelerRaise after ball is knocked off
-            pause(.1); //.1 second pause
+            pause(.5); //.1 second pause
         }
 
     }
@@ -873,7 +900,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             //While less seconds than the parameter time have elapsed and the absolute value of the position of backMotor is less than the absolute value of counts
             while (Math.abs(backMotor.getCurrentPosition()) < Math.abs(counts) && timeTwo - timeOne < time) {
                 //Set correction to the current angle minus the desired angle plus 9 (value to keep strafe straight found through experimental testing) times .027
-                correction = ((this.realAngle()-desiredAngle) + 9) * .017;
+                correction = ((this.realAngle()-desiredAngle) + 4) * .034;
 
                 //Set the power of backMotor to parameter power
                 backMotor.setPower(power);
@@ -904,7 +931,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             while (Math.abs(backMotor.getCurrentPosition()) < Math.abs(counts) && timeTwo - timeOne < time) {
 
                 //Set correction to the current angle minus the desired angle minus 2 (value to keep strafe straight found through experimental testing) times .027
-                correction = ((this.realAngle()-desiredAngle) - 2)  * .017;
+                correction = ((this.realAngle()-desiredAngle) - 2)  * .034;
 
                 //Telemetry
                 telemetry.addData("1 imu heading", lastAngles.firstAngle);
@@ -1017,7 +1044,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             spinPower = .3;
         }
         else { //Else set initial spinPower to .4845
-            spinPower = .4845;
+            spinPower = .4445;
         }
         //Set timeOne and timeTwo to this.getRuntime();
         timeOne = this.getRuntime();
@@ -1035,7 +1062,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                     loopCounter++; //Positively increment loopCounter by 1
                     spinPower -= loopCounter * .0085; //Decrease spinPower by loopCounter times .0085
                 }
-                spinPower = Range.clip(spinPower, .27, 1); //Ensure spinPower is between .27 and 1
+
+                spinPower = Range.clip(spinPower, .275, 1); //Ensure spinPower is between .27 and 1
                 leftMotor.setPower(spinPower); //Set leftMotor's power to spinPower
                 rightMotor.setPower(-spinPower); //Set rightMotor's power to negative spinPower
                 timeTwo = this.getRuntime(); //Set timeTwo to the current run time
@@ -1056,7 +1084,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                     loopCounter++; //Positively increment loopCounter by 1
                     spinPower -= loopCounter * .0085; //Decrease spinPower by loopCounter times .0085
                 }
-                spinPower = Range.clip(spinPower, .27, 1); //Ensure spinPower is between .27 and 1
+                spinPower = Range.clip(spinPower, .275, 1); //Ensure spinPower is between .27 and 1
                 leftMotor.setPower(-spinPower); //Set leftMotor's power to negative spinPower
                 rightMotor.setPower(spinPower); //Set leftMotor's power to spinPower
                 timeTwo = this.getRuntime(); //Set timeTwo to the current run time
@@ -1118,7 +1146,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         if (power > 0) {
 
             //While less seconds than the parameter time have elapsed and the centimeter value of sensorTouch is not less than 5
-            while (!(sensorTouch.getDistance(DistanceUnit.CM) < 7) && timeTwo - timeOne < time) {
+            while (!(sensorTouch.getDistance(DistanceUnit.CM) < 6.2) && timeTwo - timeOne < time) {
                 //Set correction to the current angle minus the desired angle plus 7 (value to keep strafe straight found through experimental testing) times .027
                 correction = ((this.realAngle()-desiredAngle) + 7) * .027;
 
@@ -1177,6 +1205,139 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             rightMotor.setPower(0);
         }
     }
+
+
+    public void checkAutoMenu()
+    {
+
+        //checkGamepads();
+
+        telemetry.addLine("USE GAMEPAD 1 FOR SELECTING OPTIONS");
+        telemetry.update();
+        delayLong();
+
+        while (notAllChosen)
+        {
+
+            goBack = false;
+
+            if (stepInMenu == 1){
+                setGlyphAttackCorner();
+            }
+
+            delayShort();
+
+
+            if ( !glyphPositionNotSelected ) {
+                notAllChosen = false;
+            }
+            else {
+                notAllChosen = true;
+            }
+
+        }
+
+        telemetry.addLine("GO BOMB SQUAD");
+        telemetry.update();
+        delayLong();
+
+    }
+
+    public void setGlyphAttackCorner ()
+    {
+
+        telemetry.clearAll();
+        choiceNotSelected = true;
+
+        while  (choiceNotSelected) {
+            if (glyphPositionNotSelected){
+                telemetry.addData("STEP NUMBER = ", stepInMenu);
+                telemetry.addLine("Gamepad 1 ONLY");
+                telemetry.addLine("Choose Glyph Attack Position");
+                telemetry.addLine("B = FAR_RIGHT");
+                telemetry.addLine("Y = RIGHT_MIDDLE");
+                telemetry.addLine("A = LEFT_MIDDLE");
+                telemetry.addLine("X = FAR_LEFT");
+                telemetry.update();
+                if (gamepad1.b) {
+                    turnPosition = 1;
+                    attackConfirmation = "FAR_RIGHT";
+                    glyphPositionNotSelected = false;
+                    delayShort();
+
+                }
+                if (gamepad1.y) {
+                    turnPosition=2;
+                    attackConfirmation = "RIGHT_MIDDLE";
+                    glyphPositionNotSelected = false;
+                    delayShort();
+
+                }
+                if (gamepad1.a) {
+                    turnPosition = 3;
+                    attackConfirmation = "LEFT_MIDDLE";
+                    glyphPositionNotSelected = false;
+                    delayShort();
+
+                }
+                if (gamepad1.x) {
+                    turnPosition = 4;
+                    attackConfirmation = "FAR_LEFT";
+                    glyphPositionNotSelected = false;
+                    delayShort();
+                }
+
+            }
+
+            if (!glyphPositionNotSelected) {
+                telemetry.addData("STEP NUMBER = ", stepInMenu);
+                telemetry.addLine("Gamepad 1 ONLY");
+                telemetry.addData("Confirm Glyph Attack Choice", attackConfirmation);
+
+                telemetry.addLine("Y is Correct.  A is Incorrect");
+
+                telemetry.update();
+                if (gamepad1.y){
+                    choiceNotSelected = false;
+                    glyphPositionNotSelected = false;
+                    delayShort();
+
+                }
+                if (gamepad1.a) {
+                    glyphPositionNotSelected = true;
+                    delayShort();
+
+                }
+
+            }
+
+            telemetry.update();
+
+        }
+
+        telemetry.clearAll();
+    }
+
+    public void delayShort ()
+    {
+        timeFive = this.getRuntime();
+        timeSix = this.getRuntime();
+
+        while (timeSix - timeFive < .25) {
+            timeSix = this.getRuntime();
+        }
+    }
+
+    public void delayLong ()
+    {
+        timeFive = this.getRuntime();
+        timeSix = this.getRuntime();
+
+        while (timeSix - timeFive < 1.5) {
+            timeSix = this.getRuntime();
+        }
+    }
+
 
 
 } //End class
