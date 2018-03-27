@@ -1,5 +1,13 @@
 //TELEOP
 //to do remove either left or right spin, explain automation vs. manual, and the purpose of teleop, define bar, pan
+
+//.23 is open for back grabber
+//.77 is closed for back grabber
+
+//.25 is open for front grabber
+//.97 is closed for front grabber
+
+
 //Package statement
 package org.firstinspires.ftc.teamcode;
 
@@ -47,6 +55,7 @@ public class TeleopLimits extends OpMode {
 
     //Block Rotation
     Servo leftPanSpin; //Servo on the left side of the robot that rotates the pan, or block scoring mechanism, in order to score blocks
+    Servo rightPanSpin;
     Servo frontPanGrip; //Servo that moves the grip on the left side of the pan
     Servo backPanGrip; //Servo that moves the grip on the right side of the pan
 
@@ -166,6 +175,7 @@ public class TeleopLimits extends OpMode {
 
         //Servo configurations in the hardware map. Used so that the robot controller can apply the correct servo positions depending on what port a servo is plugged into.
         leftPanSpin = hardwareMap.servo.get("s1"); //s1
+        rightPanSpin = hardwareMap.servo.get("s2");
         grab = hardwareMap.servo.get("s6"); //s6
         feelerRaise = hardwareMap.servo.get("s8"); //s8
         upDown = hardwareMap.servo.get("s11"); //s11
@@ -201,6 +211,7 @@ public class TeleopLimits extends OpMode {
 
         //Specify servo directions to ensure values given to servos cause rotation in the correct direction
         leftPanSpin.setDirection(Servo.Direction.REVERSE); //Set leftPanSpin to REVERSE direction
+        rightPanSpin.setDirection(Servo.Direction.FORWARD);
         grab.setDirection(Servo.Direction.REVERSE); //Set grab to REVERSE direction
         upDown.setDirection(Servo.Direction.FORWARD); //Set upDown to FORWARD direction
         feelerRaise.setDirection(Servo.Direction.FORWARD); //Set feelerRaise to FORWARD direction
@@ -210,9 +221,10 @@ public class TeleopLimits extends OpMode {
 
         //Init values of servos to ensure at the beginning of teleop servos are in the correct position
         leftPanSpin.setPosition(.21); //Set leftPanSpin to position .21, as this is the intaking glyph position
+        rightPanSpin.setPosition(.21);
         upDown.setPosition(0); //Set upDown to position 0, so our relic arm stays within the robot
-        frontPanGrip.setPosition(.1); //Set the position of leftPanGrip and rightPanGrip to 0, so we are able to intake glyphs
-        backPanGrip.setPosition(.1);
+        frontPanGrip.setPosition(.25); //Set the position of leftPanGrip and rightPanGrip to 0, so we are able to intake glyphs
+        backPanGrip.setPosition(.23);
 
 
 
@@ -329,8 +341,8 @@ public class TeleopLimits extends OpMode {
 
             if (gamepad1.right_bumper)
             {
-                frontPanGrip.setPosition(.1);
-                backPanGrip.setPosition(.1);
+                frontPanGrip.setPosition(.25);
+                backPanGrip.setPosition(.23);
             }
 
             if (gamepad1.right_trigger > .05) { //If rightTrigger if pressed, and b and leftBumper are not pressed, as to avoid conflicting commands for the intake powers
@@ -353,6 +365,7 @@ public class TeleopLimits extends OpMode {
             {
                 if (isAtTop) { //If isAtTop, then we want to score
                     hasLifted = true; //Set hasLifted to true
+                    score = false;
                     panLifterMotor.setPower(0); //Set panLiftingPower to 0 to stop the motion of the elevator
                 }
                 else {
@@ -400,10 +413,10 @@ public class TeleopLimits extends OpMode {
 
             //If x is pressed or sensors b and c have seen blocks for more than blockCounterThreshold loop iterations, we want to adjust the pan to a hold, rather than intake or score, position
             //We also make sure that no other commands that control panSpinPosition are being applied to avoid conflicting values
-            if ((gamepad1.x || backBlockCounter > blockCounterThreshold && frontBlockCounter > blockCounterThreshold) && !score && !gamepad1.b && panSpinPosition < .82 && !gamepad1.a)
+            if ((gamepad1.x || (backBlockCounter > blockCounterThreshold && frontBlockCounter > blockCounterThreshold)) && !score && !gamepad1.b && panSpinPosition < .82 && !gamepad1.a)
             {
-                frontPanGrip.setPosition(.5);
-                backPanGrip.setPosition(.5);
+                frontPanGrip.setPosition(.97);
+                backPanGrip.setPosition(.77);
                 panSpinPosition = .82; //Set panSpinPosition to .82, a hold position
                 if (gamepad1.left_trigger <= .2) { //If we are not outtaking (which is what leftTrigger does) we want to set the touchServo/bar to a position close to the blocks that are holding so they do not fall out
                     //We include this statement because even if we have 2 glyphs Kevin may want to outtake to realign them
@@ -521,6 +534,7 @@ public class TeleopLimits extends OpMode {
         //SET VALUES
 
         leftPanSpin.setPosition(panSpinPosition); //Set the position of leftPanSpin to panSpinPosition
+        rightPanSpin.setPosition(panSpinPosition);
         //panLifterMotor.setPower(panLiftingPower); //Set the power of panLifterMotor to panLiftingPower
         // leftIntakeMotor.setPower(leftIntakePower); //Set the power of leftIntakeMotor to leftIntakePower
         //    rightIntakeMotor.setPower(rightIntakePower); //Set the power of rightIntakeMotor to rightIntakePower
