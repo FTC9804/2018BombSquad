@@ -7,6 +7,9 @@
 //.25 is open for front grabber
 //.97 is closed for front grabber
 
+//left pan spin is .1 lower than right pan spin
+//add .1 to left pan spin to find equalibrium
+
 
 //Package statement
 package org.firstinspires.ftc.teamcode;
@@ -424,6 +427,10 @@ public class TeleopLimits extends OpMode {
                 }
             }
             if (!score) {
+                if(sensorB.getDistance(DistanceUnit.CM) < 13 && sensorC.getDistance(DistanceUnit.CM) < 13)
+                {
+                    bothBlockCounter++;
+                }
                 if (sensorB.getDistance(DistanceUnit.CM) < 13)
                 {
                     frontBlockCounter++; //Add 1 to bothBlockCounter, signifying we have had two glyphs in the pan for an iteration of loop
@@ -443,6 +450,8 @@ public class TeleopLimits extends OpMode {
                     backBlockCounter = backBlockCounter/2;
                 }
             }
+
+
 
             feelerRaisePosition = FEELER_RAISE_UP_POSITION; //Set feelerRaisePosition to FEELER_RAISE_UP_POSITION, which will set the feelerRaise to a position so the jewel arm is pressed against the body of the robot
         }
@@ -492,7 +501,8 @@ public class TeleopLimits extends OpMode {
             {
                 upDownPosition += .0015; //Add .05 to upDownPosition
 
-            } else if (gamepad1.y) //Else if yPressed is true, then Kevin wants to move the relic up
+            }
+            else if (gamepad1.y) //Else if yPressed is true, then Kevin wants to move the relic up
             {
                 upDownPosition -= .0023; //Subract .03 from upDownPosition
             } else if (gamepad1.x) { //Else if x is pressed, Kevin wants to move the relic arm down and release the relic, which is reflected in the upDownPosition and grab position.
@@ -531,9 +541,11 @@ public class TeleopLimits extends OpMode {
         finRightPower = Range.clip(finRightPower, -1, 1); //Ensure finRightPower is between -1 and 1
         finLeftPower = Range.clip(finLeftPower, -1, 1); //Ensure finLeftPower is between -1 and 1
 
+        panSpinPosition = Range.clip(panSpinPosition, .9, .1);
+
         //SET VALUES
 
-        leftPanSpin.setPosition(panSpinPosition); //Set the position of leftPanSpin to panSpinPosition
+        leftPanSpin.setPosition(panSpinPosition + .1); //Set the position of leftPanSpin to panSpinPosition
         rightPanSpin.setPosition(panSpinPosition);
         //panLifterMotor.setPower(panLiftingPower); //Set the power of panLifterMotor to panLiftingPower
         // leftIntakeMotor.setPower(leftIntakePower); //Set the power of leftIntakeMotor to leftIntakePower
