@@ -129,8 +129,8 @@ public class TeleopLimits extends OpMode {
     boolean currentStatus; //Boolean that is true if the current mode is endgame, and is false otherwise
     double bothBlockCounter; //Double that increments positively by 1 in the loop every time we see a block on sensors b and c, and decreased otherwise.
     //If bothBlockCounter is high enough, we know we are ready to score and we set the pan servos to a hold position
-    int blockCounterThreshold = 7; //Number of loops to indicate glyphs present in the pan
-
+    int blockCounterThreshold = 20; //Number of loops to indicate glyphs present in the pan
+    int blockGrabberThreshold = 10;
     boolean score; //Boolean for automated scoring. Boolean that is set to true if rightBumper is pressed. When score is true, that means we would like to score glyphs, and the elevator raises and the pan servos are set to a scoring position, and score is set to false
     boolean hasLifted = false; //Boolean to complement score that is initially set to false. If score is true, then the elevator lifts until the top limit switch sees the elevator, at which time hasLifted is set to true and the elevator stops moving upwards
     //boolean toggleLB; //Boolean for automated lowering of the pan and elevator after we score. If the leftbumper is pressed, toggleLB is set to true, and the pan servos rotate to an intaking position, while the elevator lowers until the bottom limit switch sees it. Once these actions occur, toggleLB is set to false
@@ -213,8 +213,8 @@ public class TeleopLimits extends OpMode {
         relicMotor.setDirection(REVERSE); //Set relicMotor to REVERSE direction
 
         //Specify servo directions to ensure values given to servos cause rotation in the correct direction
-        leftPanSpin.setDirection(Servo.Direction.REVERSE); //Set leftPanSpin to REVERSE direction
-        rightPanSpin.setDirection(Servo.Direction.FORWARD);
+        leftPanSpin.setDirection(Servo.Direction.FORWARD); //Set leftPanSpin to REVERSE direction
+        rightPanSpin.setDirection(Servo.Direction.REVERSE);
         grab.setDirection(Servo.Direction.REVERSE); //Set grab to REVERSE direction
         upDown.setDirection(Servo.Direction.FORWARD); //Set upDown to FORWARD direction
         feelerRaise.setDirection(Servo.Direction.FORWARD); //Set feelerRaise to FORWARD direction
@@ -223,8 +223,8 @@ public class TeleopLimits extends OpMode {
         backPanGrip.setDirection(Servo.Direction.FORWARD); //Set rightPanGrip to FORWARD direction
 
         //Init values of servos to ensure at the beginning of teleop servos are in the correct position
-        leftPanSpin.setPosition(.21); //Set leftPanSpin to position .21, as this is the intaking glyph position
-        rightPanSpin.setPosition(.21);
+        leftPanSpin.setPosition(.525); //Set leftPanSpin to position .21, as this is the intaking glyph position
+        rightPanSpin.setPosition(.586);
         upDown.setPosition(0); //Set upDown to position 0, so our relic arm stays within the robot
         frontPanGrip.setPosition(.25); //Set the position of leftPanGrip and rightPanGrip to 0, so we are able to intake glyphs
         backPanGrip.setPosition(.23);
@@ -344,14 +344,18 @@ public class TeleopLimits extends OpMode {
 
             if (gamepad1.right_bumper)
             {
-                frontPanGrip.setPosition(.25);
-                backPanGrip.setPosition(.23);
+                frontPanGrip.setPosition(.280);
+                backPanGrip.setPosition(.112);
+                score = false;
             }
 
             if (gamepad1.right_trigger > .05) { //If rightTrigger if pressed, and b and leftBumper are not pressed, as to avoid conflicting commands for the intake powers
                 leftIntakeMotor.setPower(gamepad1.right_trigger * gamepad1.right_trigger * .7); ; //Set leftIntakePower to the square of rightTrigger times .7. We square values so Kevin can have finer control over intake speeds
                 rightIntakeMotor.setPower(gamepad1.right_trigger * gamepad1.right_trigger * .7); //Set rightIntakePower to leftIntakePower
                 touchServo.setPosition(.44); //Set touchServoPosition to .45, which will set the touchServo to a position so the bar is just above 6 inches above the tiles, so good glyphs can enter the robot, but faulty glyphs cannot enter above where they should
+                frontPanGrip.setPosition(.258);
+                backPanGrip.setPosition(.112);
+                panSpinPosition=.525;
             } else if (gamepad1.left_trigger > .05) { //Else if leftTrigger is pressed, and b and leftBumper are not pressed, as to avoid conflicting commands for the intake powers
                 leftIntakeMotor.setPower(-.7); //Set leftIntakePower to -.7. We set outtake powers differently so we can realign glyphs for reentry rather than outtaking them in the same orientation at which they entered
                 rightIntakeMotor.setPower(-.8); //Set rightIntakePower to -.8. We set outtake powers differently so we can realign glyphs for reentry rather than outtaking them in the same orientation at which they entered
@@ -384,7 +388,7 @@ public class TeleopLimits extends OpMode {
             {
                 panLifterMotor.setPower(.2); //Set panLiftingPower to .2 to go down with the elevator
             }
-            else if (gamepad1.left_trigger > .05)
+            else if (gamepad1.right_trigger > .05)
             {
                 if (isAtBottom)
                 {
@@ -414,42 +418,43 @@ public class TeleopLimits extends OpMode {
                 touchServo.setPosition (.6); //Set touchServoPosition to .6
             }
 
+            telemetry.addData("bothBlockCounter", bothBlockCounter);
+            telemetry.addData("blockGrabberThreshold", blockGrabberThreshold);
+            telemetry.addData("score", score);
+            telemetry.addData("b", gamepad1.b);
+            telemetry.addData("pan spin", panSpinPosition);
+
             //If x is pressed or sensors b and c have seen blocks for more than blockCounterThreshold loop iterations, we want to adjust the pan to a hold, rather than intake or score, position
             //We also make sure that no other commands that control panSpinPosition are being applied to avoid conflicting values
-            if ((gamepad1.x || (backBlockCounter > blockCounterThreshold && frontBlockCounter > blockCounterThreshold)) && !score && !gamepad1.b && panSpinPosition < .82 && !gamepad1.a)
-            {
-                frontPanGrip.setPosition(.97);
-                backPanGrip.setPosition(.77);
-                panSpinPosition = .82; //Set panSpinPosition to .82, a hold position
+            if ((gamepad1.x || (bothBlockCounter > blockGrabberThreshold)) && !score && panSpinPosition < .6)            {
+                frontPanGrip.setPosition(.964);
+                backPanGrip.setPosition(.812);
+
+            }
+            if ((gamepad1.b || (bothBlockCounter > blockCounterThreshold)) && !score && panSpinPosition < .6)            {
+
+                panSpinPosition = .93; //Set panSpinPosition to .82, a hold position
                 if (gamepad1.left_trigger <= .2) { //If we are not outtaking (which is what leftTrigger does) we want to set the touchServo/bar to a position close to the blocks that are holding so they do not fall out
                     //We include this statement because even if we have 2 glyphs Kevin may want to outtake to realign them
                     touchServo.setPosition (.45); //Set touchServoPosition to .53 to prent holding glyphs from exiting hte pan
                 }
             }
             if (!score) {
-                if(sensorB.getDistance(DistanceUnit.CM) < 13 && sensorC.getDistance(DistanceUnit.CM) < 13)
-                {
-                    bothBlockCounter++;
-                }
+                               //If pan distance sensors b and c see an object within 13 centimeters. If this is true, we have two glyphs in the pan
                 if (sensorB.getDistance(DistanceUnit.CM) < 13)
                 {
-                    frontBlockCounter++; //Add 1 to bothBlockCounter, signifying we have had two glyphs in the pan for an iteration of loop
+                    if (sensorC.getDistance(DistanceUnit.CM) < 13) {
+                        bothBlockCounter++;
+                    }//Add 1 to bothBlockCounter, signifying we have had two glyphs in the pan for an iteration of loop
                 }
                 else //Else
                 {
-                    frontBlockCounter /= 2; //Divide bothBlockCounter by 2, signifying we have not had two glyphs in the pan for an iteration of loop.
+                    bothBlockCounter /= 2; //Divide bothBlockCounter by 2, signifying we have not had two glyphs in the pan for an iteration of loop.
                     //We divide by 2 so bothBlockCounter quickly decreases, so we know sooner when we do not have two glyphs
-                    //and can more quickly adjust for this change
-                }
-                if (sensorC.getDistance(DistanceUnit.CM) < 13)
-                {
-                    backBlockCounter++;
-                }
-                else
-                {
-                    backBlockCounter = backBlockCounter/2;
+                                           //and can more quickly adjust for this change
                 }
             }
+
 
 
 
@@ -534,19 +539,19 @@ public class TeleopLimits extends OpMode {
         bothBlockCounter = Range.clip(bothBlockCounter, 0, 500); //Clip bothBlockCounter from 0 to 500. This is because if the value gets too high, it will take to long to come back down when two glyphs are no longer seen, and visa versa
         grabPosition = Range.clip(grabPosition, .07, .48); //Ensure grabPosition is between .07 and .48, so the grabber does not grab the relic excessively tightly, which could stall the grab servo, and so that grab does not open up too much, which will make closing it take longer
         //upDownPosition = Range.clip(upDownPosition, .02, .83); //Ensure upDownPosition is between .02 and .83, so upDown does not run the arm into the robot when upDown is being stored, and so upDown does not go under the relic retrieving position
-        panSpinPosition = Range.clip(panSpinPosition, .21, .825); //Ensure panSpinPosition is between .21 and .825. The lower limit is the collecting glyphs position, and the top limit is the scoring glyphs positin
+        panSpinPosition = Range.clip(panSpinPosition, .525, .95); //Ensure panSpinPosition is between .21 and .825. The lower limit is the collecting glyphs position, and the top limit is the scoring glyphs positin
 
         //Clip final driving motor values between -1 and 1, as DC motors only accept values in this range
         finBackPower = Range.clip(finBackPower, -1, 1); //Ensure finBackPower is between -1 and 1
         finRightPower = Range.clip(finRightPower, -1, 1); //Ensure finRightPower is between -1 and 1
         finLeftPower = Range.clip(finLeftPower, -1, 1); //Ensure finLeftPower is between -1 and 1
 
-        panSpinPosition = Range.clip(panSpinPosition, .9, .1);
+       // panSpinPosition = Range.clip(panSpinPosition, .9, .1);
 
         //SET VALUES
 
-        leftPanSpin.setPosition(panSpinPosition + .1); //Set the position of leftPanSpin to panSpinPosition
-        rightPanSpin.setPosition(panSpinPosition);
+        leftPanSpin.setPosition(panSpinPosition); //Set the position of leftPanSpin to panSpinPosition
+        rightPanSpin.setPosition(panSpinPosition + .036);
         //panLifterMotor.setPower(panLiftingPower); //Set the power of panLifterMotor to panLiftingPower
         // leftIntakeMotor.setPower(leftIntakePower); //Set the power of leftIntakeMotor to leftIntakePower
         //    rightIntakeMotor.setPower(rightIntakePower); //Set the power of rightIntakeMotor to rightIntakePower
