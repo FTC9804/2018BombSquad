@@ -62,6 +62,9 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     //Block Rotation
     Servo leftPanSpin; //Servo on the left side of the robot that rotates the pan, or block scoring mechanism, in order to score blocks
+    Servo rightPanSpin;
+    Servo frontPanGrip; //Servo that moves the grip on the left side of the pan
+    Servo backPanGrip; //Servo that moves the grip on the right side of the pan
 
     //Touch driving
     Servo touchServo; //Servo that extends an arm from the front of the robot to detect when we are ready to score in autonomous
@@ -74,7 +77,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     //Distance sensors to detect glyphs. If sensor B and sensor C see blocks, that means we are ready to score, so we lift up the pan.
     //If all three see glyphs for too long, that means we have three glyphs, so we outtake as this is a penalty.
-    DistanceSensor sensorA; //Distance sensor closest to the intake to see how far away potential blocks are
+
     DistanceSensor sensorB; //Distance sensor between A and C, to see how far potential blocks are
     DistanceSensor sensorC; //Distance sensor farthest from intake, to see how far potential blocks are
 
@@ -109,7 +112,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     final double FEELER_SWIPE_CW_POSITION = .15; //Clockwise turned position of feelerSwipe
     final double FEELER_SWIPE_CCW_POSITION = .99; //Counter-clockwise turned position of feelerSwipe
     final double FEELER_RAISE_UP_POSITION = .91; //Position that the feelerRaise is set to when we are not scoring the ball
-    double FEELER_RAISE_DOWN_POSITION = .1; //Position that the feelerRaise is set to when we are scoring the ball
+    double FEELER_RAISE_DOWN_POSITION = .13; //Position that the feelerRaise is set to when we are scoring the ball
 
     //Vuforia
     VuforiaLocalizer vuforia; //Variable to store our instance of the Vuforia localization engine
@@ -194,9 +197,12 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         //Servo configurations in the hardware map
         leftPanSpin = hardwareMap.servo.get("s1"); //s1
+        rightPanSpin = hardwareMap.servo.get("s2");
         feelerRaise = hardwareMap.servo.get("s8"); //s8
         feelerSwipe = hardwareMap.servo.get("s9"); //s9
         touchServo = hardwareMap.servo.get("s10"); //s10
+        frontPanGrip = hardwareMap.servo.get("s12"); //s12
+        backPanGrip = hardwareMap.servo.get("s13"); //s13
 
         //Set up the parameters with which we will use the IMU
         BNO055IMU.Parameters IMUparameters = new BNO055IMU.Parameters();
@@ -217,7 +223,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         limitMid=hardwareMap.get(DigitalChannel.class, "d3");
         sensorColorFeeler = hardwareMap.get(ColorSensor.class, "i1"); //i1
         sensorColorFeeler.enableLed(true); //Enable the LED of the color sensor
-        sensorA = hardwareMap.get(DistanceSensor.class, "i2"); //i2
+
         sensorB = hardwareMap.get(DistanceSensor.class, "i3"); //i3
         sensorC = hardwareMap.get(DistanceSensor.class, "i4"); //i4
         sensorTouch = hardwareMap.get(DistanceSensor.class, "i5"); //i5
@@ -232,15 +238,21 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         panLifterMotor.setDirection(FORWARD); //Set panLifterMotor to FORWARD direction
 
         //Servo directions
-        leftPanSpin.setDirection(Servo.Direction.REVERSE); //Set leftPanSpin to REVERSE direction
+        leftPanSpin.setDirection(Servo.Direction.FORWARD); //Set leftPanSpin to REVERSE direction
+        rightPanSpin.setDirection(Servo.Direction.REVERSE); //Set rightPanSpin to REVERSE direction
         feelerRaise.setDirection(Servo.Direction.FORWARD); //Set feelerRaise to FORWARD direction
         feelerSwipe.setDirection(Servo.Direction.REVERSE); //Set feelerSwipe to REVERSE direction
         touchServo.setDirection(Servo.Direction.REVERSE); //Set touchServo to REVERSE direction
+        frontPanGrip.setDirection(Servo.Direction.FORWARD); //Set servo leftPanGrip to FORWARD direction
+        backPanGrip.setDirection(Servo.Direction.FORWARD); //Set rightPanGrip to FORWARD direction
 
         //Init values
         feelerSwipe.setPosition(FEELER_SWIPE_CCW_POSITION); //Set feelerSwipe to FEELER_SWIPE_CCW_POSITION, so the jewel arm stays within 18 inches
         feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Set feelerRaise to FEELER_RAISE_UP_POSITION, so the jewel arm is pressed against the robot
-        leftPanSpin.setPosition(.21); //Set the position of leftPanSpin to .21, so the pan is down as does not interfere with the first block being scored
+        leftPanSpin.setPosition(.525); //Set leftPanSpin to position .21, as this is the intaking glyph position
+        rightPanSpin.setPosition(.586);
+        frontPanGrip.setPosition(.964);
+        backPanGrip.setPosition(.812);
         touchServo.setPosition(.68); //Set the position of touchServo to .68, so the bar stays within 18 inches
     }
 
@@ -276,6 +288,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         panLifterMotor.setPower(0); //Stop the movement of panLifterMotor
         driveNewIMU(5, .8, .3, true, angle); //Drive forward 3.2 inches to allow room for block scoring
         leftPanSpin.setPosition(.835); //Set leftPanSpin to position .835 to score
+        rightPanSpin.setPosition(.871);
         pause(.82); //pause for .82 seconds to allow leftPanSpin to get to position
 
         //Driving motions to wedge glyph(s) in cryptobox
@@ -555,6 +568,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         counts2= ENCODER_CPR * rotations2 * GEAR_RATIO; //Set counts2 to the encoder CPR times rotations2 times the gear ratio
 
         leftPanSpin.setPosition(.21); //Set the position of leftPanSpin to .21 to prepare for intaking
+        rightPanSpin.setPosition(.246);
 
         touchServo.setPosition(.41); //Set touchServo to .42 to block bad glyphs from coming into the robot
 
@@ -708,6 +722,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         if (this.getRuntime()-threeGlyphTimeOne<50) { //If not too much time has elapsed, specifically 50 seconds since the start of auto
 
             leftPanSpin.setPosition(.375); //Set the position of leftPanSpin to .375 (hold postion)
+            rightPanSpin.setPosition(.411);
             touchServo.setPosition(.58); //Raise touchServo to .58 to prevent glyphs from falling out of pan
             bothBlockCounter = 0; //Set the value of bothBlockCounter to 0
 
@@ -780,7 +795,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             telemetry.addData("Vu mark detector: ", vuMarkChecker);
             telemetry.update(); //update telemetry
 
-            if (timeTwo - timeOne > .8 && timeTwo-timeOne <= 1.6) //We want to start preparing to score the jewel during vuforia detection to save time
+            if (timeTwo - timeOne > .6 && timeTwo-timeOne <= 1.4) //We want to start preparing to score the jewel during vuforia detection to save time
                                                                   //so during this time interval we set feeler swipe to a neutral position so when feeler raise
                                                                   //is lowered feeler swipe puts the jewel arm between the two balls for optimal color detection
             {
@@ -793,7 +808,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
                 }
             }
 
-            if (timeTwo - timeOne >1.6  && timeTwo-timeOne <= 2.3) //After the time interval above we lower the feelerRaise to get into jewel scoring position
+            if (timeTwo - timeOne > 1.4  && timeTwo-timeOne <= 2) //After the time interval above we lower the feelerRaise to get into jewel scoring position
             {
                 feelerRaise.setPosition(FEELER_RAISE_DOWN_POSITION); //Set feelerRaise to position FEELER_RAISE_DOWN_POSITION
             }
@@ -831,7 +846,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         feelerRaise.setPosition(.65); //Set feelerRaise to position .49 to lower the jewel arm
 
-        vuMarkReturn = detectVuMark(3); //Run vuforia detection during the time when the feelerRaise is moving down, and set the output of detectVuMark to the String vuMarkReturn
+        vuMarkReturn = detectVuMark(2); //Run vuforia detection during the time when the feelerRaise is moving down, and set the output of detectVuMark to the String vuMarkReturn
 
         if (allianceColor.equalsIgnoreCase("red") && sensorColorFeeler.blue() >=  sensorColorFeeler.red()) { //If we are the red alliance and see a blue ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
@@ -840,7 +855,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             telemetry.update(); //Update telemetry
             pause(.5); //.1 second pause
             feelerSwipe.setPosition(FEELER_SWIPE_CW_POSITION); //Set feelerSwipe to its clockwise position
-            pause(.82); //.1 second pause
+            pause(.5); //.1 second pause
             feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Raise feelerRaise after ball is knocked off
             pause(.5); //.1 second pause
         }
@@ -851,7 +866,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             telemetry.update(); //Update telemetry
             pause(.5); //.1 second pause
             feelerSwipe.setPosition(FEELER_SWIPE_CCW_POSITION); //Set feelerSwipe to its counter-clockwise position
-            pause(.8); //.1 second pause
+            pause(.5); //.1 second pause
             feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Raise feelerRaise after ball is knocked off
             pause(.5); //.1 second pause
         }
@@ -862,7 +877,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             telemetry.update(); //Update telemetry
             pause(.5); //.1 second pause
             feelerSwipe.setPosition(FEELER_SWIPE_CCW_POSITION); //Set feelerSwipe to its counter-clockwise position
-            pause(.8); //.1 second pause
+            pause(.5); //.1 second pause
             feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Raise feelerRaise after ball is knocked off
             pause(.5); //.1 second pause
         }
@@ -873,7 +888,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             telemetry.update(); //Update telemetry
             pause(.5); //.1 second pause
             feelerSwipe.setPosition(FEELER_SWIPE_CW_POSITION); //Set feelerSwipe to its clockwise position
-            pause(.8); //.1 second pause
+            pause(.5); //.1 second pause
             feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Raise feelerRaise after ball is knocked off
             pause(.5); //.1 second pause
         }
@@ -986,10 +1001,15 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         //While less seconds than the parameter time have elapsed and the absolute value of the position of rightMotor is less than the absolute value of counts
         while (Math.abs(rightMotor.getCurrentPosition())<counts && timeTwo-timeOne<time) {
 
-            if (distance==4.8) //Distance is only 4.8 when we are driving forward at the end of our three glyph auto, at this time we want to lower the pan to prepare for intaking glyphs during teleop
+            if (distance==9.5) //Distance is only 4.8 when we are driving forward at the end of our three glyph auto, at this time we want to lower the pan to prepare for intaking glyphs during teleop
             {
-                leftPanSpin.setPosition(.21); //Set leftPanSpin to position .21 to lower thepan
+                if (forwards==false) {
+                    leftPanSpin.setPosition(.93); //Set leftPanSpin to position .21 to lower thepan
+                    rightPanSpin.setPosition(.9366);
+                }
             }
+
+
 
             //Set currentAngle to this.getAngleSimple()
             currentAngle = this.realAngle();
