@@ -431,7 +431,7 @@ public class TeleopLimits extends OpMode {
                 backPanGrip.setPosition(.812);
 
             }
-            if ((gamepad1.b || (bothBlockCounter > blockCounterThreshold)) && !score && panSpinPosition < .6)            {
+            if ((gamepad1.b || (bothBlockCounter > blockCounterThreshold)) && !score && panSpinPosition < .6 && !gamepad1.a && !gamepad1.y)            {
 
                 panSpinPosition = .93; //Set panSpinPosition to .82, a hold position
                 if (gamepad1.left_trigger <= .2) { //If we are not outtaking (which is what leftTrigger does) we want to set the touchServo/bar to a position close to the blocks that are holding so they do not fall out
@@ -440,7 +440,7 @@ public class TeleopLimits extends OpMode {
                 }
             }
             if (!score) {
-                               //If pan distance sensors b and c see an object within 13 centimeters. If this is true, we have two glyphs in the pan
+                //If pan distance sensors b and c see an object within 13 centimeters. If this is true, we have two glyphs in the pan
                 if (sensorB.getDistance(DistanceUnit.CM) < 13)
                 {
                     if (sensorC.getDistance(DistanceUnit.CM) < 13) {
@@ -451,7 +451,7 @@ public class TeleopLimits extends OpMode {
                 {
                     bothBlockCounter /= 2; //Divide bothBlockCounter by 2, signifying we have not had two glyphs in the pan for an iteration of loop.
                     //We divide by 2 so bothBlockCounter quickly decreases, so we know sooner when we do not have two glyphs
-                                           //and can more quickly adjust for this change
+                    //and can more quickly adjust for this change
                 }
             }
 
@@ -546,7 +546,7 @@ public class TeleopLimits extends OpMode {
         finRightPower = Range.clip(finRightPower, -1, 1); //Ensure finRightPower is between -1 and 1
         finLeftPower = Range.clip(finLeftPower, -1, 1); //Ensure finLeftPower is between -1 and 1
 
-       // panSpinPosition = Range.clip(panSpinPosition, .9, .1);
+        // panSpinPosition = Range.clip(panSpinPosition, .9, .1);
 
         //SET VALUES
 
