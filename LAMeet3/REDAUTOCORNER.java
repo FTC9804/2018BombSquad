@@ -49,12 +49,18 @@ public class REDAUTOCORNER extends FunctionsForAuto {
 
         if (vuMarkReturn.equalsIgnoreCase("left")) //If vuforia reads left
         {
-            driveNewIMU(12.1, 5, .3, true, 0); //Drive forwards for 16.9 inches at .35 power at a 0 degree heading with a 5 second timeout
+            driveNewIMU(12.1, 5, .27, true, 0); //Drive forwards for 16.9 inches at .35 power at a 0 degree heading with a 5 second timeout
+        }
+        else if (vuMarkReturn.equalsIgnoreCase("right"))
+        {
+            driveNewIMU(35.1, 5, .43, true, 0); //Drive forwards for 16.9 inches at .35 power at a 0 degree heading with a 5 second timeout
         }
         else
         {
-            driveNewIMU(2.6, 5, .3, true, 0); //Drive forwards for 16.9 inches at .35 power at a 0 degree heading with a 5 second timeout
+            driveNewIMU(2.6, 5, .27, true, 0);
         }
+
+        touchServo.setPosition(.45);
 
         pause(1);
 
@@ -62,27 +68,47 @@ public class REDAUTOCORNER extends FunctionsForAuto {
         {
             spinMove (125, false, 5, true); //Spin to 125 degrees, while dropping the touch bar, not starting at .3 power with a 5 second timeout, putting the touchServo down
 
-            pause(.1);
+            pause(.4);
 
-            driveNewIMU(9.5, 5, -.3, false, 125);
+            driveNewIMU(7.5, 2.7, -.3, false, 125);
+
+            pause(.5);
+
+            frontPanGrip.setPosition(.258);
+            backPanGrip.setPosition(.112);
+
+            pause(1);
+
+            leftPanSpin.setPosition(.525); //Set leftPanSpin to position .21, as this is the intaking glyph position
+            rightPanSpin.setPosition(.586);
+
+            pause(1);
+
+            driveNewIMU(8.5, 2.7, -.3, false, 125);
 
         }
         else
         {
-            spinMove (70, false, 5, true); //Spin to 125 degrees, while dropping the touch bar, not starting at .3 power with a 5 second timeout, putting the touchServo down
+            spinMove (55, false, 5, true); //Spin to 125 degrees, while dropping the touch bar, not starting at .3 power with a 5 second timeout, putting the touchServo down
 
             pause(.1);
 
-            driveNewIMU(9.5, 5, -.3, false, 70);
+            frontPanGrip.setPosition(.258);
+            backPanGrip.setPosition(.112);
+
+            pause(1);
+
+            leftPanSpin.setPosition(.525); //Set leftPanSpin to position .21, as this is the intaking glyph position
+            rightPanSpin.setPosition(.586);
+
+            pause(1);
+
+            driveNewIMU(18.5, 2.7, -.3, false, 55);
         }
 
 
         pause(.1);
 
-        frontPanGrip.setPosition(.258);
-        backPanGrip.setPosition(.112);
-
-        pause(1);
 
         if (vuMarkReturn.equalsIgnoreCase("left") || vuMarkReturn.equalsIgnoreCase("center") || vuMarkReturn.equalsIgnoreCase("unknown as answer") || vuMarkReturn.equalsIgnoreCase("novalue")) //If vuforia reads left
         {
@@ -90,36 +116,8 @@ public class REDAUTOCORNER extends FunctionsForAuto {
         }
         else
         {
-            driveNewIMU(3, 5, .3, true, 70);
+            driveNewIMU(3, 5, .3, true, 55);
         }
-
-        pause(.1);
-
-        leftPanSpin.setPosition(.525); //Set leftPanSpin to position .21, as this is the intaking glyph position
-        rightPanSpin.setPosition(.586);
-
-        pause(.1);
-
-        if (vuMarkReturn.equalsIgnoreCase("left") || vuMarkReturn.equalsIgnoreCase("center") || vuMarkReturn.equalsIgnoreCase("unknown as answer") || vuMarkReturn.equalsIgnoreCase("novalue")) //If vuforia reads left
-        {
-            driveNewIMU(7.5, 1.5, -.3, false, 125);
-        }
-        else
-        {
-            driveNewIMU(7.5, 1.5, -.3, false, 70);
-        }
-
-        pause(.1);
-
-        if (vuMarkReturn.equalsIgnoreCase("left") || vuMarkReturn.equalsIgnoreCase("center") || vuMarkReturn.equalsIgnoreCase("unknown as answer") || vuMarkReturn.equalsIgnoreCase("novalue")) //If vuforia reads left
-        {
-            driveNewIMU(8, .5, .3, true, 125);
-        }
-        else
-        {
-            driveNewIMU(8, .5, .3, true, 70);
-        }
-
 
 
 //        pause(.05); //pause for .05 seconds
