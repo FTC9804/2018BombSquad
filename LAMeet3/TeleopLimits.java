@@ -223,8 +223,8 @@ public class TeleopLimits extends OpMode {
         backPanGrip.setDirection(Servo.Direction.FORWARD); //Set rightPanGrip to FORWARD direction
 
         //Init values of servos to ensure at the beginning of teleop servos are in the correct position
-        leftPanSpin.setPosition(.525); //Set leftPanSpin to position .21, as this is the intaking glyph position
-        rightPanSpin.setPosition(.586);
+        leftPanSpin.setPosition(.495); //Set leftPanSpin to position .21, as this is the intaking glyph position
+        rightPanSpin.setPosition(.556);
         upDown.setPosition(0); //Set upDown to position 0, so our relic arm stays within the robot
         frontPanGrip.setPosition(.25); //Set the position of leftPanGrip and rightPanGrip to 0, so we are able to intake glyphs
         backPanGrip.setPosition(.23);
@@ -355,7 +355,7 @@ public class TeleopLimits extends OpMode {
                 touchServo.setPosition(.44); //Set touchServoPosition to .45, which will set the touchServo to a position so the bar is just above 6 inches above the tiles, so good glyphs can enter the robot, but faulty glyphs cannot enter above where they should
                 frontPanGrip.setPosition(.258);
                 backPanGrip.setPosition(.112);
-                panSpinPosition=.525;
+                panSpinPosition=.495;
             } else if (gamepad1.left_trigger > .05) { //Else if leftTrigger is pressed, and b and leftBumper are not pressed, as to avoid conflicting commands for the intake powers
                 leftIntakeMotor.setPower(-.7); //Set leftIntakePower to -.7. We set outtake powers differently so we can realign glyphs for reentry rather than outtaking them in the same orientation at which they entered
                 rightIntakeMotor.setPower(-.8); //Set rightIntakePower to -.8. We set outtake powers differently so we can realign glyphs for reentry rather than outtaking them in the same orientation at which they entered
@@ -370,12 +370,14 @@ public class TeleopLimits extends OpMode {
 
             if (score) //If score is true, we check to see if we are at limit switches and whether we want to score
             {
-                if (isAtTop) { //If isAtTop, then we want to score
+                if (isAtTop)
+                { //If isAtTop, then we want to score
                     hasLifted = true; //Set hasLifted to true
                     score = false;
-                    panLifterMotor.setPower(0); //Set panLiftingPower to 0 to stop the motion of the elevator
+                    panLifterMotor.setPower(-.1); //Set panLiftingPower to 0 to stop the motion of the elevator
                 }
-                else {
+                else
+                {
                     panLifterMotor.setPower(-.6);  //Set panLiftingPower to -.16, to raise the elevator
                     touchServo.setPosition(.45 ); //Set touchServoPosition to .70, which is higher than the outtaking and intaking positions, as to put the bar close to the blocks in the pan so they cannot fall out
                 }
@@ -539,7 +541,7 @@ public class TeleopLimits extends OpMode {
         bothBlockCounter = Range.clip(bothBlockCounter, 0, 500); //Clip bothBlockCounter from 0 to 500. This is because if the value gets too high, it will take to long to come back down when two glyphs are no longer seen, and visa versa
         grabPosition = Range.clip(grabPosition, .07, .48); //Ensure grabPosition is between .07 and .48, so the grabber does not grab the relic excessively tightly, which could stall the grab servo, and so that grab does not open up too much, which will make closing it take longer
         //upDownPosition = Range.clip(upDownPosition, .02, .83); //Ensure upDownPosition is between .02 and .83, so upDown does not run the arm into the robot when upDown is being stored, and so upDown does not go under the relic retrieving position
-        panSpinPosition = Range.clip(panSpinPosition, .525, .95); //Ensure panSpinPosition is between .21 and .825. The lower limit is the collecting glyphs position, and the top limit is the scoring glyphs positin
+        panSpinPosition = Range.clip(panSpinPosition, .495, .95); //Ensure panSpinPosition is between .21 and .825. The lower limit is the collecting glyphs position, and the top limit is the scoring glyphs positin
 
         //Clip final driving motor values between -1 and 1, as DC motors only accept values in this range
         finBackPower = Range.clip(finBackPower, -1, 1); //Ensure finBackPower is between -1 and 1
