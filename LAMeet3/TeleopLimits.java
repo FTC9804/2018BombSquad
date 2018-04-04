@@ -129,8 +129,8 @@ public class TeleopLimits extends OpMode {
     boolean currentStatus; //Boolean that is true if the current mode is endgame, and is false otherwise
     double bothBlockCounter; //Double that increments positively by 1 in the loop every time we see a block on sensors b and c, and decreased otherwise.
     //If bothBlockCounter is high enough, we know we are ready to score and we set the pan servos to a hold position
-    int blockCounterThreshold = 20; //Number of loops to indicate glyphs present in the pan
-    int blockGrabberThreshold = 10;
+    int blockCounterThreshold = 15; //Number of loops to indicate glyphs present in the pan
+    int blockGrabberThreshold = 5;
     boolean score; //Boolean for automated scoring. Boolean that is set to true if rightBumper is pressed. When score is true, that means we would like to score glyphs, and the elevator raises and the pan servos are set to a scoring position, and score is set to false
     boolean hasLifted = false; //Boolean to complement score that is initially set to false. If score is true, then the elevator lifts until the top limit switch sees the elevator, at which time hasLifted is set to true and the elevator stops moving upwards
     //boolean toggleLB; //Boolean for automated lowering of the pan and elevator after we score. If the leftbumper is pressed, toggleLB is set to true, and the pan servos rotate to an intaking position, while the elevator lowers until the bottom limit switch sees it. Once these actions occur, toggleLB is set to false
@@ -144,7 +144,7 @@ public class TeleopLimits extends OpMode {
     double relicMotorPower; //The value that will be set to the relicMotor. If we are extending the relic, it will be positive, and if we are retracting the relic it will be negative
     double grabPosition; //The value that will be set to the grab servo. Higher values indicate that grab is closed, lower values indicate that grab is open
     double upDownPosition; //The value that will be set to the upDown servo. Higher values indicate that upDown is lower, lower values indicate that upDown is higher
-
+ 
     //Touch servo variables
     // double touchServoPosition = .59; //The value that will be set to the touchServo, initially set to .69. Lower values indicate that the bar, which the touchServo controls, is closer to the tiles, and visa versa
 
@@ -350,16 +350,22 @@ public class TeleopLimits extends OpMode {
             }
 
             if (gamepad1.right_trigger > .05) { //If rightTrigger if pressed, and b and leftBumper are not pressed, as to avoid conflicting commands for the intake powers
-                leftIntakeMotor.setPower(gamepad1.right_trigger * gamepad1.right_trigger * .7); ; //Set leftIntakePower to the square of rightTrigger times .7. We square values so Kevin can have finer control over intake speeds
-                rightIntakeMotor.setPower(gamepad1.right_trigger * gamepad1.right_trigger * .7); //Set rightIntakePower to leftIntakePower
-                touchServo.setPosition(.44); //Set touchServoPosition to .45, which will set the touchServo to a position so the bar is just above 6 inches above the tiles, so good glyphs can enter the robot, but faulty glyphs cannot enter above where they should
+                leftIntakeMotor.setPower(gamepad1.right_trigger * gamepad1.right_trigger * .8); ; //Set leftIntakePower to the square of rightTrigger times .7. We square values so Kevin can have finer control over intake speeds
+                rightIntakeMotor.setPower(gamepad1.right_trigger * gamepad1.right_trigger * .8); //Set rightIntakePower to leftIntakePower
+                if(!gamepad1.left_stick_button) {
+                    touchServo.setPosition(.46); //Set touchServoPosition to .46, which will set the touchServo to a position so the bar is just above the intake position, .74, to give exiting glyphs slightly more room to exit the robot
+                }
                 frontPanGrip.setPosition(.258);
+
+
                 backPanGrip.setPosition(.112);
                 panSpinPosition=.495;
             } else if (gamepad1.left_trigger > .05) { //Else if leftTrigger is pressed, and b and leftBumper are not pressed, as to avoid conflicting commands for the intake powers
                 leftIntakeMotor.setPower(-.7); //Set leftIntakePower to -.7. We set outtake powers differently so we can realign glyphs for reentry rather than outtaking them in the same orientation at which they entered
                 rightIntakeMotor.setPower(-.8); //Set rightIntakePower to -.8. We set outtake powers differently so we can realign glyphs for reentry rather than outtaking them in the same orientation at which they entered
-                touchServo.setPosition(.48); //Set touchServoPosition to .48, which will set the touchServo to a position so the bar is just above the intake position, .74, to give exiting glyphs slightly more room to exit the robot
+                if(!gamepad1.left_stick_button) {
+                    touchServo.setPosition(.48); //Set touchServoPosition to .48, which will set the touchServo to a position so the bar is just above the intake position, .74, to give exiting glyphs slightly more room to exit the robot
+                }
             } else { //Else
                 rightIntakeMotor.setPower(0); //Set leftIntakePower to 0
                 leftIntakeMotor.setPower(0);  //Set rightIntakePower to 0
@@ -379,7 +385,6 @@ public class TeleopLimits extends OpMode {
                 else
                 {
                     panLifterMotor.setPower(-.6);  //Set panLiftingPower to -.16, to raise the elevator
-                    touchServo.setPosition(.45 ); //Set touchServoPosition to .70, which is higher than the outtaking and intaking positions, as to put the bar close to the blocks in the pan so they cannot fall out
                 }
             }
             else if (gamepad1.dpad_up) //If dpad up is pressed and dpad down is not, signifying we want to lift the elevator, or score is true and hasLifted is not, signifying we want to raise the elevator and then score blocks
@@ -416,9 +421,6 @@ public class TeleopLimits extends OpMode {
             }
 
 
-            if (gamepad1.b) { //If b is pressed, we set the touchServo to a position so the bar will press against glyphs in the pan so they are secure
-                touchServo.setPosition (.6); //Set touchServoPosition to .6
-            }
 
             telemetry.addData("bothBlockCounter", bothBlockCounter);
             telemetry.addData("blockGrabberThreshold", blockGrabberThreshold);
@@ -431,15 +433,10 @@ public class TeleopLimits extends OpMode {
             if ((gamepad1.x || (bothBlockCounter > blockGrabberThreshold)) && !score && panSpinPosition < .6)            {
                 frontPanGrip.setPosition(.964);
                 backPanGrip.setPosition(.812);
-
             }
             if ((gamepad1.b || (bothBlockCounter > blockCounterThreshold)) && !score && panSpinPosition < .6 && !gamepad1.a && !gamepad1.y)            {
 
                 panSpinPosition = .93; //Set panSpinPosition to .82, a hold position
-                if (gamepad1.left_trigger <= .2) { //If we are not outtaking (which is what leftTrigger does) we want to set the touchServo/bar to a position close to the blocks that are holding so they do not fall out
-                    //We include this statement because even if we have 2 glyphs Kevin may want to outtake to realign them
-                    touchServo.setPosition (.45); //Set touchServoPosition to .53 to prent holding glyphs from exiting hte pan
-                }
             }
             if (!score) {
                 //If pan distance sensors b and c see an object within 13 centimeters. If this is true, we have two glyphs in the pan
@@ -455,6 +452,11 @@ public class TeleopLimits extends OpMode {
                     //We divide by 2 so bothBlockCounter quickly decreases, so we know sooner when we do not have two glyphs
                     //and can more quickly adjust for this change
                 }
+            }
+
+            if(gamepad1.right_stick_button)
+            {
+                touchServo.setPosition(.59);
             }
 
 
