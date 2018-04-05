@@ -52,11 +52,11 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
         pause(.15); //pause for .15 seconds
 
-        driveNewIMU(4.75, 10, -.25, false, 0); //Drive backwards 4.75 inches at -.25 power keeping a 0 degree heading with a 10 second limit
+        driveNewIMU(3.75, 10, -.25, false, 0); //Drive backwards 4.75 inches at -.25 power keeping a 0 degree heading with a 10 second limit
 
         pause(.8); //pause for .8 seconds
 
-        driveNewIMU(9.2, 10, -.25, false, 0);
+        driveNewIMU(9, 10, -.25, false, 0);
 
         touchServo.setPosition(.45);
 
@@ -64,11 +64,17 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
         if (vuMarkReturn.equalsIgnoreCase("left")) //If vuforia reads left
         {
-            driveNewIMU(18.2, 10, -.25, false, 0);
+            driveNewIMU(22.2, 10, -.25, false, 0);
 
             pause(.1);
 
-            spinMove(150, false, 5, true);
+            spinMove(136, false, 5, true);
+
+            pause(.1);
+
+            driveNewIMU(8.5, 2.7, -.3, false, 136);
+
+            pause(.1);
 
             frontPanGrip.setPosition(.258);
             backPanGrip.setPosition(.112);
@@ -80,15 +86,21 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
             pause(1);
 
-            driveNewIMU(8.5, 2.7, -.3, false, 150);
+            driveNewIMU(8.5, 2.7, -.3, false, 136);
         }
         else if (vuMarkReturn.equalsIgnoreCase("right"))
         {
-            driveNewIMU(18.2, 10, -.25, false, 0);
+            driveNewIMU(5.2, 5, -.27, false, 0);
 
             pause(.1);
 
-            spinMove(40, false, 5, true);
+            spinMove(48, false, 5, true);
+
+            pause(.1);
+
+            driveNewIMU(7.5, 2.7, -.3, false, 48);
+
+            pause(.1);
 
             frontPanGrip.setPosition(.258);
             backPanGrip.setPosition(.112);
@@ -100,14 +112,13 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
             pause(1);
 
-            driveNewIMU(8.5, 2.7, -.3, false, 40);
+            driveNewIMU(10.5, 2.7, -.3, false, 48);
+
+            pause(.1);
         }
         else {
-            driveNewIMU(9.2, 5, .27, true, 0);
 
-            pause(.1);
-
-            spinMove(40, false, 5, true);
+            spinMove(48, false, 5, true);
 
             frontPanGrip.setPosition(.258);
             backPanGrip.setPosition(.112);
@@ -119,18 +130,18 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
             pause(1);
 
-            driveNewIMU(8.5, 2.7, -.3, false, 40);
+            driveNewIMU(12.5, 2.7, -.3, false, 48);
 
             pause(.1);
         }
 
         if (vuMarkReturn.equalsIgnoreCase("right") || vuMarkReturn.equalsIgnoreCase("center") || vuMarkReturn.equalsIgnoreCase("unknown as answer") || vuMarkReturn.equalsIgnoreCase("novalue")) //If vuforia reads left
         {
-            driveNewIMU(3, 5, .3, true, 40);
+            driveNewIMU(3, 5, .3, true, 48);
         }
         else
         {
-            driveNewIMU(3, 5, .3, true, 150);
+            driveNewIMU(3, 5, .3, true, 136);
         }
 
 
