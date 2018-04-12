@@ -129,7 +129,7 @@ public class TeleopLimits extends OpMode {
     boolean currentStatus; //Boolean that is true if the current mode is endgame, and is false otherwise
     double bothBlockCounter; //Double that increments positively by 1 in the loop every time we see a block on sensors b and c, and decreased otherwise.
     //If bothBlockCounter is high enough, we know we are ready to score and we set the pan servos to a hold position
-    int blockCounterThreshold = 20; //Number of loops to indicate glyphs present in the pan
+    int blockCounterThreshold = 29; //Number of loops to indicate glyphs present in the pan
     int blockFrontGrabberThreshold = 14;
     int blockBackGrabberThreshold = 8;
 
@@ -163,8 +163,6 @@ public class TeleopLimits extends OpMode {
     double startTime;
     //double stopTime;
 
-    double frontBlockCounter;
-    double backBlockCounter;
 
     /* Initialize standard Hardware interfaces */
     public void init() { //init method to configure hardware and set initial values before teleop begins
@@ -358,8 +356,6 @@ public class TeleopLimits extends OpMode {
                     touchServo.setPosition(.46); //Set touchServoPosition to .46, which will set the touchServo to a position so the bar is just above the intake position, .74, to give exiting glyphs slightly more room to exit the robot
                 }
                 frontPanGrip.setPosition(.258);
-
-
                 backPanGrip.setPosition(.112);
                 panSpinPosition= .2;
             } else if (gamepad1.left_trigger > .05) { //Else if leftTrigger is pressed, and b and leftBumper are not pressed, as to avoid conflicting commands for the intake powers
@@ -473,6 +469,9 @@ public class TeleopLimits extends OpMode {
 
         //Else
         else {
+            panSpinPosition=.59;
+            rightIntakeMotor.setPower(-.3);
+            leftIntakeMotor.setPower(-.3);
             //If there is a jewel in the cryptobox, we allow Kevin, in endgame mode, to lower the touchServo bar, which will allow Kevin to hit the jewel with the bar
             //Thus, if leftBumper is not pressed, we keep the touchServo at a neutral position in the robot, but if it is pressed we give the touchServo
             //a position so the bar will lower
@@ -525,13 +524,11 @@ public class TeleopLimits extends OpMode {
                 upDownPosition = .655; //Set upDownPosition to .77
                 grabPosition = .66; //Set grabPosition to .44
             } else if (gamepad1.b) { //Else if b is pressed, Kevin wants to move the relic arm up to position .5. This position ensures the relic arm is not sotred, but is not all the way down, so Kevin can easily retrieve another relic if time allows
-                if (upDownPosition > .5) { //If upDownPosition is greater than .5
-                    upDownPosition -= .005; //Subtract .01 from upDownPosition
-                }
+                    upDownPosition = .36; //Subtract .01 from upDownPosition
             } else if (gamepad1.right_bumper) { //Else if right bumper is being pressed, //Else if right bumper is pressed, Kevin wants to move the relic arm down and release the relic, which is reflected in the upDownPosition and grab position.
                 //The upDownPosition is .82, which puts the arm lower than x does, as Kevin will press right bumper when the relic motor linear slides are not extended,
                 //Which will keep the arm high as less weight is extended.
-                upDownPosition = .7; //Set upDownPosition to .82
+                upDownPosition = .69; //Set upDownPosition to .82
                 grabPosition = .66; //Set grabPosition to .44
             } else //Else, if no commands relating to upDown or grab are being triggered
             {
@@ -545,10 +542,10 @@ public class TeleopLimits extends OpMode {
         //CLIP VALUES
 
         bothBlockCounter = Range.clip(bothBlockCounter, 0, 500); //Clip bothBlockCounter from 0 to 500. This is because if the value gets too high, it will take to long to come back down when two glyphs are no longer seen, and visa versa
-        grabPosition = Range.clip(grabPosition, .12, .65); //Ensure grabPosition is between .07 and .48, so the grabber does not grab the relic excessively tightly, which could stall the grab servo, and so that grab does not open up too much, which will make closing it take longer
+        grabPosition = Range.clip(grabPosition, .2, .65); //Ensure grabPosition is between .07 and .48, so the grabber does not grab the relic excessively tightly, which could stall the grab servo, and so that grab does not open up too much, which will make closing it take longer
         //upDownPosition = Range.clip(upDownPosition, .02, .83); //Ensure upDownPosition is between .02 and .83, so upDown does not run the arm into the robot when upDown is being stored, and so upDown does not go under the relic retrieving position
         panSpinPosition = Range.clip(panSpinPosition, .2, .67); //Ensure panSpinPosition is between .21 and .825. The lower limit is the collecting glyphs position, and the top limit is the scoring glyphs positin
-
+        upDownPosition = Range.clip(upDownPosition, 0,.7);
         //Clip final driving motor values between -1 and 1, as DC motors only accept values in this range
         finBackPower = Range.clip(finBackPower, -1, 1); //Ensure finBackPower is between -1 and 1
         finRightPower = Range.clip(finRightPower, -1, 1); //Ensure finRightPower is between -1 and 1
