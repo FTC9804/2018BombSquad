@@ -321,8 +321,8 @@ public class TeleopLimits extends OpMode {
 
         //Set driving variables to values specified in the variable declaration section
 
-        finRightPower = -1 * gamepad1.right_stick_y - .2 * gamepad1.right_stick_x - .58 * gamepad1.left_stick_x; //Set finRightPower, taking into account driving variables from each driving axis
-        finLeftPower = -1 * gamepad1.right_stick_y + .2 * gamepad1.right_stick_x + .58 * gamepad1.left_stick_x; //Set finLeftPower, taking into account driving variables from each driving axis
+        finRightPower = -1 * gamepad1.right_stick_y - .2 * gamepad1.right_stick_x - .48 * gamepad1.left_stick_x; //Set finRightPower, taking into account driving variables from each driving axis
+        finLeftPower = -1 * gamepad1.right_stick_y + .2 * gamepad1.right_stick_x + .48 * gamepad1.left_stick_x; //Set finLeftPower, taking into account driving variables from each driving axis
 
         finBackPower = gamepad1.right_stick_x; //Sin finBackPower to the raw value of the x axis of the right stick, for strafing
 
@@ -417,14 +417,6 @@ public class TeleopLimits extends OpMode {
             {
                 panSpinPosition -= .02; //Subtract .04 from panSpinPosition to lower the pan
             }
-
-
-
-            telemetry.addData("bothBlockCounter", bothBlockCounter);
-            telemetry.addData("blockGrabberThreshold", blockBackGrabberThreshold);
-            telemetry.addData("score", score);
-            telemetry.addData("b", gamepad1.b);
-            telemetry.addData("pan spin", panSpinPosition);
 
             //If x is pressed or sensors b and c have seen blocks for more than blockCounterThreshold loop iterations, we want to adjust the pan to a hold, rather than intake or score, position
             //We also make sure that no other commands that control panSpinPosition are being applied to avoid conflicting values
@@ -524,7 +516,7 @@ public class TeleopLimits extends OpMode {
                 upDownPosition = .655; //Set upDownPosition to .77
                 grabPosition = .66; //Set grabPosition to .44
             } else if (gamepad1.b) { //Else if b is pressed, Kevin wants to move the relic arm up to position .5. This position ensures the relic arm is not sotred, but is not all the way down, so Kevin can easily retrieve another relic if time allows
-                    upDownPosition = .36; //Subtract .01 from upDownPosition
+                upDownPosition = .36; //Subtract .01 from upDownPosition
             } else if (gamepad1.right_bumper) { //Else if right bumper is being pressed, //Else if right bumper is pressed, Kevin wants to move the relic arm down and release the relic, which is reflected in the upDownPosition and grab position.
                 //The upDownPosition is .82, which puts the arm lower than x does, as Kevin will press right bumper when the relic motor linear slides are not extended,
                 //Which will keep the arm high as less weight is extended.
@@ -571,9 +563,6 @@ public class TeleopLimits extends OpMode {
         upDown.setPosition(upDownPosition);
         timeTwo=this.getRuntime();
 
-        telemetry.addData("grab", grabPosition);
-        telemetry.addData("raise", upDownPosition);
-        telemetry.addData("loopCounter", loopCounter);
         telemetry.addData("lps", loopCounter/(timeTwo-timeOne));
         telemetry.update();
 
