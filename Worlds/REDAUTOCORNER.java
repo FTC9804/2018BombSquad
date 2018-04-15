@@ -16,6 +16,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 //Autonomous to score the ball and three blocks from the red corner position
 public class REDAUTOCORNER extends FunctionsForAuto {
 
+    boolean left = true;
+
     public void runOpMode() throws InterruptedException { //runOpMode() method
 
         configure("red", "corner"); //Configure with parameters red and corner
@@ -53,7 +55,7 @@ public class REDAUTOCORNER extends FunctionsForAuto {
         }
         else if (vuMarkReturn.equalsIgnoreCase("right"))
         {
-            driveNewIMU(35.1, 5, .43, true, 0); //Drive forwards for 16.9 inches at .35 power at a 0 degree heading with a 5 second timeout
+            driveNewIMU(33.6, 5, .43, true, 0); //Drive forwards for 16.9 inches at .35 power at a 0 degree heading with a 5 second timeout
         }
         else
         {
@@ -62,29 +64,27 @@ public class REDAUTOCORNER extends FunctionsForAuto {
 
         touchServo.setPosition(.45);
 
-        pause(1);
+        pause(.1);
 
         if (vuMarkReturn.equalsIgnoreCase("left") || vuMarkReturn.equalsIgnoreCase("center") || vuMarkReturn.equalsIgnoreCase("unknown as answer") || vuMarkReturn.equalsIgnoreCase("novalue")) //If vuforia reads left
         {
             spinMove (125, false, 5, true); //Spin to 125 degrees, while dropping the touch bar, not starting at .3 power with a 5 second timeout, putting the touchServo down
 
-            pause(.4);
+            pause(.1);
 
             driveNewIMU(7.5, 2.7, -.3, false, 125);
 
-            pause(.5);
+            pause(.1);
 
             frontPanGrip.setPosition(.258);
             backPanGrip.setPosition(.112);
 
-            pause(1);
+            pause(.7);
 
-            leftPanSpin.setPosition(.525); //Set leftPanSpin to position .21, as this is the intaking glyph position
-            rightPanSpin.setPosition(.586);
+            leftPanSpin.setPosition(.2); //Set leftPanSpin to position .21, as this is the intaking glyph position
+            rightPanSpin.setPosition(.17);
 
-            pause(1);
-
-            driveNewIMU(8.5, 2.7, -.3, false, 125);
+            driveNewIMU(8.5, 2.2, -.3, false, 125);
 
         }
         else
@@ -93,24 +93,25 @@ public class REDAUTOCORNER extends FunctionsForAuto {
 
             pause(.1);
 
+            driveNewIMU(5.5, 2.7, -.3, false, 55);
+
             frontPanGrip.setPosition(.258);
             backPanGrip.setPosition(.112);
 
-            pause(1);
+            pause(.7);
 
-            leftPanSpin.setPosition(.525); //Set leftPanSpin to position .21, as this is the intaking glyph position
-            rightPanSpin.setPosition(.586);
+            leftPanSpin.setPosition(.2); //Set leftPanSpin to position .21, as this is the intaking glyph position
+            rightPanSpin.setPosition(.17);
 
-            pause(1);
+            driveNewIMU(9.5, 2.2, -.3, false, 55);
 
-            driveNewIMU(18.5, 2.7, -.3, false, 55);
         }
 
 
         pause(.1);
 
 
-        if (vuMarkReturn.equalsIgnoreCase("left") || vuMarkReturn.equalsIgnoreCase("center") || vuMarkReturn.equalsIgnoreCase("unknown as answer") || vuMarkReturn.equalsIgnoreCase("novalue")) //If vuforia reads left
+        if (vuMarkReturn.equalsIgnoreCase("left") || vuMarkReturn.equalsIgnoreCase("center") || vuMarkReturn.equalsIgnoreCase("unknown as answer") || vuMarkReturn.equalsIgnoreCase("novalue") && left) //If vuforia reads left
         {
             driveNewIMU(3, 5, .3, true, 125);
         }
@@ -119,55 +120,328 @@ public class REDAUTOCORNER extends FunctionsForAuto {
             driveNewIMU(3, 5, .3, true, 55);
         }
 
+        pause(.1);
 
-//        pause(.05); //pause for .05 seconds
-//
-//        touch(false, false, true); //Run touch method with parameters false, false, and true, meaning we are running from red corner position
-//
-//        pause(.05); //Pause for .05 seconds
-//
-//        if (vuMarkReturn.equalsIgnoreCase("left")) //If vuforia reads left
-//        {
-//            strafeNewIMU(8, 2.8, .65, -88); //Strafe 8 inches to the right at .65 power with a 2.8 second timeout keeping a -88 degree heading, to return to the center position before collecting glyphs in auto
-//        }
-//        else if (vuMarkReturn.equalsIgnoreCase("right")) //If vuforia reads right
-//        {
-//            strafeNewIMU(8, 2.8, -.65, -88); //Strafe 8 inches to the left at .65 power with a 2.8 second timeout keeping a -88 degree heading, to return to the center position before collecting glyphs in auto
-//        }
-//        else //Else
-//        {
-//            //Do not strafe as we are centered
-//        }
-//
-//        telemetry.addData("time elapsed", this.getRuntime()-threeGlyphTimeOne); //Telemetry for time elapsed
-//        telemetry.update(); //Update telemetry
-//
-//        pause(.05); //Pause for .05 seconds
-//
-//        if (this.getRuntime() - threeGlyphTimeOne < 17.5) { //If enough time is left
-//
-//            spinMove(88, false, 4, false); //Spin move to 88 degrees to position for intaking blocks, not starting at .3 power and not putting the touchServo down with a 4 second timeout
-//
-//            pause(.05); //Pause for .05 seconds
-//
-//            if (this.getRuntime() - threeGlyphTimeOne <20.5) { //If enough time is left
-//                getBlocks(60); //getBlocks with 60 inch distance
-//            }
-//
-//            pause(.05); //Pause for .05 seconds
-//
-//            if (this.getRuntime() - threeGlyphTimeOne < 25  ) { //If enough time is left
-//                if (sensorB.getDistance(DistanceUnit.CM) < 10 || sensorC.getDistance(DistanceUnit.CM) < 10) { //If we have at least 1 glyph
-//                    scoreBlock(84); //score Block at 84 degrees
-//                } else { //Else if we do not have glyph
-//                    if (this.getRuntime() - threeGlyphTimeOne  < 27.5) { //If enough time is left
-//                        driveNewIMU(4.8, 1.5, .3, true, 84); //Drive forward for 4.8 inches at .3 power at 84 degrees with a 1.5 second timeout to secure a spot in the safe zone and make sure we are not touching any glyphs
-//                    }
-//                }
-//            }
-//
-//
-//        }
+        if (vuMarkReturn.equalsIgnoreCase("center") || vuMarkReturn.equalsIgnoreCase("unknown as answer") || vuMarkReturn.equalsIgnoreCase("novalue") && (this.getRuntime() - threeGlyphTimeOne<17)) {
+            if (attackConfirmation.equalsIgnoreCase("left")) {
+                spinMove(100, false, 5, false);
+
+                pause(.01);
+
+                driveNewIMU(20, 3, .6, true, 100);
+
+                pause(.01);
+
+                getBlockOne();
+
+                pause(.01);
+
+                driveNewIMU(6, 3, -.4, false, 100);
+
+                pause(.01);
+
+                spinMove(70, false, 5, false);
+
+                pause(.01);
+
+                if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) {
+                    getBlockTwo();
+                }
+
+                pause(.01);
+
+                spinMove(120, false, 5, false);
+
+            }
+            else if (attackConfirmation.equalsIgnoreCase("right")) {
+                spinMove(66, false, 5, false);
+
+                pause(.1);
+
+                driveNewIMU(20, 3, .6, true, 66);
+
+                pause(.1);
+
+                getBlockOne();
+
+                pause(.1);
+
+                driveNewIMU(6, 3, -.4, false, 66);
+
+                pause(.1);
+
+                spinMove(100, false, 5, false);
+
+                pause(.1);
+
+                if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) {
+                    getBlockTwo();
+                }
+
+            }
+            else {
+                spinMove(85, false, 5, false);
+
+                pause(.1);
+
+                driveNewIMU(20, 3, .6, true, 85);
+
+                pause(.1);
+
+                getBlockOne();
+
+                pause(.1);
+
+                driveNewIMU(6, 3, -.4, false, 85);
+
+                pause(.1);
+
+                spinMove(95 , false, 5, false);
+
+                pause(.1);
+
+                if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) {
+                    getBlockTwo();
+                }
+
+                pause(.1);
+
+                spinMove(120, false, 5, false);
+
+            }
+        }
+
+        if (vuMarkReturn.equalsIgnoreCase("left")  && (this.getRuntime() - threeGlyphTimeOne<17)) {
+            if (attackConfirmation.equalsIgnoreCase("left")) {
+                spinMove(100, false, 5, false);
+
+                pause(.1);
+
+                driveNewIMU(20, 3, .6, true, 100);
+
+                pause(.1);
+
+                getBlockOne();
+
+                pause(.1);
+
+                driveNewIMU(6, 3, -.4, false, 100);
+
+                pause(.1);
+
+                spinMove(70, false, 5, false);
+
+                pause(.1);
+
+                if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) {
+                    getBlockTwo();
+                }
+
+            } else if (attackConfirmation.equalsIgnoreCase("right")) {
+                spinMove(81, false, 5, false);
+
+                pause(.1);
+
+                driveNewIMU(20, 3, .6, true, 81);
+
+                pause(.1);
+
+                getBlockOne();
+
+                pause(.1);
+
+                driveNewIMU(6, 3, -.4, false, 81);
+
+                pause(.1);
+
+                spinMove(95, false, 5, false);
+
+                pause(.1);
+
+                if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) {
+                    getBlockTwo();
+                }
+
+            } else {
+                spinMove(100, false, 5, false);
+
+                pause(.1);
+
+                driveNewIMU(20, 3, .6, true, 100);
+
+                pause(.1);
+
+                getBlockOne();
+
+                pause(.1);
+
+                driveNewIMU(6, 3, -.4, false, 100);
+
+                pause(.1);
+
+                spinMove(70, false, 5, false);
+
+                pause(.1);
+
+                if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) {
+                    getBlockTwo();
+                }
+
+            }
+        }
+
+        if (vuMarkReturn.equalsIgnoreCase("right")  && (this.getRuntime() - threeGlyphTimeOne<17)) {
+            if (attackConfirmation.equalsIgnoreCase("left")) {
+                spinMove(110, false, 5, false);
+
+                pause(.1);
+
+                driveNewIMU(20, 3, .6, true, 110);
+
+                pause(.1);
+
+                getBlockOne();
+
+                pause(1);
+
+                driveNewIMU(6, 3, -.4, false, 110);
+
+                pause(1);
+
+                spinMove(70, false, 5, false);
+
+                pause(1);
+
+                if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) {
+                    getBlockTwo();
+                }
+
+                driveNewIMU(6, 3, -.4, false, 110);
+
+
+            }
+            else if (attackConfirmation.equalsIgnoreCase("right")) {
+                spinMove(70, false, 5, false);
+
+                pause(.1);
+
+                driveNewIMU(20, 3, .6, true, 70);
+
+                pause(.1);
+
+                getBlockOne();
+
+                pause(.1);
+
+                driveNewIMU(6, 3, -.4, false, 70);
+
+                pause(1);
+
+                spinMove(80, false, 5, false);
+
+                timeOne=this.getRuntime();
+                timeTwo=this.getRuntime();
+
+                pause(.1);
+
+                if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) {
+                    getBlockTwo();
+                }
+
+            }
+
+            else {
+                spinMove(90, false, 5, false);
+
+                pause(.1);
+
+                driveNewIMU(20, 3, .6, true, 90);
+
+                pause(.1);
+
+                getBlockOne();
+
+                pause(.1);
+
+                driveNewIMU(6, 3, -.4, false, 90);
+
+                pause(1);
+
+                spinMove(15, false, 5, false);
+
+                timeOne=this.getRuntime();
+                timeTwo=this.getRuntime();
+
+                pause(.1);
+
+                if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) {
+                    getBlockTwo();
+                }
+
+            }
+
+        }
+
+        backPanGrip.setPosition(.812);
+        frontPanGrip.setPosition(.964);
+
+        pause(.1);
+
+        if (vuMarkReturn.equalsIgnoreCase("right") && (this.getRuntime() - threeGlyphTimeOne<22))
+        {
+            driveNewIMU(76, 3.8, -.5, false, 80);
+        }
+        else if (vuMarkReturn.equalsIgnoreCase("left") && (this.getRuntime() - threeGlyphTimeOne<22))
+        {
+            driveNewIMU(76, 3.8, -.5, false, 100);
+        }
+        else
+        {
+            if ((this.getRuntime() - threeGlyphTimeOne<22)) {
+                driveNewIMU(76, 3, -.5, false, 90);
+            }
+        }
+
+        pause(.1);
+
+        if  (!(sensorB.getDistance(DistanceUnit.CM) < 8) && !(sensorC.getDistance(DistanceUnit.CM) < 8)) {
+            driveNewIMU(4.9, 1, .5, true, 90);
+        }
+        else
+        {
+            leftPanSpin.setPosition(.67);
+            rightPanSpin.setPosition(.64);
+
+            driveNewIMU(5.1, 1, .5, true, 90);
+
+            pause(.1);
+
+            frontPanGrip.setPosition(.280);
+            backPanGrip.setPosition(.112);
+
+            pause(1);
+
+            leftPanSpin.setPosition(.2);
+            rightPanSpin.setPosition(.17);
+
+            pause(.5);
+
+            driveNewIMU(10, 3, -.5, false, 70);
+
+            pause(.1);
+
+            driveNewIMU(6, 3, .5, true, 80);
+
+            pause(.1);
+
+            driveNewIMU(10, 3, -.5, false, 90);
+
+            pause(.1);
+
+            driveNewIMU(4, 1, .5, true, 90);
+
+        }
+
 
     }
 }
