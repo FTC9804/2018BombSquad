@@ -4,24 +4,25 @@ package org.firstinspires.ftc.teamcode;
 //Import statements
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 /**
  * Created by MarcusLeher on 30/12/2017.
  */
 
-@Autonomous(name = "redNOTcorner", group = "VuforiaAuto")
+@Autonomous(name = "redcorner", group = "VuforiaAuto")
 //@Disabled
 
-//Autonomous to score ball and a block from the red non-corner position
-public class REDAUTONOTCORNER extends FunctionsForAuto {
+//Autonomous to score the ball and three blocks from the red corner position
+public class REDAUTOCORNERWILD extends FunctionsForAuto {
+
+    boolean left = true;
 
     public void runOpMode() throws InterruptedException { //runOpMode() method
 
-        configure("red", "notcorner"); //Configure with parameters red and relicSide
+        configure("red", "corner"); //Configure with parameters red and corner
 
-        pause(.05); //pause 
+        pause(.05); //pause for .05 seconds
 
         calibrateGyro(); //Calibrate the gyro
 
@@ -29,15 +30,15 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
         telemetry.addData("calibrated", true);
         telemetry.update();
 
-        pause(.05); //pause 
+        pause(.05); //pause for .05 seconds
 
         introduceAngle(); //Introduce the angle
 
-        pause(.05); //pause
+        pause(.05); //pause for .05 seconds
 
         waitForStart(); //Wait for start
 
-        pause(.05); //pause
+        pause(.05); //pause for .05 seconds
 
         //Telemetry
         telemetry.addData("here", true);
@@ -45,323 +46,408 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
         dropFeelerMoveBallOnlyNewRobot(); //Run dropFeelerMoveBallOnlyNewRobot to score the ball
 
-        pause(.05); //pause
+        pause(.05); //pause for .05 seconds
 
-        driveNewIMU(6, 10, .25, true, 0); //Drive forward
 
-        frontBarDown(); //Lower the front bar to prevent faulty glyphs from intaking
-
-        pause(.01); //pause 
-
-        if (vuMarkReturn.equalsIgnoreCase("left")) //If vuforia reads left
+        if (vuMarkReturn.equalsIgnoreCase("left")) // If vuforia reads left
         {
-            spinMove(225, false, 5, true); //Spin to orient robot for glyph scoring
+            driveNewIMU(12.1, 5, .27, true, 0); // drive off platform
 
-            pause(.01); //pause 
+            frontBarDown(); // lower bar
 
-            driveNewIMU(8, 3.2, -.3, false, 225);
+            pause(.01); // pause
 
-            pause(.01); //pause 
+            spinMove(125, false, 5, true); //Spin to 125 degrees, while dropping the touch bar, not starting at .3 power with a 5 second timeout, putting the touchServo down
 
-            release();
+            pause(.01); // pause
 
-            pause(.7); //pause 
+            driveNewIMU(7.5, 2.7, -.3, false, 125); // back away from cryptobox
 
-            lowerPan();
+            pause(.01); // pause
 
-            pause(.01); //pause 
+            release(); // drop glyphs
 
-            driveNewIMU(8.5, 1.6, -.3, false, 225);
+            pause(.7); // wait for them to settle
 
-            pause(.01); //pause 
+            lowerPan(); // lower pan
 
-            driveNewIMU(6.1, 5, .3, true, 230);
-            
-            pause(.01); //pause 
+            driveNewIMU(8.5, 2.2, -.3, false, 125); // back into cryptobox scoring glyphs
 
-            spinMove(136, false, 5, false);
-            
-            pause(.01); //pause 
+            pause(.01); // pause
 
-            driveNewIMU(24, 3, .86, true, 125);
-            
-            pause(.01); //pause 
+            driveNewIMU(3, 5, .3, true, 125); // drive away from cryptobox
 
-            spinMove(170, false, 5, false);
-            
-            pause(.01); //pause 
+            if ((this.getRuntime() - threeGlyphTimeOne < 17)) { // if there is enough time to get additional glyphs
+                if (attackConfirmation.equalsIgnoreCase("left")) { // if most accesible glyph is in the left position
+                    spinMove(100, false, 5, false); // turn towards left position
 
-            getBlockOne(); 
+                    pause(.01); // pause
 
-            pause(.01); //pause 
+                    driveNewIMU(20, 3, .6, true, 100); // drive toward glyph pile
 
-            driveNewIMU(6, 3, -.4, false, 180);
+                    pause(.01); // pause
 
-            pause(.01); //pause 
+                    getBlockOne(); // grab the first block
 
-            spinMove(160, false, 1, false);
+                    pause(.01); // pause
 
-            pause(.01); //pause 
+                    driveNewIMU(6, 3, -.4, false, 100); // back away from glyph pile
 
-            if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) {
-                getBlockTwo();
-            }
+                    pause(.01); // pause
 
-            spinMove(150, false, 1, false);
+                    spinMove(70, false, 5, false); // turn towards the second glyph
 
-            grab();
+                    pause(.01); // pause
 
-            if (!(sensorB.getDistance(DistanceUnit.CM) < 8) && !(sensorC.getDistance(DistanceUnit.CM) < 8))
-            {
-                driveNewIMU(76, 3.6, -.5, false, 145);
+                    if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) { // if we don't have 2 glyphs
+                        getBlockTwo(); // grab second glyph
+                    }
 
-                pause(.01); //pause 
+                } else if (attackConfirmation.equalsIgnoreCase("right")) { // if most accessible glyph is in the center position
+                    spinMove(81, false, 5, false); // spin toward right position
 
-                driveNewIMU(4.9, 1, .5, true, 145);
+                    pause(.01); // pause
 
-            }
-            else {
+                    driveNewIMU(20, 3, .6, true, 81); // drive toward pile
 
-                driveNewIMU(76, 3.6, -.5, false, 145);
+                    pause(.01); // pause
 
-                raisePan();
+                    getBlockOne(); // intake the first block
 
-                if (this.getRuntime() - threeGlyphTimeOne > 25)
-                {
-                    release();
+                    pause(.01); // pause
+
+                    driveNewIMU(6, 3, -.4, false, 81); // backup from pile
+
+                    pause(.01); // pause
+
+                    spinMove(95, false, 5, false); // spin towards second glyph
+
+                    pause(.01); // pause
+
+                    if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) { // if we don't already have 2 glyphs
+                        getBlockTwo(); // grab second glyph
+                    }
+
+                }
+                else { // if most accessible glyph in center position
+
+                    spinMove(100, false, 5, false); // spin to center glyph position
+
+                    pause(.01); // pause
+
+                    driveNewIMU(20, 3, .6, true, 100); // drive towards center position
+
+                    pause(.01); // pause
+
+                    getBlockOne(); // get first block
+
+                    pause(.01); // pause
+
+                    driveNewIMU(6, 3, -.4, false, 100); // backup from glyph pile
+
+                    pause(.01); // pause
+
+                    spinMove(70, false, 5, false); // spin toward second glyph
+
+                    pause(.01); // pause
+
+                    if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) { // if we don't already have 2 glyphs
+                        getBlockTwo(); // grab second glyph
+                    }
+
                 }
 
-                driveNewIMU(4.9, 1, .5, true, 145);
+            } else if (vuMarkReturn.equalsIgnoreCase("right")) {
 
-                pause(.2); //pause 
-                
-                release();
+                driveNewIMU(33.6, 5, .43, true, 0); // drive off the platform
 
-                if (this.getRuntime() - threeGlyphTimeOne < 25) {
+                frontBarDown(); // lower front bar
 
-                    pause(.6); //pause 
+                pause(.01);  // pause
 
-                    lowerPan();
+                spinMove(55, false, 5, true); //Spin to 125 degrees, while dropping the touch bar, not starting at .3 power with a 5 second timeout, putting the touchServo down
 
-                    driveNewIMU(10, 1.6, -.5, false, 140);
+                pause(.01); // pause
 
-                    pause(.01); //pause 
+                driveNewIMU(5.5, 2.7, -.3, false, 55); // drive toward cryptobox
 
-                    driveNewIMU(6, 3, .5, true, 160);
-                }
-                
-            }
-            
-        }
-        else if (vuMarkReturn.equalsIgnoreCase("right")) //If vuforia reads right
-        {
-            raisePan();
+                release(); // drop blocks
 
-            pause(.01); //pause 
+                pause(.7); // wait for them to settle
 
-            pivot(-160, 4);
+                lowerPan(); // lower pan
 
-            pause(.01); //pause 
+                driveNewIMU(9.5, 2.2, -.3, false, 55); // drive block into cryptobox
 
-            release();
+                pause(.01); // pause
 
-            pause(.7); //pause 
+                driveNewIMU(3, 5, .3, true, 55); // drive away from cryptobox
 
-            lowerPan();
+                pause(.01); // pause
 
-            pause(.01); //pause 
+                if (this.getRuntime() - threeGlyphTimeOne < 17) { // if there is time to grab 2 more glyphs
+                    if (attackConfirmation.equalsIgnoreCase("left")) { // if the most accessible block is left
 
-            driveNewIMU(12, 1.6, -.3, false, -160);
+                        spinMove(110, false, 5, false); // spin toward center position
 
-            pause(.01); //pause 
+                        pause(.01); // pause
 
-            driveNewIMU(6.1, 5, .3, true, -160);
+                        driveNewIMU(20, 3, .6, true, 110); // drive towards pile
 
-            pause(.01); //pause 
+                        pause(.01); // pause
 
-            spinMove(-80, false, 5, false);
-            
-            pause(.01); //pause 
+                        getBlockOne(); // grab first block
 
-            driveNewIMU(29, 3, -1, false, -70);
+                        pause(1); // pause
 
-            pause(.01); //pause 
+                        driveNewIMU(6, 3, -.4, false, 110); // backup from glyphs
 
-            spinMove(-180, false, 5, false);
+                        pause(.01); // pause
 
-            getBlockOne();
+                        spinMove(70, false, 5, false); // turn towards second glyph
 
-            pause(.01); //pause 
+                        pause(.01); // pause
 
-            driveNewIMU(6, 3, -.4, false, -180);
+                        if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) { // if we don't already have 2 glyphs
+                            getBlockTwo(); // get second glyph
+                        }
 
-            pause(.01); //pause 
+                        driveNewIMU(6, 3, -.4, false, 110); // backup
 
-            spinMove(-170, false, 1, false);
 
-            pause(.01); //pause 
+                    } else if (attackConfirmation.equalsIgnoreCase("right")) {
 
-            if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) {
-                getBlockTwo();
-            }
+                        spinMove(70, false, 5, false); // spin toward right position
 
-            spinMove(-195, false, 1, false);
+                        pause(.01); // pause
 
-            grab();
+                        driveNewIMU(20, 3, .6, true, 70); // drive towards pile
 
-            if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8))
-            {
-                driveNewIMU(76, 3.6, -.5, false, -195);
+                        pause(.01); // pause
 
-                pause(.01); //pause 
+                        getBlockOne(); // grab the first block
 
-                driveNewIMU(4.9, 1, .5, true, -195);
-            }
-            else {
+                        pause(.01); // pause
 
-                driveNewIMU(76, 3.6, -.5, false, -195);
+                        driveNewIMU(6, 3, -.4, false, 70); // backup from pile
 
-                pause(.01); //pause 
+                        pause(.01); // pause
 
-                raisePan();
-                
-                pause(.01); //pause 
+                        spinMove(80, false, 5, false); // spin toward second block
 
-                if (this.getRuntime() - threeGlyphTimeOne > 25)
-                {
-                    release();
-                }
+                        timeOne = this.getRuntime(); // not sure what this does
+                        timeTwo = this.getRuntime(); // or this ???????
 
-                driveNewIMU(5.1, 1, .5, true, -195);
+                        pause(.01);
 
-                pause(.01); //pause 
-                
-                release();
+                        if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) { // if we don't already have 2 glyphs
+                            getBlockTwo(); // grab second glyph
+                        }
 
-                if (this.getRuntime() - threeGlyphTimeOne < 25) {
+                    } else {
+                        spinMove(90, false, 5, false); // spin toward center glyph
 
-                    pause(.6); //pause 
+                        pause(.01); // pause
 
-                    lowerPan();
-                    
-                    pause(.01); //pause 
+                        driveNewIMU(20, 3, .6, true, 90); // drive toward pile
 
-                    driveNewIMU(10, 1.6, -.5, false, -170);
+                        pause(.01); // pause
 
-                    pause(.01); //pause 
+                        getBlockOne(); // intake first block
 
-                    driveNewIMU(6, 3, .5, true, -190);
-                }
-            }
+                        pause(.01); // pause
 
-        }
-        else //else
-        {
-            spinMove(211, false, 5, true);
+                        driveNewIMU(6, 3, -.4, false, 90); // back up from pile
 
-            pause(.01);
+                        pause(.01); // pause
 
-            release();
+                        spinMove(15, false, 5, false); // turn toward second glyph
 
-            pause(.6);
+                        timeOne = this.getRuntime(); // not sure what this does
+                        timeTwo = this.getRuntime(); // or this
 
-            lowerPan();
+                        pause(.01); // pause
 
-            driveNewIMU(12.5, 1.6, -.3, false, 211);
+                        if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) { // if we don't already have 2 glyphs
+                            getBlockTwo(); // intake second one
+                        }
 
-            pause(.01);
+                    }
 
-            driveNewIMU(6.1, 5, .3, true, 211);
-            
-            pause(.01);
-
-            spinMove(125, false, 5, false);
-            
-            pause(.01);
-
-            driveNewIMU(33, 3, .86, true, 125);
-            
-            pause(.01);
-
-            spinMove(170, false, 5, false);
-
-            getBlockOne();
-
-            pause(.01);
-
-            driveNewIMU(6, 3, -.4, false, 180);
-
-            pause(.01);
-
-            spinMove(160, false, 1, false);
-
-            pause(.01);
-
-            if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) {
-                getBlockTwo();
-            }
-
-            spinMove(150, false, 1, false);
-
-            grab();
-
-            if (!(sensorB.getDistance(DistanceUnit.CM) < 8) && !(sensorC.getDistance(DistanceUnit.CM) < 8))
-            {
-                driveNewIMU(76, 5, -.5, false, 145);
-
-                pause(.01);
-
-                driveNewIMU(4.9, 1, .5, true, 145);
-
-            }
-            else {
-
-                driveNewIMU(76, 3.6, -.5, false, 145);
-                
-                pause(.01);
-                
-                raisePan();
-                
-                pause(.01);
-
-                if (this.getRuntime() - threeGlyphTimeOne > 25)
-                {
-                    release();
-                }
-                
-                driveNewIMU(5.1, 1, .5, true, 145);
-
-                pause(.01);
-
-                release();
-
-                if (this.getRuntime() - threeGlyphTimeOne < 25) {
-
-                    pause(.6);
-
-                    lowerPan();
-                    
-                    driveNewIMU(10, 1, -.5, false, 170);
-
-                    pause(.01);
-
-                    driveNewIMU(6, 3, .5, true, 190);
-                    
                 }
             }
         }
+         else { // if vuforia = center position or nothing
 
+            driveNewIMU(2.6, 5, .27, true, 0); // drive off platform
 
+            frontBarDown(); // lower front bar
 
+            pause(.01); // pause
+
+            spinMove (125, false, 5, true); //Spin to 125 degrees, while dropping the touch bar, not starting at .3 power with a 5 second timeout, putting the touchServo down
+
+            pause(.01); // pause
+
+            driveNewIMU(7.5, 2.7, -.3, false, 125); // drive back toward cryptobox
+
+            pause(.01); // pause
+
+            release(); // drop blocks
+
+            pause(.7); // pause for block to settle
+
+            lowerPan(); // lower pan
+
+            driveNewIMU(8.5, 2.2, -.3, false, 125); // push block into cryptobox
+
+            pause(.01); // pause
+
+            driveNewIMU(3, 5, .3, true, 125); // drive away from cryptobox
+
+            pause(.01); // pause
+
+            if (attackConfirmation.equalsIgnoreCase("left")) { // if most accessible block in left position
+
+                spinMove(100, false, 5, false); // spin towards left block
+
+                pause(.01); // pause
+
+                driveNewIMU(20, 3, .6, true, 100); // drive towards blocks
+
+                pause(.01); // pause
+
+                getBlockOne(); // intake first block
+
+                pause(.01); // pause
+
+                driveNewIMU(6, 3, -.4, false, 100); // backup from pile
+
+                pause(.01); // pause
+
+                spinMove(70, false, 5, false); // turn towards second block
+
+                pause(.01); // pause
+
+                if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) { // if we don't already have 2 glyphs
+
+                    getBlockTwo(); // intake second block
+
+                }
+
+                pause(.01); // pause
+
+                spinMove(120, false, 5, false); // turn towards cryptobox
+
+            }
+            else if (attackConfirmation.equalsIgnoreCase("right")) { // if most accessible block in right position
+
+                spinMove(66, false, 5, false); // spin towards right block
+
+                pause(.01); // pause
+
+                driveNewIMU(20, 3, .6, true, 66); // drive towards blocks
+
+                pause(.01); // pause
+
+                getBlockOne(); // intake first block
+
+                pause(.01); // pause
+
+                driveNewIMU(6, 3, -.4, false, 66); // backup from pile
+
+                pause(.01); // pause
+
+                spinMove(100, false, 5, false); // turn toward second block
+
+                pause(.01); // pause
+
+                if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) { // if we don't already have 2 glyphs
+
+                    getBlockTwo(); // intake second block
+
+                }
+
+            }
+            else { // if most accessible block in center position
+
+                spinMove(85, false, 5, false); // spin towards center block
+
+                pause(.01); // pause
+
+                driveNewIMU(20, 3, .6, true, 85); // drive towards blocks
+
+                pause(.01); // pause
+
+                getBlockOne(); // intake fist block
+
+                pause(.01); // pause
+
+                driveNewIMU(6, 3, -.4, false, 85); // backup from pile
+
+                pause(.01); // pause
+
+                spinMove(95 , false, 5, false); // turn towards second block
+
+                pause(.01); // pause
+
+                if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) { // if we don't already have 2 glyphs
+
+                    getBlockTwo(); // intake second block
+
+                }
+
+                pause(.01); // pause
+
+                spinMove(120, false, 5, false); // turn towards cryptobox
+
+            }
+        }
+
+        grab(); // grab blocks
+
+        pause(.01); // pause
+
+        driveNewIMU(76, 3, -.5, false, 90); // drive towards cryptobox
+
+        pause(.01); // pause
+
+        if  (!(sensorB.getDistance(DistanceUnit.CM) < 8) && !(sensorC.getDistance(DistanceUnit.CM) < 8) || this.getRuntime() - threeGlyphTimeOne<24) { // if we don't have any blocks
+
+            driveNewIMU(4.9, 1, .5, true, 90); // drive away from cryptobox
+
+        }
+        else
+        {
+            raisePan(); // raise pan
+
+            driveNewIMU(5.1, 1, .5, true, 90); // drive away from cryptobox
+
+            pause(.01); // pause
+
+            release();
+
+            pause(1); // wait for blocks to settle
+
+            lowerPan(); // lower pan
+
+            pause(.5); // pause
+
+            driveNewIMU(10, 3, -.5, false, 70); // back into cryptobox
+
+            pause(.01); // pause
+
+            driveNewIMU(6, 3, .5, true, 80); // drive away from cryptobox
+
+            pause(.01); // pause
+
+            driveNewIMU(10, 3, -.5, false, 90); // knock blocks in
+
+            pause(.01); // pause
+
+            driveNewIMU(4, 1, .5, true, 90); // drive away
+
+        }
     }
 
-      
-
-            
-    
-
 }
-
-
-
-
