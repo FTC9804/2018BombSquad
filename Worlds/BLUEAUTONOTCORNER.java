@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 //@Disabled
 
 //Autonomous to score ball and a block from the blue non-corner position
-public class BLUEAUTONOTCORNERWILD extends FunctionsForAuto {
+public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
     boolean right = true;
 
@@ -52,9 +52,9 @@ public class BLUEAUTONOTCORNERWILD extends FunctionsForAuto {
 
         pause(.8); //pause
 
-        if  (!vuMarkReturn.equalsIgnoreCase("right")) // vuforia reads right
+        if  (vuMarkReturn.equalsIgnoreCase("right")) // vuforia reads right
         {
-            driveNewIMU(7.2, 10, -.35, false, 0); // drive backward again
+            driveNewIMU(5.2, 10, -.35, false, 0); // drive backward again
 
             frontBarDown(); // lower front bar
 
@@ -106,6 +106,11 @@ public class BLUEAUTONOTCORNERWILD extends FunctionsForAuto {
 
                 raisePan(); // raise
 
+                if (this.getRuntime() - threeGlyphTimeOne > 25)
+                {
+                    release();
+                }
+
                 driveNewIMU(4.9, 1, .5, true, 0); // drive away from cryptobox
 
                 pause(.2); // pause
@@ -126,7 +131,7 @@ public class BLUEAUTONOTCORNERWILD extends FunctionsForAuto {
                 }
             }
         }
-        if (vuMarkReturn.equalsIgnoreCase("left")) //If vuforia reads left
+        else if (vuMarkReturn.equalsIgnoreCase("left")) //If vuforia reads left
         {
             driveNewIMU(5.2, 10, -.35, false, 0); // drive backward additional distance
 
@@ -184,6 +189,11 @@ public class BLUEAUTONOTCORNERWILD extends FunctionsForAuto {
                 driveNewIMU(76, 2.8, -.5, false, 19);
 
                 raisePan();
+
+                if (this.getRuntime() - threeGlyphTimeOne > 25)
+                {
+                    release();
+                }
 
                 driveNewIMU(4.9, 1, .5, true, 19);
 
@@ -260,6 +270,11 @@ public class BLUEAUTONOTCORNERWILD extends FunctionsForAuto {
                 driveNewIMU(76, 2.8, -.5, false, 14); // drive toward cryptobox
 
                 raisePan(); // raise pan
+
+                if (this.getRuntime() - threeGlyphTimeOne > 25)
+                {
+                    release();
+                }
 
                 driveNewIMU(4.9, 1, .5, true, 14); // drive away from cryptobox
 
