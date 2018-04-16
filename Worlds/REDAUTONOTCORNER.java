@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 //@Disabled
 
 //Autonomous to score ball and a block from the red non-corner position
-public class REDAUTONOTCORNERWILD extends FunctionsForAuto {
+public class REDAUTONOTCORNER extends FunctionsForAuto {
 
     public void runOpMode() throws InterruptedException { //runOpMode() method
 
@@ -121,35 +121,35 @@ public class REDAUTONOTCORNERWILD extends FunctionsForAuto {
 
                 pause(.01); //pause
 
-                driveNewIMU(4.9, 1, .5, true, 145); // drives away from cryptobox 
+                driveNewIMU(4.9, 1, .5, true, 145); // drives away from cryptobox
 
             }
-            else { // if we do have blocks in our pan 
-                
-                raisePan(); // raise pan 
+            else { // if we do have blocks in our pan
+
+                raisePan(); // raise pan
 
                 if (this.getRuntime() - threeGlyphTimeOne > 25) // if there isn't time release glyphs while roating so we throw them into cryptobox
                 {
-                    release(); // release glyphs 
+                    release(); // release glyphs
                 }
 
-                driveNewIMU(4.9, 1, .5, true, 145); // drive away from cryptobox 
+                driveNewIMU(4.9, 1, .5, true, 145); // drive away from cryptobox
 
                 pause(.2); // wait for pan to reach position
-                
-                release(); // release blocks 
 
-                if (this.getRuntime() - threeGlyphTimeOne < 25) { // if there is time 
+                release(); // release blocks
+
+                if (this.getRuntime() - threeGlyphTimeOne < 25) { // if there is time
 
                     pause(.6); //pause
 
-                    lowerPan(); // lower pan 
+                    lowerPan(); // lower pan
 
-                    driveNewIMU(10, 1.6, -.5, false, 140); // drive into cryptobox 
+                    driveNewIMU(10, 1.6, -.5, false, 140); // drive into cryptobox
 
                     pause(.01); //pause
 
-                    driveNewIMU(6, 3, .5, true, 160); // drive away 
+                    driveNewIMU(6, 3, .5, true, 160); // drive away
                 }
 
             }
@@ -157,96 +157,96 @@ public class REDAUTONOTCORNERWILD extends FunctionsForAuto {
         }
         else if (vuMarkReturn.equalsIgnoreCase("right")) //If vuforia reads right
         {
-            raisePan(); // raise pan 
+            raisePan(); // raise pan
 
             pause(.01); //pause
 
-            pivot(-160, 4); // pivot with left side 
+            pivot(-160, 4); // pivot with left side
 
             pause(.01); //pause
 
-            release(); // release blocks 
+            release(); // release blocks
 
             pause(.7); //pause
 
-            lowerPan(); // drop the pan 
+            lowerPan(); // drop the pan
 
             pause(.01); //pause
 
-            driveNewIMU(12, 1.6, -.3, false, -160); // ram into cryptobox 
+            driveNewIMU(12, 1.6, -.3, false, -160); // ram into cryptobox
 
             pause(.01); //pause
 
-            driveNewIMU(6.1, 5, .3, true, -160); // drive away from cryptobox 
+            driveNewIMU(6.1, 5, .3, true, -160); // drive away from cryptobox
 
             pause(.01); //pause
 
-            spinMove(-80, false, 5, false); // spin towards mid line 
+            spinMove(-80, false, 5, false); // spin towards mid line
 
             pause(.01); //pause
 
-            driveNewIMU(29, 3, -1, false, -70); // drive towards mid line 
+            driveNewIMU(29, 3, -1, false, -70); // drive towards mid line
 
             pause(.01); //pause
 
-            spinMove(-180, false, 5, false); // spin towards block pile 
+            spinMove(-180, false, 5, false); // spin towards block pile
 
-            getBlockOne(); // grab first block 
-
-            pause(.01); //pause
-
-            driveNewIMU(6, 3, -.4, false, -180); // back up from pile 
+            getBlockOne(); // grab first block
 
             pause(.01); //pause
 
-            spinMove(-170, false, 1, false); // turn towards second block 
+            driveNewIMU(6, 3, -.4, false, -180); // back up from pile
 
-            pause(.01); //pause 
+            pause(.01); //pause
 
-            if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) { // if we don't have two blocks 
-                
-                getBlockTwo(); // grab second block 
-                
+            spinMove(-170, false, 1, false); // turn towards second block
+
+            pause(.01); //pause
+
+            if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) { // if we don't have two blocks
+
+                getBlockTwo(); // grab second block
+
             }
 
-            spinMove(-195, false, 1, false); // spin towards the cryptobox 
+            spinMove(-195, false, 1, false); // spin towards the cryptobox
 
-            grab(); // grab blocks 
+            grab(); // grab blocks
 
-            if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8) || this.getRuntime() - threeGlyphTimeOne > 25) // if we don't have any blocks 
+            if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8) || this.getRuntime() - threeGlyphTimeOne > 25) // if we don't have any blocks
             {
-                driveNewIMU(76, 3.6, -.5, false, -195); // ram into cryptobox 
+                driveNewIMU(76, 3.6, -.5, false, -195); // ram into cryptobox
 
                 pause(.01); //pause
 
-                driveNewIMU(4.9, 1, .5, true, -195); // drive away a little 
+                driveNewIMU(4.9, 1, .5, true, -195); // drive away a little
             }
             else {
 
-                driveNewIMU(76, 3.6, -.5, false, -195); // ram into cryptobox 
+                driveNewIMU(76, 3.6, -.5, false, -195); // ram into cryptobox
 
                 pause(.01); //pause
 
-                raisePan(); // raise pan 
+                raisePan(); // raise pan
 
                 pause(.01); //pause
 
                 if (this.getRuntime() - threeGlyphTimeOne > 25)
                 {
-                    release(); // drop blocks so we fling them 
+                    release(); // drop blocks so we fling them
                 }
 
-                driveNewIMU(5.1, 1, .5, true, -195); // drive away from cryptobox 
+                driveNewIMU(5.1, 1, .5, true, -195); // drive away from cryptobox
 
                 pause(.01); //pause
 
-                release(); // release blocks 
+                release(); // release blocks
 
-                if (this.getRuntime() - threeGlyphTimeOne < 25) { //if there is time 
+                if (this.getRuntime() - threeGlyphTimeOne < 25) { //if there is time
 
                     pause(.6); //pause
 
-                    lowerPan(); // drop pan 
+                    lowerPan(); // drop pan
 
                     pause(.01); //pause
 
@@ -254,7 +254,7 @@ public class REDAUTONOTCORNERWILD extends FunctionsForAuto {
 
                     pause(.01); //pause
 
-                    driveNewIMU(6, 3, .5, true, -190); // drive away from cryptobox 
+                    driveNewIMU(6, 3, .5, true, -190); // drive away from cryptobox
                 }
             }
 
@@ -365,6 +365,3 @@ public class REDAUTONOTCORNERWILD extends FunctionsForAuto {
 
 
 }
-
-
-
