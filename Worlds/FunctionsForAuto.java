@@ -254,8 +254,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         //Init values
         feelerSwipe.setPosition(FEELER_SWIPE_CCW_POSITION); //Set feelerSwipe to FEELER_SWIPE_CCW_POSITION, so the jewel arm stays within 18 inches
         feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Set feelerRaise to FEELER_RAISE_UP_POSITION, so the jewel arm is pressed against the robot
-        leftPanSpin.setPosition(.2); //Set leftPanSpin to position .21, as this is the intaking glyph position
-        rightPanSpin.setPosition(.17);
+        leftPanSpin.setPosition(.46); //Set leftPanSpin to position .21, as this is the intaking glyph position
+        rightPanSpin.setPosition(.33);
         frontPanGrip.setPosition(.964);
         backPanGrip.setPosition(.812);
         touchServo.setPosition(.68); //Set the position of touchServo to .68, so the bar stays within 18 inches
@@ -817,7 +817,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         feelerRaise.setPosition(.65); //Set feelerRaise to position .49 to lower the jewel arm
 
-        vuMarkReturn = detectVuMark(1.5); //Run vuforia detection during the time when the feelerRaise is moving down, and set the output of detectVuMark to the String vuMarkReturn
+        vuMarkReturn = detectVuMark(5); //Run vuforia detection during the time when the feelerRaise is moving down, and set the output of detectVuMark to the String vuMarkReturn
         pause(.5); //.1 second pause
         if (allianceColor.equalsIgnoreCase("red") && sensorColorFeeler.blue() >=  sensorColorFeeler.red()) { //If we are the red alliance and see a blue ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
@@ -1055,24 +1055,16 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     }
 
 
-    public void spinMove (double desiredAngle, boolean pointThree, double time, boolean up)
+    public void spinMove (double desiredAngle, boolean pointSix, double time, boolean up)
     {
-        if (pointThree) //If boolean pointThree is true, we set the initial spinPower to .3 for a slower turn
+        if (pointSix) //If boolean pointThree is true, we set the initial spinPower to .3 for a slower turn
         {
             spinPower = .62;
         }
-        else if (!(desiredAngle==125)) { //Else set initial spinPower to .4845
+        else  { //Else set initial spinPower to .4845
             spinPower = .4645;
         }
-        else
-        {
-            spinPower = .6545;
-        }
 
-        if (time==3.4)
-        {
-            spinPower = .52;
-        }
 
 
 
@@ -1100,8 +1092,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 if (up) //If down is true then we are about to run driveToTouch, and want to move the touchServo down to do so during spinMove to save time
                 {
-                    leftPanSpin.setPosition(.67); //Set leftPanSpin to position .21 to lower thepan
-                    rightPanSpin.setPosition(.64);
+                    leftPanSpin.setPosition(.92);
+                    rightPanSpin.setPosition(.8);
                 }
             }
 
@@ -1122,8 +1114,8 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
                 if (up) //If down is true then we are about to run driveToTouch, and want to move the touchServo down to do so during spinMove to save time
                 {
-                    leftPanSpin.setPosition(.67); //Set leftPanSpin to position .21 to lower thepan
-                    rightPanSpin.setPosition(.64);
+                    leftPanSpin.setPosition(.92);
+                    rightPanSpin.setPosition(.8);
                 }
 
             }
@@ -1419,13 +1411,13 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     }
     public void raisePan()
     {
-        leftPanSpin.setPosition(.67);
-        rightPanSpin.setPosition(.64);
+        leftPanSpin.setPosition(.92);
+        rightPanSpin.setPosition(.8);
     }
     public void lowerPan()
     {
-        leftPanSpin.setPosition(.2); //Set leftPanSpin to position .21, as this is the intaking glyph position
-        rightPanSpin.setPosition(.17);
+        leftPanSpin.setPosition(.42); //Set leftPanSpin to position .21, as this is the intaking glyph position
+        rightPanSpin.setPosition(.3);
     }
     public void grab()
     {
