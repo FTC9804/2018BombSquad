@@ -51,7 +51,7 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
         frontBarDown(); //Lower the front bar to prevent faulty glyphs from intaking
 
-        pause(.01); //pause
+        pause(1); //pause
 
         if (vuMarkReturn.equalsIgnoreCase("left")) //If vuforia reads left
         {
@@ -59,7 +59,7 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
             pause(.01); //pause
 
-            driveNewIMU(8, 3.2, -.3, false, 225); // backup toward cryptobox
+            driveNewIMU(8, 3.2, -.3, false, 230); // backup toward cryptobox
 
             pause(.01); //pause
 
@@ -161,7 +161,7 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
             pause(.01); //pause
 
-            pivot(-160, 4); // pivot with left side
+            pivot(-156, 4); // pivot with left side
 
             pause(.01); //pause
 
@@ -173,11 +173,11 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
             pause(.01); //pause
 
-            driveNewIMU(12, 1.6, -.3, false, -160); // ram into cryptobox
+            driveNewIMU(12, 1.6, -.3, false, -156); // ram into cryptobox
 
             pause(.01); //pause
 
-            driveNewIMU(6.1, 5, .3, true, -160); // drive away from cryptobox
+            driveNewIMU(6.1, 5, .3, true, -156); // drive away from cryptobox
 
             pause(.01); //pause
 
@@ -185,7 +185,7 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
             pause(.01); //pause
 
-            driveNewIMU(29, 3, -1, false, -70); // drive towards mid line
+            driveNewIMU(22, 3, -1, false, -70); // drive towards mid line
 
             pause(.01); //pause
 
@@ -279,7 +279,7 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
             pause(.01);
 
-            spinMove(125, false, 5, false);
+            spinMove(125, true, 5, false);
 
             pause(.01);
 
