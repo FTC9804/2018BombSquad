@@ -22,7 +22,7 @@ public class REDAUTOCORNER extends FunctionsForAuto {
 
         configure("red", "corner"); //Configure with parameters red and corner
 
-        pause(.05); //pause for .05 seconds
+        pause(.05); //pause
 
         calibrateGyro(); //Calibrate the gyro
 
@@ -30,15 +30,15 @@ public class REDAUTOCORNER extends FunctionsForAuto {
         telemetry.addData("calibrated", true);
         telemetry.update();
 
-        pause(.05); //pause for .05 seconds
+        pause(.05); //pause
 
         introduceAngle(); //Introduce the angle
 
-        pause(.05); //pause for .05 seconds
+        pause(.05); //pause
 
         waitForStart(); //Wait for start
 
-        pause(.05); //pause for .05 seconds
+        pause(.05); //pause
 
         //Telemetry
         telemetry.addData("here", true);
@@ -130,8 +130,7 @@ public class REDAUTOCORNER extends FunctionsForAuto {
                         getBlockTwo(); // grab second glyph
                     }
 
-                }
-                else { // if most accessible glyph in center position
+                } else { // if most accessible glyph in center position
 
                     spinMove(100, false, 5, false); // spin to center glyph position
 
@@ -158,10 +157,11 @@ public class REDAUTOCORNER extends FunctionsForAuto {
                     }
 
                 }
+            }
 
             } else if (vuMarkReturn.equalsIgnoreCase("right")) {
 
-                driveNewIMU(33.6, 5, .43, true, 0); // drive off the platform
+                driveNewIMU(27, 5, .43, true, 0); // drive off the platform
 
                 frontBarDown(); // lower front bar
 
@@ -263,7 +263,7 @@ public class REDAUTOCORNER extends FunctionsForAuto {
 
                         pause(.01); // pause
 
-                        spinMove(15, true, 1, false); // turn toward second glyph
+                        spinMove(80, true, 1, false); // turn toward second glyph
 
                         timeOne = this.getRuntime(); // not sure what this does
                         timeTwo = this.getRuntime(); // or this
@@ -278,7 +278,6 @@ public class REDAUTOCORNER extends FunctionsForAuto {
 
                 }
             }
-        }
         else { // if vuforia = center position or nothing
 
             driveNewIMU(2.6, 5, .27, true, 0); // drive off platform
