@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 //@Disabled
 
 //Autonomous to score the ball and three blocks from the red corner position
-public class REDAUTOCORNERWILD extends FunctionsForAuto {
+public class REDAUTOCORNER extends FunctionsForAuto {
 
     boolean left = true;
 
@@ -47,6 +47,8 @@ public class REDAUTOCORNERWILD extends FunctionsForAuto {
         dropFeelerMoveBallOnlyNewRobot(); //Run dropFeelerMoveBallOnlyNewRobot to score the ball
 
         pause(.05); //pause for .05 seconds
+
+        driveNewIMU(10, 5, .27, true, 0); // drive off platform
 
 
         if (vuMarkReturn.equalsIgnoreCase("left")) // If vuforia reads left
@@ -95,7 +97,7 @@ public class REDAUTOCORNERWILD extends FunctionsForAuto {
 
                     pause(.01); // pause
 
-                    spinMove(70, false, 5, false); // turn towards the second glyph
+                    spinMove(70, true, 1, false); // turn towards the second glyph
 
                     pause(.01); // pause
 
@@ -120,7 +122,7 @@ public class REDAUTOCORNERWILD extends FunctionsForAuto {
 
                     pause(.01); // pause
 
-                    spinMove(95, false, 5, false); // spin towards second glyph
+                    spinMove(95, true, 1, false); // spin towards second glyph
 
                     pause(.01); // pause
 
@@ -147,7 +149,7 @@ public class REDAUTOCORNERWILD extends FunctionsForAuto {
 
                     pause(.01); // pause
 
-                    spinMove(70, false, 5, false); // spin toward second glyph
+                    spinMove(70, true, 1, false); // spin toward second glyph
 
                     pause(.01); // pause
 
@@ -204,7 +206,7 @@ public class REDAUTOCORNERWILD extends FunctionsForAuto {
 
                         pause(.01); // pause
 
-                        spinMove(70, false, 5, false); // turn towards second glyph
+                        spinMove(70, true, 1, false); // turn towards second glyph
 
                         pause(.01); // pause
 
@@ -233,7 +235,7 @@ public class REDAUTOCORNERWILD extends FunctionsForAuto {
 
                         pause(.01); // pause
 
-                        spinMove(80, false, 5, false); // spin toward second block
+                        spinMove(80, true, 1, false); // spin toward second block
 
                         timeOne = this.getRuntime(); // not sure what this does
                         timeTwo = this.getRuntime(); // or this ???????
@@ -261,7 +263,7 @@ public class REDAUTOCORNERWILD extends FunctionsForAuto {
 
                         pause(.01); // pause
 
-                        spinMove(15, false, 5, false); // turn toward second glyph
+                        spinMove(15, true, 1, false); // turn toward second glyph
 
                         timeOne = this.getRuntime(); // not sure what this does
                         timeTwo = this.getRuntime(); // or this
@@ -277,7 +279,7 @@ public class REDAUTOCORNERWILD extends FunctionsForAuto {
                 }
             }
         }
-         else { // if vuforia = center position or nothing
+        else { // if vuforia = center position or nothing
 
             driveNewIMU(2.6, 5, .27, true, 0); // drive off platform
 
@@ -289,7 +291,7 @@ public class REDAUTOCORNERWILD extends FunctionsForAuto {
 
             pause(.01); // pause
 
-            driveNewIMU(7.5, 2.7, -.3, false, 125); // drive back toward cryptobox
+            driveNewIMU(5.5, 2.7, -.3, false, 125); // drive back toward cryptobox
 
             pause(.01); // pause
 
@@ -325,7 +327,7 @@ public class REDAUTOCORNERWILD extends FunctionsForAuto {
 
                 pause(.01); // pause
 
-                spinMove(70, false, 5, false); // turn towards second block
+                spinMove(70, true, 1, false); // turn towards second block
 
                 pause(.01); // pause
 
@@ -337,7 +339,7 @@ public class REDAUTOCORNERWILD extends FunctionsForAuto {
 
                 pause(.01); // pause
 
-                spinMove(120, false, 5, false); // turn towards cryptobox
+                spinMove(120, true, 1, false); // turn towards cryptobox
 
             }
             else if (attackConfirmation.equalsIgnoreCase("right")) { // if most accessible block in right position
@@ -358,7 +360,7 @@ public class REDAUTOCORNERWILD extends FunctionsForAuto {
 
                 pause(.01); // pause
 
-                spinMove(100, false, 5, false); // turn toward second block
+                spinMove(100, true, 1, false); // turn toward second block
 
                 pause(.01); // pause
 
@@ -387,7 +389,7 @@ public class REDAUTOCORNERWILD extends FunctionsForAuto {
 
                 pause(.01); // pause
 
-                spinMove(95 , false, 5, false); // turn towards second block
+                spinMove(95 , true, 1, false); // turn towards second block
 
                 pause(.01); // pause
 
@@ -399,7 +401,7 @@ public class REDAUTOCORNERWILD extends FunctionsForAuto {
 
                 pause(.01); // pause
 
-                spinMove(120, false, 5, false); // turn towards cryptobox
+                spinMove(120, true, 1, false); // turn towards cryptobox
 
             }
         }
@@ -423,7 +425,7 @@ public class REDAUTOCORNERWILD extends FunctionsForAuto {
         {
             raisePan(); // raise pan
 
-            driveNewIMU(5.1, 1, .5, true, 90); // drive away from cryptobox
+            driveNewIMU(5.3, 1, .5, true, 90); // drive away from cryptobox
 
             pause(.01); // pause
 
@@ -435,19 +437,12 @@ public class REDAUTOCORNERWILD extends FunctionsForAuto {
 
             pause(.5); // pause
 
-            driveNewIMU(10, 3, -.5, false, 70); // back into cryptobox
+            driveNewIMU(10, 1, -.5, false, 90); // back into cryptobox
 
             pause(.01); // pause
 
-            driveNewIMU(6, 3, .5, true, 80); // drive away from cryptobox
+            driveNewIMU(6, 1, .5, true, 80); // drive away from cryptobox
 
-            pause(.01); // pause
-
-            driveNewIMU(10, 3, -.5, false, 90); // knock blocks in
-
-            pause(.01); // pause
-
-            driveNewIMU(4, 1, .5, true, 90); // drive away
 
         }
     }
