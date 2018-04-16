@@ -223,8 +223,8 @@ public class TeleopLimits extends OpMode {
         backPanGrip.setDirection(Servo.Direction.FORWARD); //Set rightPanGrip to FORWARD direction
 
         //Init values of servos to ensure at the beginning of teleop servos are in the correct position
-        leftPanSpin.setPosition(.2); //Set leftPanSpin to position .21, as this is the intaking glyph position
-        rightPanSpin.setPosition(.17);
+        leftPanSpin.setPosition(.4); //Set leftPanSpin to position .21, as this is the intaking glyph position
+        rightPanSpin.setPosition(.3);
         upDown.setPosition(0); //Set upDown to position 0, so our relic arm stays within the robot
         frontPanGrip.setPosition(.25); //Set the position of leftPanGrip and rightPanGrip to 0, so we are able to intake glyphs
         backPanGrip.setPosition(.23);
@@ -357,7 +357,7 @@ public class TeleopLimits extends OpMode {
                 }
                 frontPanGrip.setPosition(.258);
                 backPanGrip.setPosition(.112);
-                panSpinPosition= .2;
+                panSpinPosition = .3;
             } else if (gamepad1.left_trigger > .05) { //Else if leftTrigger is pressed, and b and leftBumper are not pressed, as to avoid conflicting commands for the intake powers
                 leftIntakeMotor.setPower(-.7); //Set leftIntakePower to -.7. We set outtake powers differently so we can realign glyphs for reentry rather than outtaking them in the same orientation at which they entered
                 rightIntakeMotor.setPower(-.8); //Set rightIntakePower to -.8. We set outtake powers differently so we can realign glyphs for reentry rather than outtaking them in the same orientation at which they entered
@@ -428,7 +428,7 @@ public class TeleopLimits extends OpMode {
             }
             if ((gamepad1.b || (bothBlockCounter > blockCounterThreshold)) && !score && panSpinPosition < .6 && !gamepad1.a && !gamepad1.y)            {
 
-                panSpinPosition = .67; //Set panSpinPosition to .82, a hold position
+                panSpinPosition = .75; //Set panSpinPosition to .82, a hold position
             }
             if (!score) {
                 //If pan distance sensors b and c see an object within 13 centimeters. If this is true, we have two glyphs in the pan
@@ -461,7 +461,7 @@ public class TeleopLimits extends OpMode {
 
         //Else
         else {
-            panSpinPosition=.59;
+            panSpinPosition=.65;
             rightIntakeMotor.setPower(-.3);
             leftIntakeMotor.setPower(-.3);
             //If there is a jewel in the cryptobox, we allow Kevin, in endgame mode, to lower the touchServo bar, which will allow Kevin to hit the jewel with the bar
@@ -536,7 +536,7 @@ public class TeleopLimits extends OpMode {
         bothBlockCounter = Range.clip(bothBlockCounter, 0, 500); //Clip bothBlockCounter from 0 to 500. This is because if the value gets too high, it will take to long to come back down when two glyphs are no longer seen, and visa versa
         grabPosition = Range.clip(grabPosition, .2, .65); //Ensure grabPosition is between .07 and .48, so the grabber does not grab the relic excessively tightly, which could stall the grab servo, and so that grab does not open up too much, which will make closing it take longer
         //upDownPosition = Range.clip(upDownPosition, .02, .83); //Ensure upDownPosition is between .02 and .83, so upDown does not run the arm into the robot when upDown is being stored, and so upDown does not go under the relic retrieving position
-        panSpinPosition = Range.clip(panSpinPosition, .2, .67); //Ensure panSpinPosition is between .21 and .825. The lower limit is the collecting glyphs position, and the top limit is the scoring glyphs positin
+        panSpinPosition = Range.clip(panSpinPosition, .3, .75); //Ensure panSpinPosition is between .21 and .825. The lower limit is the collecting glyphs position, and the top limit is the scoring glyphs positin
         upDownPosition = Range.clip(upDownPosition, 0,.7);
         //Clip final driving motor values between -1 and 1, as DC motors only accept values in this range
         finBackPower = Range.clip(finBackPower, -1, 1); //Ensure finBackPower is between -1 and 1
@@ -547,8 +547,8 @@ public class TeleopLimits extends OpMode {
 
         //SET VALUES
 
-        leftPanSpin.setPosition(panSpinPosition); //Set the position of leftPanSpin to panSpinPosition
-        rightPanSpin.setPosition(panSpinPosition-.05);
+        leftPanSpin.setPosition(panSpinPosition+.1); //Set the position of leftPanSpin to panSpinPosition
+        rightPanSpin.setPosition(panSpinPosition);
         //panLifterMotor.setPower(panLiftingPower); //Set the power of panLifterMotor to panLiftingPower
         // leftIntakeMotor.setPower(leftIntakePower); //Set the power of leftIntakeMotor to leftIntakePower
         //    rightIntakeMotor.setPower(rightIntakePower); //Set the power of rightIntakeMotor to rightIntakePower
