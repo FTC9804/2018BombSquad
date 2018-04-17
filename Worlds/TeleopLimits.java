@@ -85,7 +85,7 @@ public class TeleopLimits extends OpMode {
     //Limit Switches on the elevator. We use these switches to ensure that the elevator does not go to low or to high.
     DigitalChannel limitTop; //Limit Switch that tells us if we reach the top of the robot with the elevator, which is the scoring position for scoring the third and fourth blocks of a column
     DigitalChannel limitBottom; //Limit switch that tells us if we reach the bottom of the robot with the elevator
-    DigitalChannel limitMid; //Limit Switch that tells us if we reach the middle of the elevator, which is the scoring position for the first and secnd blocks of a column
+    //DigitalChannel limitMid; //Limit Switch that tells us if we reach the middle of the elevator, which is the scoring position for the first and secnd blocks of a column
 
     /*
     //CONTROLS, all for gamepad 1
@@ -129,7 +129,7 @@ public class TeleopLimits extends OpMode {
     boolean currentStatus; //Boolean that is true if the current mode is endgame, and is false otherwise
     double bothBlockCounter; //Double that increments positively by 1 in the loop every time we see a block on sensors b and c, and decreased otherwise.
     //If bothBlockCounter is high enough, we know we are ready to score and we set the pan servos to a hold position
-    int blockCounterThreshold = 29; //Number of loops to indicate glyphs present in the pan
+    int blockCounterThreshold = 20; //Number of loops to indicate glyphs present in the pan
     int blockFrontGrabberThreshold = 14;
     int blockBackGrabberThreshold = 8;
 
@@ -153,6 +153,8 @@ public class TeleopLimits extends OpMode {
     boolean isAtTop;
     boolean isAtMiddle;
     boolean isAtBottom;
+
+    boolean bottomState;
 
     final double PAN_SPIN_INCREMENT_DOWN = .0375;
     final double PAN_SPIN_INCREMENT_UP = .05;
@@ -196,7 +198,7 @@ public class TeleopLimits extends OpMode {
         //Digital channel configurations in the hardware map. Used so that the robot controller can apply the correct values to digital channels depending on what port a digital channel is plugged into.
         limitTop = hardwareMap.get(DigitalChannel.class, "d1"); //d1
         limitBottom = hardwareMap.get(DigitalChannel.class, "d2"); //d2
-        limitMid = hardwareMap.get(DigitalChannel.class, "d3"); //d3
+        //limitMid = hardwareMap.get(DigitalChannel.class, "d3"); //d3
 
         //Distance sensor configurations in the hardware map. Used so that the robot controller can apply the correct values to distance sensors depending on what port a distance sensor is plugged into.
         // sensorA = hardwareMap.get(DistanceSensor.class, "i2"); //i2
@@ -321,8 +323,8 @@ public class TeleopLimits extends OpMode {
 
         //Set driving variables to values specified in the variable declaration section
 
-        finRightPower = -1 * gamepad1.right_stick_y - .2 * gamepad1.right_stick_x - .48 * gamepad1.left_stick_x; //Set finRightPower, taking into account driving variables from each driving axis
-        finLeftPower = -1 * gamepad1.right_stick_y + .2 * gamepad1.right_stick_x + .48 * gamepad1.left_stick_x; //Set finLeftPower, taking into account driving variables from each driving axis
+        finRightPower = -1 * gamepad1.right_stick_y - .2 * gamepad1.right_stick_x - .52 * gamepad1.left_stick_x; //Set finRightPower, taking into account driving variables from each driving axis
+        finLeftPower = -1 * gamepad1.right_stick_y + .2 * gamepad1.right_stick_x + .52 * gamepad1.left_stick_x; //Set finLeftPower, taking into account driving variables from each driving axis
 
         finBackPower = gamepad1.right_stick_x; //Sin finBackPower to the raw value of the x axis of the right stick, for strafing
 
@@ -379,6 +381,7 @@ public class TeleopLimits extends OpMode {
                     hasLifted = true; //Set hasLifted to true
                     score = false;
                     panLifterMotor.setPower(-.1); //Set panLiftingPower to 0 to stop the motion of the elevator
+                    bottomState = false;
                 }
                 else
                 {
@@ -398,8 +401,9 @@ public class TeleopLimits extends OpMode {
                 if (isAtBottom)
                 {
                     panLifterMotor.setPower(0);
+                    bottomState = true;
                 }
-                else
+                else if (!bottomState)
                 {
                     panLifterMotor.setPower(.5);
                 }
@@ -411,11 +415,11 @@ public class TeleopLimits extends OpMode {
 
             if (gamepad1.y) //Else if y is pressed, we want to raise the pan
             {
-                panSpinPosition += .02; //Add .05 to panSpinPosition
+                panSpinPosition += .007; //Add .05 to panSpinPosition
             }
             else if (gamepad1.a) //Else if a is pressed
             {
-                panSpinPosition -= .02; //Subtract .04 from panSpinPosition to lower the pan
+                panSpinPosition -= .0065; //Subtract .04 from panSpinPosition to lower the pan
             }
 
             //If x is pressed or sensors b and c have seen blocks for more than blockCounterThreshold loop iterations, we want to adjust the pan to a hold, rather than intake or score, position
@@ -430,7 +434,7 @@ public class TeleopLimits extends OpMode {
 
                 panSpinPosition = .8; //Set panSpinPosition to .82, a hold position
             }
-            if (!score) {
+            if (!score && gamepad1.right_trigger >= 0.01) {
                 //If pan distance sensors b and c see an object within 13 centimeters. If this is true, we have two glyphs in the pan
                 if (sensorB.getDistance(DistanceUnit.CM) < 13)
                 {
