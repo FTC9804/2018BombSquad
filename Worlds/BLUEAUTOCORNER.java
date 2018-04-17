@@ -56,13 +56,13 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
         pause(.8); //pause for .8 seconds
 
-        driveNewIMU(9, 10, -.25, false, 0);  // drive off platform
+        driveNewIMU(9.9, 10, -.25, false, 0);  // drive off platform
 
         frontBarDown(); // lower bar
 
         if (vuMarkReturn.equalsIgnoreCase("left")) //If vuforia reads left
         {
-            driveNewIMU(22.2, 10, -.25, false, 0); //drive toward left column
+            driveNewIMU(22.2, 10, -.45, false, 0); //drive toward left column
 
             pause(.01); //pause
 
@@ -82,15 +82,15 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
             pause(.01); //pause
 
-            driveNewIMU(8.5, 1.6, -.3, false, 136); // back into cryptobox scoring glyphs
+            driveNewIMU(8.5, 1.6, -.3, false, 131); // back into cryptobox scoring glyphs
 
             pause(.01); // pause
 
-            driveNewIMU(3, 5, .3, true, 136); // drive away from cryptobox
+            driveNewIMU(6.4, 5, .3, true, 139); // drive away from cryptobox
 
             if ((this.getRuntime() - threeGlyphTimeOne < 17)) { // if there is enough time to get additional glyphs
                 if (attackConfirmation.equalsIgnoreCase("left")) { // if most accesible glyph is in the left position
-                    spinMove(130, false, 5, false); // turn towards left position
+                    spinMove(130, false, 2, false); // turn towards left position
 
                     pause(.01); // pause
 
@@ -125,11 +125,11 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
                     driveNewIMU(4.9, 1, .5, true, 90); // drive away from cryptobox
 
                 } else if (attackConfirmation.equalsIgnoreCase("right")) { // if most accessible glyph is in the center position
-                    spinMove(90, false, 5, false); // spin toward right position
+                    spinMove(70, false, 2, false); // spin toward right position
 
                     pause(.01); // pause
 
-                    driveNewIMU(20, 3, .6, true, 90); // drive toward pile
+                    driveNewIMU(20, 3, .6, true, 70); // drive toward pile
 
                     pause(.01); // pause
 
@@ -137,11 +137,11 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
                     pause(.01); // pause
 
-                    driveNewIMU(6, 3, -.4, false, 90); // backup from pile
+                    driveNewIMU(6, 3, -.4, false, 70); // backup from pile
 
                     pause(.01); // pause
 
-                    spinMove(100, false, 5, false); // spin towards second glyph
+                    spinMove(80, false, 5, false); // spin towards second glyph
 
                     pause(.01); // pause
 
@@ -161,11 +161,11 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
                 } else { // if most accessible glyph in center position
 
-                    spinMove(110, false, 5, false); // spin to center glyph position
+                    spinMove(85, false, 2, false); // spin to center glyph position
 
                     pause(.01); // pause
 
-                    driveNewIMU(20, 3, .6, true, 110); // drive towards center position
+                    driveNewIMU(20, 3, .6, true, 85); // drive towards center position
 
                     pause(.01); // pause
 
@@ -173,11 +173,11 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
                     pause(.01); // pause
 
-                    driveNewIMU(6, 3, -.4, false, 110); // backup from glyph pile
+                    driveNewIMU(6, 3, -.4, false, 85); // backup from glyph pile
 
                     pause(.01); // pause
 
-                    spinMove(120, false, 5, false); // spin toward second glyph
+                    spinMove(95, false, 5, false); // spin toward second glyph
 
                     pause(.01); // pause
 
@@ -185,7 +185,7 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
                         getBlockTwo(); // grab second glyph
                     }
 
-                    driveNewIMU(76, 3, -.5, false, 85); // drive towards cryptobox
+                    driveNewIMU(76, 3, -.5, false, 95); // drive towards cryptobox
 
                     pause(.01); //pause
 
@@ -200,7 +200,7 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
             }
         }
         else if (vuMarkReturn.equalsIgnoreCase("right")) {
-            driveNewIMU(5.2, 5, -.27, false, 0); //Drive toward right column
+            driveNewIMU(7, 5, -.27, false, 0); //Drive toward right column
 
             pause(.01); //pause
 
@@ -208,7 +208,7 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
             pause(.01); //pause
 
-            driveNewIMU(7.5, 2.7, -.3, false, 48);
+            driveNewIMU(6.5, 2.7, -.3, false, 48);
 
             pause(.01); //pause
 
@@ -220,19 +220,19 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
             pause(.01); //pause
 
-            driveNewIMU(10.5, 1.6, -.3, false, 48); // back into cryptobox scoring glyphs
+            driveNewIMU(10.5, 1.6, -.3, false, 53); // back into cryptobox scoring glyphs
 
             pause(.01); //pause
 
-            driveNewIMU(3, 5, .3, true, 48); // drive away from cryptobox
+            driveNewIMU(6.4, 5, .3, true, 48); // drive away from cryptobox
 
             if ((this.getRuntime() - threeGlyphTimeOne < 17)) { // if there is enough time to get additional glyphs
                 if (attackConfirmation.equalsIgnoreCase("left")) { // if most accesible glyph is in the left position
-                    spinMove(110, false, 5, false); // turn towards left position
+                    spinMove(120, false, 2, false); // turn towards left position
 
                     pause(.01); // pause
 
-                    driveNewIMU(20, 3, .6, true, 110); // drive toward glyph pile
+                    driveNewIMU(20, 3, .6, true, 120); // drive toward glyph pile
 
                     pause(.01); // pause
 
@@ -240,11 +240,11 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
                     pause(.01); // pause
 
-                    driveNewIMU(6, 3, -.4, false, 110); // back away from glyph pile
+                    driveNewIMU(6, 3, -.4, false, 120); // back away from glyph pile
 
                     pause(.01); // pause
 
-                    spinMove(100, false, 5, false); // turn towards the second glyph
+                    spinMove(110, false, 5, false); // turn towards the second glyph
 
                     pause(.01); // pause
 
@@ -263,23 +263,23 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
                     driveNewIMU(4.9, 1, .5, true, 90); // drive away from cryptobox
 
                 } else if (attackConfirmation.equalsIgnoreCase("right")) { // if most accessible glyph is in the center position
-                    spinMove(35, false, 5, false); // spin toward right position
+                    spinMove(60, false, 2, false); // spin to center glyph position
 
                     pause(.01); // pause
 
-                    driveNewIMU(20, 3, .6, true, 35); // drive toward pile
+                    driveNewIMU(20, 3, .6, true, 60); // drive towards center position
 
                     pause(.01); // pause
 
-                    getBlockOne(); // intake the first block
+                    getBlockOne(); // get first block
 
                     pause(.01); // pause
 
-                    driveNewIMU(6, 3, -.4, false, 35); // backup from pile
+                    driveNewIMU(6, 3, -.4, false, 60); // backup from glyph pile
 
                     pause(.01); // pause
 
-                    spinMove(45, false, 5, false); // spin towards second glyph
+                    spinMove(70, false, 5, false); // spin toward second glyph
 
                     pause(.01); // pause
 
@@ -287,7 +287,7 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
                         getBlockTwo(); // grab second glyph
                     }
 
-                    driveNewIMU(76, 3, -.5, false, 65); // drive towards cryptobox
+                    driveNewIMU(76, 3, -.5, false, 90); // drive towards cryptobox
 
                     pause(.01); //pause
 
@@ -299,11 +299,11 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
                 } else { // if most accessible glyph in center position
 
-                    spinMove(80, false, 5, false); // spin to center glyph position
+                    spinMove(95, false, 2, false); // spin to center glyph position
 
                     pause(.01); // pause
 
-                    driveNewIMU(20, 3, .6, true, 80); // drive towards center position
+                    driveNewIMU(20, 3, .6, true, 95); // drive towards center position
 
                     pause(.01); // pause
 
@@ -311,11 +311,11 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
                     pause(.01); // pause
 
-                    driveNewIMU(6, 3, -.4, false, 80); // backup from glyph pile
+                    driveNewIMU(6, 3, -.4, false, 95); // backup from glyph pile
 
                     pause(.01); // pause
 
-                    spinMove(90, false, 5, false); // spin toward second glyph
+                    spinMove(105, false, 5, false); // spin toward second glyph
 
                     pause(.01); // pause
 
@@ -355,11 +355,11 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
             pause(.01);  // pause
 
-            driveNewIMU(3, 5, .3, true, 48); // drive away from cryptobox
+            driveNewIMU(6.4, 5, .3, true, 48); // drive away from cryptobox
 
             if ((this.getRuntime() - threeGlyphTimeOne < 17)) { // if there is enough time to get additional glyphs
                 if (attackConfirmation.equalsIgnoreCase("left")) { // if most accesible glyph is in the left position
-                    spinMove(130, false, 5, false); // turn towards left position
+                    spinMove(130, false, 2, false); // turn towards left position
 
                     pause(.01); // pause
 
@@ -391,14 +391,14 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
                     pause(.01); //pause
 
-                    driveNewIMU(4.9, 1, .5, true, 90); // drive away from cryptobox
+                    driveNewIMU(6.4, 1, .5, true, 95); // drive away from cryptobox
 
                 } else if (attackConfirmation.equalsIgnoreCase("right")) { // if most accessible glyph is in the center position
-                    spinMove(75, false, 5, false); // spin toward right position
+                    spinMove(65, false, 2, false); // spin toward right position
 
                     pause(.01); // pause
 
-                    driveNewIMU(20, 3, .6, true, 75); // drive toward pile
+                    driveNewIMU(20, 3, .6, true, 65); // drive toward pile
 
                     pause(.01); // pause
 
@@ -406,7 +406,7 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
                     pause(.01); // pause
 
-                    driveNewIMU(6, 3, -.4, false, 75); // backup from pile
+                    driveNewIMU(6, 3, -.4, false, 65); // backup from pile
 
                     pause(.01); // pause
 
@@ -418,7 +418,7 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
                         getBlockTwo(); // grab second glyph
                     }
 
-                    driveNewIMU(76, 3, -.5, false, 85); // drive towards cryptobox
+                    driveNewIMU(76, 3, -.5, false, 99); // drive towards cryptobox
 
                     pause(.01); //pause
 
@@ -426,11 +426,11 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
                     pause(.01); //pause
 
-                    driveNewIMU(4.9, 1, .5, true, 90); // drive away from cryptobox
+                    driveNewIMU(6.4, 1, .5, true, 90); // drive away from cryptobox
 
                 } else { // if most accessible glyph in center position
 
-                    spinMove(110, false, 5, false); // spin to center glyph position
+                    spinMove(110, false, 2, false); // spin to center glyph position
 
                     pause(.01); // pause
 
@@ -446,7 +446,7 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
                     pause(.01); // pause
 
-                    spinMove(100, false, 1, false); // spin toward second glyph
+                    spinMove(105, false, 1, false); // spin toward second glyph
 
                     pause(.01); // pause
 
@@ -454,7 +454,7 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
                         getBlockTwo(); // grab second glyph
                     }
 
-                    driveNewIMU(76, 3, -.5, false, 80); // drive towards cryptobox
+                    driveNewIMU(76, 4, -.3, false, 100); // drive towards cryptobox
 
                     pause(.01); //pause
 
@@ -462,7 +462,9 @@ public class BLUEAUTOCORNER extends FunctionsForAuto {
 
                     pause(.01); //pause
 
-                    driveNewIMU(4.9, 1, .5, true, 90); // drive away from cryptobox
+                    release();
+
+                    driveNewIMU(6.4, 1, .5, true, 90); // drive away from cryptobox
                 }
 
                 if (this.getRuntime() - threeGlyphTimeOne>24)
