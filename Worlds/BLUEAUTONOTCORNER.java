@@ -54,7 +54,7 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
         if  (vuMarkReturn.equalsIgnoreCase("right")) // vuforia reads right
         {
-            driveNewIMU(5.2, 10, -.35, false, 0); // drive backward again
+            driveNewIMU(7.2, 10, -.35, false, 0); // drive backward again
 
             frontBarDown(); // lower front bar
 
@@ -64,33 +64,48 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
             pause(.01); // pause
 
+            driveNewIMU(7.5, 2.6, -.34, false, -65); //drive backward toward right column
+
+            pause(.01); //pause
+
             release(); // drop blocks
 
             pause(.6); // wait for them to settle
 
             lowerPan(); // lower pan to push
 
-            driveNewIMU(22.5, 2.6, -.34, false, -65); //drive backward toward right column
+            pause(.01);
+
+            driveNewIMU(11.5, 2.6, -.34, false, -55);
+
+            pause(.01);
+
+            driveNewIMU(3.5, 2.6, .5, false, -60);
 
             pause(.01); //pause
 
-            spinMove(55, false, 3.4, false); // spin _____ toward mid-line
-
-            pause(.01); //pause
+            spinMove(80, false, 2.8, false);
 
             driveNewIMU(12, 5, 1, true, 80); // drive toward mid-line
+
 
             pause(.01); //pause
 
             spinMove(15, true, 5, false); //turn toward glyph pile
 
+            driveNewIMU(12, 1.2, .5, true, 15);
+
             getBlockOne(); // intake the first block
 
-            pause(.01); //pause
+            getBlockOne();
+
+            driveNewIMU(6, 1.2, -.5, true, 20);
+
+            getBlockTwo();
 
             grab(); // grab block
 
-            driveNewIMU(18, 1.9, -.5, false, 0); // backup away from pile
+            driveNewIMU(10, 1.9, -.5, false, 0); // backup away from pile
 
             if (!(sensorB.getDistance(DistanceUnit.CM) < 8) && !(sensorC.getDistance(DistanceUnit.CM) < 8)) // if no blocks picked up
             {
@@ -123,7 +138,7 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
                     lowerPan(); // lower pan
 
-                    driveNewIMU(10, 2, -.5, false, 0); // drive back into cryptobox
+                    driveNewIMU(10, 1.5, -.5, false, 0); // drive back into cryptobox
 
                     pause(.01); //pause
 
@@ -133,7 +148,7 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
         }
         else if (vuMarkReturn.equalsIgnoreCase("left")) //If vuforia reads left
         {
-            driveNewIMU(5.2, 10, -.35, false, 0); // drive backward additional distance
+            driveNewIMU(6.7, 10, -.35, false, 0); // drive backward additional distance
 
             frontBarDown(); //lower front bar
 
@@ -143,7 +158,7 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
             pause(.01);
 
-            spinMove(-52, false, 5, true);
+            spinMove(-44, false, 5, true);
 
             pause(.01);
 
@@ -153,11 +168,11 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
             lowerPan();
 
-            driveNewIMU(16.5, 1.6, -.3, false, -52);
+            driveNewIMU(19.5, 1.6, -.3, false, -40);
 
             pause(.01); //pause for .1 seconds
 
-            driveNewIMU(6.4, 5, .3, true, -52);
+            driveNewIMU(6.4, 5, .3, true, -44);
 
             spinMove(55, false, 3.4, false);
 
@@ -169,13 +184,19 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
             spinMove(15, true, 5, false);
 
+            driveNewIMU(12, 1.2, .5, true, 15);
+
             getBlockOne();
+
+            driveNewIMU(6, 1.2, -.5, true, 20);
+
+            getBlockTwo();
 
             pause(.01);
 
             grab();
 
-            driveNewIMU(18, 1.9, -.5, false, 0);
+            driveNewIMU(10, 1.9, -.5, false, 0);
 
             if (!(sensorB.getDistance(DistanceUnit.CM) < 8) && !(sensorC.getDistance(DistanceUnit.CM) < 8))
             {
@@ -206,7 +227,7 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
                     lowerPan();
 
-                    driveNewIMU(10, 2, -.5, false, 19);
+                    driveNewIMU(10, 1.5, -.5, false, 19);
 
                     pause(.01);
 
@@ -217,7 +238,7 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
         }
         else //aka center
         {
-            driveNewIMU(5.2, 10, -.35, false, 0); // drive backward away from stone
+            driveNewIMU(7.2, 10, -.35, false, 0); // drive backward away from stone
 
             frontBarDown(); // lower front bar
 
@@ -233,11 +254,11 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
             lowerPan(); // lower pan
 
-            driveNewIMU(16.5, 1.6, -.3, false, -45); // drive into cryptobox
+            driveNewIMU(16.5, 1.6, -.3, false, -40); // drive into cryptobox
 
             pause(.01); //pause
 
-            driveNewIMU(6.4, 5, .3, true, -45); //drive away from cryptobox
+            driveNewIMU(6.9, 5, .3, true, -45); //drive away from cryptobox
 
             spinMove(55, false, 3.4, false); // spin toward center line
 
@@ -247,15 +268,21 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
             pause(.01); // pause
 
-            spinMove(15, true, 5, false); // spin toward glyph pile
+            spinMove(25, true, 5, false); // spin toward glyph pile
+
+            driveNewIMU(12, 1.2, .5, true, 15);
 
             getBlockOne(); // get first glyph
 
+            driveNewIMU(6, 1.2, -.5, true, 20);
+
             pause(.01); // pause
+
+            getBlockTwo();
 
             grab(); // grab glyph
 
-            driveNewIMU(18, 1.9, -.5, false, 0); // drive backward from pile
+            driveNewIMU(10, 1.9, -.5, false, 0); // drive backward from pile
 
             if (!(sensorB.getDistance(DistanceUnit.CM) < 8) && !(sensorC.getDistance(DistanceUnit.CM) < 8)) // if no glyphs in grabbers
             {
@@ -267,7 +294,7 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
             }
             else { // we do have at least one block
 
-                driveNewIMU(76, 2.8, -.5, false, 14); // drive toward cryptobox
+                driveNewIMU(76, 2.8, -.5, false, 19); // drive toward cryptobox
 
                 raisePan(); // raise pan
 
@@ -288,7 +315,7 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
                     lowerPan(); // drop pan
 
-                    driveNewIMU(10, 2, -.5, false, 14); // drive into cryptobox
+                    driveNewIMU(10, 1.5, -.5, false, 14); // drive into cryptobox
 
                     pause(.01); // pause
 
