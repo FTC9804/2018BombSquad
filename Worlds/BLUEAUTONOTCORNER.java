@@ -82,67 +82,67 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
             driveNewIMU(3.5, 2.6, .5, false, -60);
 
-            pause(.01); //pause
-
-            spinMove(80, false, 2.8, false);
-
-            driveNewIMU(12, 5, 1, true, 80); // drive toward mid-line
-
-
-            pause(.01); //pause
-
-            spinMove(15, true, 5, false); //turn toward glyph pile
-
-            driveNewIMU(12, 1.2, .5, true, 15);
-
-            getBlockOne(); // intake the first block
-
-            getBlockOne();
-
-            driveNewIMU(6, 1.2, -.5, true, 20);
-
-            getBlockTwo();
-
-            grab(); // grab block
-
-            driveNewIMU(10, 1.9, -.5, false, 0); // backup away from pile
-
-            if (!(sensorB.getDistance(DistanceUnit.CM) < 8) && !(sensorC.getDistance(DistanceUnit.CM) < 8)) // if no blocks picked up
-            {
-                driveNewIMU(76, 2.8, -.5, false, 30); // drive back into cryptobox
+            if ((this.getRuntime() - threeGlyphTimeOne < 17)) {
 
                 pause(.01); //pause
 
-                driveNewIMU(4.9, 1, .5, true, 30); // drive forward
-            }
-            else
-            {
-                driveNewIMU(76, 2.8, -.5, false, 45); // drive back into cryptobox
+                spinMove(80, false, 2.8, false);
 
-                raisePan(); // raise
+                driveNewIMU(12, 5, 1, true, 80); // drive toward mid-line
 
-                if (this.getRuntime() - threeGlyphTimeOne > 25)
+
+                pause(.01); //pause
+
+                spinMove(15, true, 5, false); //turn toward glyph pile
+
+                driveNewIMU(12, 1.2, .5, true, 15);
+
+                getBlockOne(); // intake the first block
+
+                getBlockOne();
+
+                driveNewIMU(6, 1.2, -.5, true, 20);
+
+                getBlockTwo();
+
+                grab(); // grab block
+
+                driveNewIMU(10, 1.9, -.5, false, 0); // backup away from pile
+
+                if (!(sensorB.getDistance(DistanceUnit.CM) < 8) && !(sensorC.getDistance(DistanceUnit.CM) < 8)) // if no blocks picked up
                 {
-                    release();
-                }
-
-                driveNewIMU(4.9, 1, .5, true, 0); // drive away from cryptobox
-
-                pause(.2); // pause
-
-                release(); // drop blocks
-
-                if (this.getRuntime() - threeGlyphTimeOne<25) { // if there is time
-
-                    pause(.6); // wait for blocks to settle
-
-                    lowerPan(); // lower pan
-
-                    driveNewIMU(10, 1.5, -.5, false, 0); // drive back into cryptobox
+                    driveNewIMU(76, 2.8, -.5, false, 30); // drive back into cryptobox
 
                     pause(.01); //pause
 
-                    driveNewIMU(3, 2, .5, true, 55); // drive away from cryptobox
+                    driveNewIMU(4.9, 1, .5, true, 30); // drive forward
+                } else {
+                    driveNewIMU(76, 2.8, -.5, false, 45); // drive back into cryptobox
+
+                    raisePan(); // raise
+
+                    if (this.getRuntime() - threeGlyphTimeOne > 25) {
+                        release();
+                    }
+
+                    driveNewIMU(4.9, 1, .5, true, 0); // drive away from cryptobox
+
+                    pause(.2); // pause
+
+                    release(); // drop blocks
+
+                    if (this.getRuntime() - threeGlyphTimeOne < 25) { // if there is time
+
+                        pause(.6); // wait for blocks to settle
+
+                        lowerPan(); // lower pan
+
+                        driveNewIMU(10, 1.5, -.5, false, 0); // drive back into cryptobox
+
+                        pause(.01); //pause
+
+                        driveNewIMU(3, 2, .5, true, 55); // drive away from cryptobox
+                    }
                 }
             }
         }
@@ -174,65 +174,65 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
             driveNewIMU(6.4, 5, .3, true, -44);
 
-            spinMove(55, false, 3.4, false);
+            if ((this.getRuntime() - threeGlyphTimeOne < 17)) {
 
-            pause(.01);
-
-            driveNewIMU(35, 5, 1, true, 80);
-
-            pause(.01);
-
-            spinMove(15, true, 5, false);
-
-            driveNewIMU(12, 1.2, .5, true, 15);
-
-            getBlockOne();
-
-            driveNewIMU(6, 1.2, -.5, true, 20);
-
-            getBlockTwo();
-
-            pause(.01);
-
-            grab();
-
-            driveNewIMU(10, 1.9, -.5, false, 0);
-
-            if (!(sensorB.getDistance(DistanceUnit.CM) < 8) && !(sensorC.getDistance(DistanceUnit.CM) < 8))
-            {
-                driveNewIMU(76, 2.8, -.5, false, 30);
+                spinMove(55, false, 3.4, false);
 
                 pause(.01);
 
-                driveNewIMU(4.9, 1, .5, true, 30);
-            }
-            else {
-                driveNewIMU(76, 2.8, -.5, false, 19);
+                driveNewIMU(35, 5, 1, true, 80);
 
-                raisePan();
+                pause(.01);
 
-                if (this.getRuntime() - threeGlyphTimeOne > 25)
-                {
-                    release();
-                }
+                spinMove(15, true, 5, false);
 
-                driveNewIMU(4.9, 1, .5, true, 19);
+                driveNewIMU(12, 1.2, .5, true, 15);
 
-                pause(.2);
+                getBlockOne();
 
-                release();
+                driveNewIMU(6, 1.2, -.5, true, 20);
 
-                if (this.getRuntime() - threeGlyphTimeOne < 25) {
-                    pause(.6);
+                getBlockTwo();
 
-                    lowerPan();
+                pause(.01);
 
-                    driveNewIMU(10, 1.5, -.5, false, 19);
+                grab();
+
+                driveNewIMU(10, 1.9, -.5, false, 0);
+
+                if (!(sensorB.getDistance(DistanceUnit.CM) < 8) && !(sensorC.getDistance(DistanceUnit.CM) < 8)) {
+                    driveNewIMU(76, 2.8, -.5, false, 30);
 
                     pause(.01);
 
-                    driveNewIMU(3, 2, .5, true, 26);
+                    driveNewIMU(4.9, 1, .5, true, 30);
+                } else {
+                    driveNewIMU(76, 2.8, -.5, false, 19);
 
+                    raisePan();
+
+                    if (this.getRuntime() - threeGlyphTimeOne > 25) {
+                        release();
+                    }
+
+                    driveNewIMU(4.9, 1, .5, true, 19);
+
+                    pause(.2);
+
+                    release();
+
+                    if (this.getRuntime() - threeGlyphTimeOne < 25) {
+                        pause(.6);
+
+                        lowerPan();
+
+                        driveNewIMU(10, 1.5, -.5, false, 19);
+
+                        pause(.01);
+
+                        driveNewIMU(3, 2, .5, true, 26);
+
+                    }
                 }
             }
         }
@@ -260,67 +260,68 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
             driveNewIMU(6.9, 5, .3, true, -45); //drive away from cryptobox
 
-            spinMove(55, false, 3.4, false); // spin toward center line
+            if ((this.getRuntime() - threeGlyphTimeOne < 17)) {
 
-            pause(.01); // pause
-
-            driveNewIMU(27.8, 5, 1, true, 80); // drive toward center line
-
-            pause(.01); // pause
-
-            spinMove(25, true, 5, false); // spin toward glyph pile
-
-            driveNewIMU(12, 1.2, .5, true, 15);
-
-            getBlockOne(); // get first glyph
-
-            driveNewIMU(6, 1.2, -.5, true, 20);
-
-            pause(.01); // pause
-
-            getBlockTwo();
-
-            grab(); // grab glyph
-
-            driveNewIMU(10, 1.9, -.5, false, 0); // drive backward from pile
-
-            if (!(sensorB.getDistance(DistanceUnit.CM) < 8) && !(sensorC.getDistance(DistanceUnit.CM) < 8)) // if no glyphs in grabbers
-            {
-                driveNewIMU(76, 2.8, -.5, false, 30); // drive back into the cryptobox
+                spinMove(55, false, 3.4, false); // spin toward center line
 
                 pause(.01); // pause
 
-                driveNewIMU(4.9, 1, .5, true, 30); // drive away from cryptobox
-            }
-            else { // we do have at least one block
+                driveNewIMU(27.8, 5, 1, true, 80); // drive toward center line
 
-                driveNewIMU(76, 2.8, -.5, false, 19); // drive toward cryptobox
+                pause(.01); // pause
 
-                raisePan(); // raise pan
+                spinMove(25, true, 5, false); // spin toward glyph pile
 
-                if (this.getRuntime() - threeGlyphTimeOne > 25)
+                driveNewIMU(12, 1.2, .5, true, 15);
+
+                getBlockOne(); // get first glyph
+
+                driveNewIMU(6, 1.2, -.5, true, 20);
+
+                pause(.01); // pause
+
+                getBlockTwo();
+
+                grab(); // grab glyph
+
+                driveNewIMU(10, 1.9, -.5, false, 0); // drive backward from pile
+
+                if (!(sensorB.getDistance(DistanceUnit.CM) < 8) && !(sensorC.getDistance(DistanceUnit.CM) < 8)) // if no glyphs in grabbers
                 {
-                    release();
-                }
-
-                driveNewIMU(4.9, 1, .5, true, 14); // drive away from cryptobox
-
-                pause(.2); // pause
-
-                release(); // drop blocks
-
-                if (this.getRuntime() - threeGlyphTimeOne < 25) { // if there is time left
-
-                    pause(.6); // wait for blocks to settle
-
-                    lowerPan(); // drop pan
-
-                    driveNewIMU(10, 1.5, -.5, false, 14); // drive into cryptobox
+                    driveNewIMU(76, 2.8, -.5, false, 30); // drive back into the cryptobox
 
                     pause(.01); // pause
 
-                    driveNewIMU(3, 2, .5, true, 7); //drive away from cryptobox
+                    driveNewIMU(4.9, 1, .5, true, 30); // drive away from cryptobox
+                } else { // we do have at least one block
 
+                    driveNewIMU(76, 2.8, -.5, false, 19); // drive toward cryptobox
+
+                    raisePan(); // raise pan
+
+                    if (this.getRuntime() - threeGlyphTimeOne > 25) {
+                        release();
+                    }
+
+                    driveNewIMU(4.9, 1, .5, true, 14); // drive away from cryptobox
+
+                    pause(.2); // pause
+
+                    release(); // drop blocks
+
+                    if (this.getRuntime() - threeGlyphTimeOne < 25) { // if there is time left
+
+                        pause(.6); // wait for blocks to settle
+
+                        lowerPan(); // drop pan
+
+                        driveNewIMU(10, 1.5, -.5, false, 14); // drive into cryptobox
+
+                        pause(.01); // pause
+
+                        driveNewIMU(3, 2, .5, true, 7); //drive away from cryptobox
+
+                    }
                 }
             }
         }
