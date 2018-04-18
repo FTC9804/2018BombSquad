@@ -564,7 +564,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         loopCounter = 1000; //Set loopCounter to 1000
 
-        inches = 35; //Set inches2 to 60
+        inches = 30; //Set inches2 to 60
         rotations = inches / (Math.PI * WHEEL_DIAMETER); //Set rotations2 to inches2 divided by pi, approximately 3.14, divided by the wheel diameter
         counts = ENCODER_CPR * rotations * GEAR_RATIO; //Set counts2 to the encoder CPR times rotations2 times the gear ratio
 
@@ -583,7 +583,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         frontBlockCounter=0;
 
         //While bothBlockCounter is under 5 and the current position of rightMotor is less than counts2 and less than 4.5 seconds have elapsed
-        while (frontBlockCounter < 5 && rightMotor.getCurrentPosition()<(counts) && timeFour-timeThree < 2.8)
+        while (frontBlockCounter < 5 && rightMotor.getCurrentPosition()<(counts) && timeFour-timeThree < 2.3)
         {
             leftIntakeMotor.setPower(.58); //Set leftIntakeMotor to .73 power to intake blocks
             rightIntakeMotor.setPower(.58); //Set rightIntakeMotor to 73 power to intake blocks
@@ -647,7 +647,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         loopCounter = 1000; //Set loopCounter to 1000
 
-        inches = 18; //Set inches2 to 60
+        inches = 15; //Set inches2 to 60
         rotations = inches / (Math.PI * WHEEL_DIAMETER); //Set rotations2 to inches2 divided by pi, approximately 3.14, divided by the wheel diameter
         counts = ENCODER_CPR * rotations * GEAR_RATIO; //Set counts2 to the encoder CPR times rotations2 times the gear ratio
 
@@ -666,7 +666,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         backBlockCounter=0;
 
         //While bothBlockCounter is under 5 and the current position of rightMotor is less than counts2 and less than 4.5 seconds have elapsed
-        while (backBlockCounter < 5 && rightMotor.getCurrentPosition()<(counts) && timeFour-timeThree < 2.8)
+        while (backBlockCounter < 5 && rightMotor.getCurrentPosition()<(counts) && timeFour-timeThree < 2)
         {
             leftIntakeMotor.setPower(.58); //Set leftIntakeMotor to .73 power to intake blocks
             rightIntakeMotor.setPower(.58); //Set rightIntakeMotor to 73 power to intake blocks
@@ -817,7 +817,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         feelerRaise.setPosition(.65); //Set feelerRaise to position .49 to lower the jewel arm
 
-        vuMarkReturn = detectVuMark(5); //Run vuforia detection during the time when the feelerRaise is moving down, and set the output of detectVuMark to the String vuMarkReturn
+        vuMarkReturn = detectVuMark(2); //Run vuforia detection during the time when the feelerRaise is moving down, and set the output of detectVuMark to the String vuMarkReturn
         pause(.5); //.1 second pause
         if (allianceColor.equalsIgnoreCase("red") && sensorColorFeeler.blue() >=  sensorColorFeeler.red()) { //If we are the red alliance and see a blue ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
