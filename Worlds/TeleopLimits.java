@@ -382,9 +382,8 @@ public class TeleopLimits extends OpMode {
                     score = false;
                     panLifterMotor.setPower(-.1); //Set panLiftingPower to 0 to stop the motion of the elevator
                 }
-                else
-                {
-                    panLifterMotor.setPower(-.8);  //Set panLiftingPower to -.16, to raise the elevator
+                else {
+                    panLifterMotor.setPower(-.8);
                 }
             }
             else if (gamepad1.dpad_up) //If dpad up is pressed and dpad down is not, signifying we want to lift the elevator, or score is true and hasLifted is not, signifying we want to raise the elevator and then score blocks
@@ -406,10 +405,7 @@ public class TeleopLimits extends OpMode {
                     panLifterMotor.setPower(.5);
                 }
             }
-            else //Else, if none of the elevator movement commands are being applied on the joystick
-            {
-                panLifterMotor.setPower(0); //Set panLiftingPower to 0
-            }
+
 
             if (gamepad1.y) //Else if y is pressed, we want to raise the pan
             {
@@ -566,6 +562,7 @@ public class TeleopLimits extends OpMode {
         timeTwo=this.getRuntime();
 
         telemetry.addData("lps", loopCounter/(timeTwo-timeOne));
+        telemetry.addData("elevator power", panLifterMotor.getPower());
         telemetry.update();
 
     } // end loop
