@@ -77,11 +77,11 @@ public class REDAUTOCORNER extends FunctionsForAuto {
 
             pause(.01); // pause
 
-            driveNewIMU(3, 5, .3, true, 125); // drive away from cryptobox
+            driveNewIMU(5.4, 5, .3, true, 125); // drive away from cryptobox
 
             if ((this.getRuntime() - threeGlyphTimeOne < 17)) { // if there is enough time to get additional glyphs
                 if (attackConfirmation.equalsIgnoreCase("left")) { // if most accesible glyph is in the left position
-                    spinMove(100, false, 5, false); // turn towards left position
+                    spinMove(100, false, 2, false); // turn towards left position
 
                     pause(.01); // pause
 
@@ -106,7 +106,7 @@ public class REDAUTOCORNER extends FunctionsForAuto {
                     }
 
                 } else if (attackConfirmation.equalsIgnoreCase("right")) { // if most accessible glyph is in the center position
-                    spinMove(81, false, 5, false); // spin toward right position
+                    spinMove(81, false, 2, false); // spin toward right position
 
                     pause(.01); // pause
 
@@ -132,7 +132,7 @@ public class REDAUTOCORNER extends FunctionsForAuto {
 
                 } else { // if most accessible glyph in center position
 
-                    spinMove(100, false, 5, false); // spin to center glyph position
+                    spinMove(100, false, 2, false); // spin to center glyph position
 
                     pause(.01); // pause
 
@@ -167,11 +167,11 @@ public class REDAUTOCORNER extends FunctionsForAuto {
 
             pause(.01);  // pause
 
-            spinMove(55, false, 5, true); //Spin to 125 degrees, while dropping the touch bar, not starting at .3 power with a 5 second timeout, putting the touchServo down
+            spinMove(53, false, 5, true); //Spin to 125 degrees, while dropping the touch bar, not starting at .3 power with a 5 second timeout, putting the touchServo down
 
             pause(.01); // pause
 
-            driveNewIMU(5.5, 2.7, -.3, false, 55); // drive toward cryptobox
+            driveNewIMU(5.5, 2.7, -.3, false, 53); // drive toward cryptobox
 
             release(); // drop blocks
 
@@ -179,18 +179,18 @@ public class REDAUTOCORNER extends FunctionsForAuto {
 
             lowerPan(); // lower pan
 
-            driveNewIMU(9.5, 2.2, -.3, false, 55); // drive block into cryptobox
+            driveNewIMU(9.5, 2.2, -.3, false, 53); // drive block into cryptobox
 
             pause(.01); // pause
 
-            driveNewIMU(3, 5, .3, true, 55); // drive away from cryptobox
+            driveNewIMU(5.4, 5, .3, true, 53); // drive away from cryptobox
 
             pause(.01); // pause
 
             if (this.getRuntime() - threeGlyphTimeOne < 17) { // if there is time to grab 2 more glyphs
                 if (attackConfirmation.equalsIgnoreCase("left")) { // if the most accessible block is left
 
-                    spinMove(110, false, 5, false); // spin toward center position
+                    spinMove(110, false, 2, false); // spin toward center position
 
                     pause(.01); // pause
 
@@ -219,7 +219,7 @@ public class REDAUTOCORNER extends FunctionsForAuto {
 
                 } else if (attackConfirmation.equalsIgnoreCase("right")) {
 
-                    spinMove(70, false, 5, false); // spin toward right position
+                    spinMove(70, false, 2, false); // spin toward right position
 
                     pause(.01); // pause
 
@@ -247,7 +247,7 @@ public class REDAUTOCORNER extends FunctionsForAuto {
                     }
 
                 } else {
-                    spinMove(90, false, 5, false); // spin toward center glyph
+                    spinMove(90, false, 2, false); // spin toward center glyph
 
                     pause(.01); // pause
 
@@ -304,104 +304,106 @@ public class REDAUTOCORNER extends FunctionsForAuto {
 
             pause(.01); // pause
 
-            driveNewIMU(3, 5, .3, true, 125); // drive away from cryptobox
+            driveNewIMU(5.4, 5, .3, true, 125); // drive away from cryptobox
 
             pause(.01); // pause
 
-            if (attackConfirmation.equalsIgnoreCase("left")) { // if most accessible block in left position
+            if (this.getRuntime() - threeGlyphTimeOne < 17) // if there is time to grab 2 more glyphs
+            {
+                if (attackConfirmation.equalsIgnoreCase("left")) { // if most accessible block in left position
 
-                spinMove(100, false, 5, false); // spin towards left block
+                    spinMove(100, false, 2, false); // spin towards left block
 
-                pause(.01); // pause
+                    pause(.01); // pause
 
-                driveNewIMU(20, 3, .6, true, 100); // drive towards blocks
+                    driveNewIMU(20, 3, .6, true, 100); // drive towards blocks
 
-                pause(.01); // pause
+                    pause(.01); // pause
 
-                getBlockOne(); // intake first block
+                    getBlockOne(); // intake first block
 
-                pause(.01); // pause
+                    pause(.01); // pause
 
-                driveNewIMU(6, 3, -.4, false, 100); // backup from pile
+                    driveNewIMU(6, 3, -.4, false, 100); // backup from pile
 
-                pause(.01); // pause
+                    pause(.01); // pause
 
-                spinMove(70, true, 1, false); // turn towards second block
+                    spinMove(70, true, 1, false); // turn towards second block
 
-                pause(.01); // pause
+                    pause(.01); // pause
 
-                if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) { // if we don't already have 2 glyphs
+                    if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) { // if we don't already have 2 glyphs
 
-                    getBlockTwo(); // intake second block
+                        getBlockTwo(); // intake second block
 
-                }
+                    }
 
-                pause(.01); // pause
+                    pause(.01); // pause
 
-                spinMove(120, true, 1, false); // turn towards cryptobox
+                    spinMove(120, true, 1, false); // turn towards cryptobox
 
-            }
-            else if (attackConfirmation.equalsIgnoreCase("right")) { // if most accessible block in right position
+                } else if (attackConfirmation.equalsIgnoreCase("right")) { // if most accessible block in right position
 
-                spinMove(66, false, 5, false); // spin towards right block
+                    spinMove(66, false, 2, false); // spin towards right block
 
-                pause(.01); // pause
+                    pause(.01); // pause
 
-                driveNewIMU(20, 3, .6, true, 66); // drive towards blocks
+                    driveNewIMU(20, 3, .6, true, 66); // drive towards blocks
 
-                pause(.01); // pause
+                    pause(.01); // pause
 
-                getBlockOne(); // intake first block
+                    getBlockOne(); // intake first block
 
-                pause(.01); // pause
+                    pause(.01); // pause
 
-                driveNewIMU(6, 3, -.4, false, 66); // backup from pile
+                    driveNewIMU(6, 3, -.4, false, 66); // backup from pile
 
-                pause(.01); // pause
+                    pause(.01); // pause
 
-                spinMove(100, true, 1, false); // turn toward second block
+                    spinMove(100, true, 1, false); // turn toward second block
 
-                pause(.01); // pause
+                    pause(.01); // pause
 
-                if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) { // if we don't already have 2 glyphs
+                    if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) { // if we don't already have 2 glyphs
 
-                    getBlockTwo(); // intake second block
+                        getBlockTwo(); // intake second block
 
-                }
-
-            }
-            else { // if most accessible block in center position
-
-                spinMove(85, false, 5, false); // spin towards center block
-
-                pause(.01); // pause
-
-                driveNewIMU(20, 3, .6, true, 85); // drive towards blocks
-
-                pause(.01); // pause
-
-                getBlockOne(); // intake fist block
-
-                pause(.01); // pause
-
-                driveNewIMU(6, 3, -.4, false, 85); // backup from pile
-
-                pause(.01); // pause
-
-                spinMove(95 , true, 1, false); // turn towards second block
-
-                pause(.01); // pause
-
-                if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) { // if we don't already have 2 glyphs
-
-                    getBlockTwo(); // intake second block
+                    }
 
                 }
+                else { // if most accessible block in center position
 
-                pause(.01); // pause
+                    spinMove(85, false, 2, false); // spin towards center block
 
-                spinMove(120, true, 1, false); // turn towards cryptobox
+                    pause(.01); // pause
 
+                    driveNewIMU(20, 3, .6, true, 85); // drive towards blocks
+
+                    pause(.01); // pause
+
+                    getBlockOne(); // intake fist block
+
+                    pause(.01); // pause
+
+                    driveNewIMU(6, 3, -.4, false, 85); // backup from pile
+
+                    pause(.01); // pause
+
+                    spinMove(95, true, 1, false); // turn towards second block
+
+                    pause(.01); // pause
+
+                    if (!(sensorB.getDistance(DistanceUnit.CM) < 8) || !(sensorC.getDistance(DistanceUnit.CM) < 8)) { // if we don't already have 2 glyphs
+
+                        getBlockTwo(); // intake second block
+
+                    }
+
+                    pause(.01); // pause
+
+                    spinMove(120, true, 1, false); // turn towards cryptobox
+
+                }
             }
         }
 
@@ -440,7 +442,7 @@ public class REDAUTOCORNER extends FunctionsForAuto {
 
             pause(.01); // pause
 
-            driveNewIMU(6, 1, .5, true, 80); // drive away from cryptobox
+            driveNewIMU(4.4, 1, .5, true, 80); // drive away from cryptobox
 
 
         }
