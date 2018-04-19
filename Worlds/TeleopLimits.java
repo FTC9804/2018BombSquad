@@ -350,8 +350,8 @@ public class TeleopLimits extends OpMode {
             }
 
             if (gamepad1.right_trigger > .05) { //If rightTrigger if pressed, and b and leftBumper are not pressed, as to avoid conflicting commands for the intake powers
-                leftIntakeMotor.setPower(gamepad1.right_trigger * gamepad1.right_trigger * .7); ; //Set leftIntakePower to the square of rightTrigger times .7. We square values so Kevin can have finer control over intake speeds
-                rightIntakeMotor.setPower(gamepad1.right_trigger * gamepad1.right_trigger * .7); //Set rightIntakePower to leftIntakePower
+                leftIntakeMotor.setPower(gamepad1.right_trigger * gamepad1.right_trigger * .675); ; //Set leftIntakePower to the square of rightTrigger times .7. We square values so Kevin can have finer control over intake speeds
+                rightIntakeMotor.setPower(gamepad1.right_trigger * gamepad1.right_trigger * .675); //Set rightIntakePower to leftIntakePower
                 if(!gamepad1.left_stick_button) {
                     touchServo.setPosition(.46); //Set touchServoPosition to .46, which will set the touchServo to a position so the bar is just above the intake position, .74, to give exiting glyphs slightly more room to exit the robot
                 }
@@ -361,8 +361,8 @@ public class TeleopLimits extends OpMode {
                     panSpinPosition = .3;
                 }
             } else if (gamepad1.left_trigger > .05) { //Else if leftTrigger is pressed, and b and leftBumper are not pressed, as to avoid conflicting commands for the intake powers
-                leftIntakeMotor.setPower(-.7); //Set leftIntakePower to -.7. We set outtake powers differently so we can realign glyphs for reentry rather than outtaking them in the same orientation at which they entered
-                rightIntakeMotor.setPower(-.8); //Set rightIntakePower to -.8. We set outtake powers differently so we can realign glyphs for reentry rather than outtaking them in the same orientation at which they entered
+                leftIntakeMotor.setPower(-.67); //Set leftIntakePower to -.7. We set outtake powers differently so we can realign glyphs for reentry rather than outtaking them in the same orientation at which they entered
+                rightIntakeMotor.setPower(-.76); //Set rightIntakePower to -.8. We set outtake powers differently so we can realign glyphs for reentry rather than outtaking them in the same orientation at which they entered
                 if(!gamepad1.left_stick_button) {
                     touchServo.setPosition(.5); //Set touchServoPosition to .48, which will set the touchServo to a position so the bar is just above the intake position, .74, to give exiting glyphs slightly more room to exit the robot
                 }
