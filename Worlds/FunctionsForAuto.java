@@ -39,6 +39,9 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
     //MOTORS
 
+    double red;
+    double blue;
+
     //Driving
     DcMotor rightMotor; //Right drive motor, for driving forwards and backwards
     DcMotor leftMotor;  //Left drive motor, for driving forwards and backwards
@@ -112,7 +115,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
     final double FEELER_SWIPE_CW_POSITION = .15; //Clockwise turned position of feelerSwipe
     final double FEELER_SWIPE_CCW_POSITION = .99; //Counter-clockwise turned position of feelerSwipe
     final double FEELER_RAISE_UP_POSITION = .93; //Position that the feelerRaise is set to when we are not scoring the ball
-    double FEELER_RAISE_DOWN_POSITION = .48; //Position that the feelerRaise is set to when we are scoring the ball
+    double FEELER_RAISE_DOWN_POSITION = .488; //Position that the feelerRaise is set to when we are scoring the ball
 
     //Vuforia
     VuforiaLocalizer vuforia; //Variable to store our instance of the Vuforia localization engine
@@ -564,7 +567,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         loopCounter = 1000; //Set loopCounter to 1000
 
-        inches = 30; //Set inches2 to 60
+        inches = 25; //Set inches2 to 60
         rotations = inches / (Math.PI * WHEEL_DIAMETER); //Set rotations2 to inches2 divided by pi, approximately 3.14, divided by the wheel diameter
         counts = ENCODER_CPR * rotations * GEAR_RATIO; //Set counts2 to the encoder CPR times rotations2 times the gear ratio
 
@@ -583,7 +586,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         frontBlockCounter=0;
 
         //While bothBlockCounter is under 5 and the current position of rightMotor is less than counts2 and less than 4.5 seconds have elapsed
-        while (frontBlockCounter < 5 && rightMotor.getCurrentPosition()<(counts) && timeFour-timeThree < 2.3)
+        while (frontBlockCounter < 5 && rightMotor.getCurrentPosition()<(counts) && timeFour-timeThree < 2)
         {
             leftIntakeMotor.setPower(.58); //Set leftIntakeMotor to .73 power to intake blocks
             rightIntakeMotor.setPower(.58); //Set rightIntakeMotor to 73 power to intake blocks
@@ -647,7 +650,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         loopCounter = 1000; //Set loopCounter to 1000
 
-        inches = 15; //Set inches2 to 60
+        inches = 12; //Set inches2 to 60
         rotations = inches / (Math.PI * WHEEL_DIAMETER); //Set rotations2 to inches2 divided by pi, approximately 3.14, divided by the wheel diameter
         counts = ENCODER_CPR * rotations * GEAR_RATIO; //Set counts2 to the encoder CPR times rotations2 times the gear ratio
 
@@ -666,7 +669,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
         backBlockCounter=0;
 
         //While bothBlockCounter is under 5 and the current position of rightMotor is less than counts2 and less than 4.5 seconds have elapsed
-        while (backBlockCounter < 5 && rightMotor.getCurrentPosition()<(counts) && timeFour-timeThree < 2)
+        while (backBlockCounter < 5 && rightMotor.getCurrentPosition()<(counts) && timeFour-timeThree < 1.5)
         {
             leftIntakeMotor.setPower(.58); //Set leftIntakeMotor to .73 power to intake blocks
             rightIntakeMotor.setPower(.58); //Set rightIntakeMotor to 73 power to intake blocks
@@ -817,9 +820,16 @@ public abstract class FunctionsForAuto extends LinearOpMode {
 
         feelerRaise.setPosition(.65); //Set feelerRaise to position .49 to lower the jewel arm
 
+        red = sensorColorFeeler.red() - sensorColorFeeler.green();
+        blue = sensorColorFeeler.blue() - sensorColorFeeler.green();
+
+        telemetry.addData("red cal", sensorColorFeeler.red() - sensorColorFeeler.green());
+        telemetry.addData("blue cal", sensorColorFeeler.blue() - sensorColorFeeler.green());
+
+
         vuMarkReturn = detectVuMark(2); //Run vuforia detection during the time when the feelerRaise is moving down, and set the output of detectVuMark to the String vuMarkReturn
         pause(.5); //.1 second pause
-        if (allianceColor.equalsIgnoreCase("red") && sensorColorFeeler.blue() >=  sensorColorFeeler.red()) { //If we are the red alliance and see a blue ball with the color sensor
+        if (allianceColor.equalsIgnoreCase("red") && (sensorColorFeeler.blue() - blue) >=  (sensorColorFeeler.red()-red)) { //If we are the red alliance and see a blue ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
             telemetry.addData("Value of RED: ", sensorColorFeeler.red());
             telemetry.addData("Value of BLUE: ", sensorColorFeeler.blue());
@@ -829,7 +839,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Raise feelerRaise after ball is knocked off
             pause(.5); //.1 second pause
         }
-        else if ( allianceColor.equalsIgnoreCase("red") && sensorColorFeeler.red() >= sensorColorFeeler.blue()) { //If we are the red alliance and see a red ball with the color sensor
+        else if ( allianceColor.equalsIgnoreCase("red") && (sensorColorFeeler.red() - red) >= (sensorColorFeeler.blue() - blue)) { //If we are the red alliance and see a red ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
             telemetry.addData("Value of RED: ", sensorColorFeeler.red() );
             telemetry.addData("Value of BLUE: ", sensorColorFeeler.blue() );
@@ -840,7 +850,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Raise feelerRaise after ball is knocked off
             pause(.5); //.1 second pause
         }
-        else if ( allianceColor.equalsIgnoreCase("blue") && sensorColorFeeler.blue() >= sensorColorFeeler.red()) { //If we are the blue alliance and see a blue ball with the color sensor
+        else if ( allianceColor.equalsIgnoreCase("blue") && (sensorColorFeeler.blue() - blue) >= (sensorColorFeeler.red() - red)) { //If we are the blue alliance and see a blue ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
             telemetry.addData("Value of RED: ", sensorColorFeeler.red() );
             telemetry.addData("Value of BLUE: ", sensorColorFeeler.blue() );
@@ -851,7 +861,7 @@ public abstract class FunctionsForAuto extends LinearOpMode {
             feelerRaise.setPosition(FEELER_RAISE_UP_POSITION); //Raise feelerRaise after ball is knocked off
             pause(.5); //.1 second pause
         }
-        else if ( allianceColor.equalsIgnoreCase("blue") && sensorColorFeeler.red() >= sensorColorFeeler.blue()) { //If we are the blue alliance and see a red ball with the color sensor
+        else if ( allianceColor.equalsIgnoreCase("blue") && (sensorColorFeeler.red()-red) >= (sensorColorFeeler.blue()-blue)) { //If we are the blue alliance and see a red ball with the color sensor
             //Display red and blue values of the color sensor on telemetry
             telemetry.addData("Value of RED: ", sensorColorFeeler.red() );
             telemetry.addData("Value of BLUE: ", sensorColorFeeler.blue() );
