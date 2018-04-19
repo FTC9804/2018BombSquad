@@ -442,7 +442,7 @@ public class REDAUTOCORNER extends FunctionsForAuto {
 
             pause(.01); // pause
 
-            driveNewIMU(4.4, 1, .5, true, 80); // drive away from cryptobox
+            driveNewIMU(3.4, 1, .5, true, 80); // drive away from cryptobox
 
 
         }
