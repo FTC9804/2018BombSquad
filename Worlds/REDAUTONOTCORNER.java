@@ -55,11 +55,11 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
         if (vuMarkReturn.equalsIgnoreCase("left")) //If vuforia reads left
         {
-            spinMove(225, false, 5, true); // spin toward cryptobox
+            spinMove(228, false, 5, true); // spin toward cryptobox
 
             pause(.01); //pause
 
-            driveNewIMU(8, 3.2, -.3, false, 230); // backup toward cryptobox
+            driveNewIMU(8, 3.2, -.3, false, 233); // backup toward cryptobox
 
             pause(.01); //pause
 
@@ -71,13 +71,13 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
             pause(.01); //pause
 
-            driveNewIMU(8.5, 1.6, -.3, false, 225); // back the glyph in
+            driveNewIMU(10.5, 1.6, -.3, false, 220); // back the glyph in
 
             pause(.01); //pause
 
-            driveNewIMU(6.1, 5, .3, true, 230); // drive away from cryptobox
+            driveNewIMU(4.1, 5, .3, true, 230); // drive away from cryptobox
 
-            if ((this.getRuntime() - threeGlyphTimeOne < 17)) {
+            if ((this.getRuntime() - threeGlyphTimeOne < 5)) {
                 pause(.01); //pause
 
                 spinMove(136, false, 5, false); // turn towards center line
@@ -162,7 +162,7 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
             pause(.01); //pause
 
-            pivot(-156, 4); // pivot with left side
+            pivot(-135, 4); // pivot with left side
 
             pause(.01); //pause
 
@@ -174,13 +174,15 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
             pause(.01); //pause
 
-            driveNewIMU(12, 1.6, -.3, false, -156); // ram into cryptobox
+            driveNewIMU(12, 2.4, -.3, false, -127); // ram into cryptobox
 
             pause(.01); //pause
 
-            driveNewIMU(6.1, 5, .3, true, -156); // drive away from cryptobox
+            driveNewIMU(4.1, 5, .3, true, -127); // drive away from cryptobox
 
-            if ((this.getRuntime() - threeGlyphTimeOne < 17))
+            spinMove(-180, false, 3, false);
+
+            if ((this.getRuntime() - threeGlyphTimeOne < 5))
             {
                 pause(.01); //pause
 
@@ -264,7 +266,7 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
         }
         else //else
         {
-            spinMove(211, false, 5, true);
+            spinMove(214, false, 5, true);
 
             pause(.01);
 
@@ -274,14 +276,14 @@ public class REDAUTONOTCORNER extends FunctionsForAuto {
 
             lowerPan();
 
-            driveNewIMU(12.5, 1.6, -.3, false, 211);
+            driveNewIMU(15.5, 2.1, -.3, false, 214);
 
             pause(.01);
 
-            driveNewIMU(6.1, 5, .3, true, 211);
+            driveNewIMU(4.1, 5, .3, true, 214);
 
 
-            if ((this.getRuntime() - threeGlyphTimeOne < 17)) {
+            if ((this.getRuntime() - threeGlyphTimeOne < 5)) {
 
                 pause(.01);
 
