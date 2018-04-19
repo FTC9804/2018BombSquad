@@ -76,19 +76,19 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
             pause(.01);
 
-            driveNewIMU(11.5, 2.6, -.34, false, -55);
+            driveNewIMU(11.5, 2.6, -.34, false, -47);
 
             pause(.01);
 
             driveNewIMU(3.5, 2.6, .5, false, -60);
 
-            if ((this.getRuntime() - threeGlyphTimeOne < 17)) {
+            if ((this.getRuntime() - threeGlyphTimeOne < 5)) {
 
                 pause(.01); //pause
 
-                spinMove(80, false, 2.8, false);
+                spinMove(60, false, 2.8, false);
 
-                driveNewIMU(12, 5, 1, true, 80); // drive toward mid-line
+                driveNewIMU(8, 5, 1, true, 60); // drive toward mid-line
 
 
                 pause(.01); //pause
@@ -174,7 +174,7 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
             driveNewIMU(6.4, 5, .3, true, -44);
 
-            if ((this.getRuntime() - threeGlyphTimeOne < 17)) {
+            if ((this.getRuntime() - threeGlyphTimeOne < 5)) {
 
                 spinMove(55, false, 3.4, false);
 
@@ -238,7 +238,7 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
         }
         else //aka center
         {
-            driveNewIMU(7.2, 10, -.35, false, 0); // drive backward away from stone
+            driveNewIMU(8.8, 10, -.35, false, 0); // drive backward away from stone
 
             frontBarDown(); // lower front bar
 
@@ -260,13 +260,13 @@ public class BLUEAUTONOTCORNER extends FunctionsForAuto {
 
             driveNewIMU(6.9, 5, .3, true, -45); //drive away from cryptobox
 
-            if ((this.getRuntime() - threeGlyphTimeOne < 17)) {
+            if ((this.getRuntime() - threeGlyphTimeOne < 5)) {
 
                 spinMove(55, false, 3.4, false); // spin toward center line
 
                 pause(.01); // pause
 
-                driveNewIMU(27.8, 5, 1, true, 80); // drive toward center line
+                driveNewIMU(24.8, 5, 1, true, 80); // drive toward center line
 
                 pause(.01); // pause
 
