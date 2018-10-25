@@ -1,0 +1,126 @@
+//LIFTER
+
+//Package statement
+package org.firstinspires.ftc.teamcode;
+
+//Import statements
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoControllerEx;
+import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.PwmControl;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorDigitalTouch;
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
+
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+
+import java.util.Locale;
+
+//Class declaration
+public class Lifter {
+    //Declare instance Motor
+    private DcMotor liftMotor;
+
+    //Declare booleans
+    private boolean liftToTop, dump;
+
+    //Declare digital channels
+    private DigitalChannel atTop;
+    private DigitalChannel atVeryTop;
+    private DigitalChannel atBottom;
+
+    //Constructs a Lifter with 1 motor, 1 motor direction, and 3 Digital channels
+    public Lifter(DcMotor lifter1, DcMotorSimple.Direction lifter1D, DigitalChannel topLimit, DigitalChannel veryTopLimit, DigitalChannel bottomLimit) {
+        //Sets instance variables to inputs
+        liftMotor = lifter1;
+        liftMotor.setDirection(lifter1D);
+        atTop = topLimit;
+        atVeryTop = veryTopLimit;
+        atBottom = bottomLimit;
+    } //Ends constructor
+
+    //Asks for two booleans, and uses them to determine the power of liftMotor
+    public void lift(boolean leftLifter, boolean rightDumper) {
+        //Sets liftToTop as true if leftLifter is true
+        if (leftLifter) {
+            liftToTop = true;
+        }
+        //Sets dump to true if rightDumper is true
+        if (rightDumper) {
+            dump = true;
+        }
+
+        //If lift to top is true
+        if (liftToTop) {
+            //If atTop is not true, indicating we are not at the top
+            if (!atTop.getState()) {
+                //We set the liftMotor to .75
+                liftMotor.setPower(.75);
+            }
+            //If atTop is true, or we are at the top
+            else {
+                //We set liftMotor to 0 and set liftToTop to false to indicate we are at the top
+                liftMotor.setPower(0);
+                liftToTop = false;
+            }
+        }
+
+        //If dump is true
+        if(dump) {
+            //If atVeryTop is not true, indicating we are not at the very top
+            if(!atVeryTop.getState()) {
+                //We set liftMotor to .75
+                liftMotor.setPower(.75);
+            }
+            //If atVeryTop is true, or we are at the very top
+            else {
+                //Set liftMotor to 0 and set dump to false, indicating we no longer need to dump
+                liftMotor.setPower(0);
+                dump = false;
+            }
+        }
+
+        //If we are not wanting to lift or dump, and atBottom is false, indicating we are not at the bottom
+        if(!dump && !liftToTop && !atBottom.getState()){
+            //set liftMotor to -.75, telling the motor to go back down
+            liftMotor.setPower(-.75);
+        }
+        //Else if we don't want to lift or dump and atBottom is true, indicating we are at the bottom
+        else if(!dump && !liftToTop && atBottom.getState()) {
+            //set liftMotor to -.75, telling the motor to stop moving
+            liftMotor.setPower(0);
+        }
+    } //Ends void statement
+} //Ends class
