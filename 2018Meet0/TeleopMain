@@ -1,0 +1,71 @@
+//TELEOPMAIN created on September 8th by Isaac Dienstag
+
+//Package statements
+package org.firstinspires.ftc.teamcode;
+
+//Import statements
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
+
+//Declaration for display on the driver station
+@TeleOp(name = "TeleOp Test")
+
+public class TeleopMain extends OpMode {
+
+    //Object Declarations
+    DriveTrain DT;
+    Grabber GB;
+    Lifter LT;
+    Hanger HG;
+
+    //Telemetry variables
+    int loopCounter;
+    double timeOne, timeTwo;
+
+    public void init(){
+        //Initialize our objects to the hardwareMap
+        DT = new DriveTrain(hardwareMap.dcMotor.get("m2"), hardwareMap.dcMotor.get("m1"), FORWARD, REVERSE);
+        GB = new Grabber(hardwareMap.dcMotor.get("m3"), hardwareMap.dcMotor.get("m4"), FORWARD, FORWARD, hardwareMap.servo.get("s1"));
+        LT = new Lifter(hardwareMap.dcMotor.get("m5"), FORWARD, hardwareMap.get(DigitalChannel.class, "d2"), hardwareMap.get(DigitalChannel.class, "d3"), hardwareMap.get(DigitalChannel.class, "d4"));
+        HG = new Hanger(hardwareMap.dcMotor.get("m6"));
+    }
+
+    public void start() {
+        timeOne = this.getRuntime();
+    }
+
+    public void loop(){
+        loopCounter++;
+
+        //Set DriveTrain powers to left stick and right stick y
+        DT.setLeftPower(gamepad1.left_stick_y);
+        DT.setRightPower(gamepad1.right_stick_y);
+
+        //Set reach control to left and right triggers of the driver
+        GB.reach(gamepad1.left_trigger, gamepad1.right_trigger);
+        //Set intake controls to the bumpers of the driver
+        GB.intake(gamepad1.left_stick_button, gamepad1.right_stick_button);
+        //Turn on the sort method
+        GB.sort(hardwareMap.get(DigitalChannel.class, "d1").getState());
+
+        //Set lifting and scoring controls to the bumpers of gunner
+        LT.lift(gamepad2.left_bumper, gamepad2.right_bumper);
+
+        //Set Hanging controls
+        HG.hangAndDrop(gamepad1.a, gamepad1.y);
+
+        //Telemetry for testing
+        timeTwo = this.getRuntime();
+        telemetry.addLine("Telemetry:");
+        telemetry.addData("LPS", loopCounter/(timeTwo-timeOne));
+        telemetry.addData("Left Power", DT.getLeftPower());
+        telemetry.addData("Right Power", DT.getRightPower());
+        telemetry.addData("Lift Power", LT.getLiftPower());
+        telemetry.addData("Hanger Power", HG.getHangPower());
+        telemetry.addData("Sorter Positon", GB.getServoPos());
+        telemetry.update();
+    } //Ends loop
+} //Ends class

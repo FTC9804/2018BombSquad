@@ -1,4 +1,4 @@
-    /**
+/**
  * TeleopV2 Made Saturday December 9 by Isaac, Marcus, and Steve
  */
 
@@ -78,20 +78,20 @@ public class TeleopV2 extends OpMode {
     boolean rightBumper; //boolean for rightBumper.  Set to true if rightBumper is pressed and set to false otherwise
     double leftTrigger; //double for the extent to which leftTrigger is pressed.  No press is 0, full press is 1
     boolean leftBumper; //boolean for leftBumper.  Set to true if leftBumper is pressed and set to false otherwise
-    double panSpinPosition; //boolean that represents whether the pan is in intake or scoring position
+    double panSpinPosition;
     boolean dpadDownPressed; //boolean for dpadDown.  Set to true if dpadDown is pressed and set to false otherwise
     boolean dpadRightPressed; //boolean for dpadRight.  Set to true if dpadRight is pressed and set to false otherwise
     boolean dpadLeftPressed; //boolean for dpadLeft.  Set to true if dpadLeft is pressed and set to false otherwise
     boolean dpadUpPressed; //boolean for dpadUp.  Set to true if dpadUp is pressed and set to false otherwise
+    boolean readCounter;
 
-    boolean readCounter;//boolean that represents whether or not we can read a switch again
-    int panPosition; //Int that represents the hight of the pan
-    int pastPanPosition; //Int that is used to define how far the pan has to travel
-    int movement; //Int that represents how far it has to move to reach the desired position
-    boolean sensor; //A boolean the represents whether or not we are reading a sensor
-    int counter; //Counter of how long it has been since we last read a magnet switch
+    int panPosition;
+    int pastPanPosition;
+    int movement;
+    boolean sensor;
+    int counter;
 
-    double lastTime; //Long to represent the timer when we hit a switch
+    long lastTime;
 
     // Motor and servo configurations
     DcMotor rightIntakeMotor; //Dc motor that controls the right intake/right wheel of the intake
@@ -100,7 +100,7 @@ public class TeleopV2 extends OpMode {
     Servo leftPanSpin;
     Servo rightPanSpin;
 
-    TouchSensor touchSensor; //Touch sensor that tells us if we reach a pan hight
+    TouchSensor touchSensor;
 
     /* Initialize standard Hardware interfaces */
     public void init() { // use hardwaremap here instead of hwmap or ahwmap provided in sample code
@@ -121,8 +121,8 @@ public class TeleopV2 extends OpMode {
         touchSensor = hardwareMap.touchSensor.get("sensor"); //touchSensor configuration
 
         // Motor directions
-        rightMotor.setDirection(FORWARD); //Set rightMotor to FORWARD direction
-        leftMotor.setDirection(REVERSE); //Set leftMotor to REVERSE direction
+        rightMotor.setDirection(REVERSE); //Set rightMotor to REVERSE direction
+        leftMotor.setDirection(FORWARD); //Set leftMotor to FORWARD direction
         backRightMotor.setDirection(REVERSE); //Set backRightMotor to REVERSE direcion
         backLeftMotor.setDirection(REVERSE); //Set backLeftMotor to REVERSE direction
         rightIntakeMotor.setDirection(FORWARD); //Set rightIntakeMotor to FORWARD direction
@@ -130,10 +130,6 @@ public class TeleopV2 extends OpMode {
         panLifterMotor.setDirection(FORWARD); //Set panLifterMotor to FORWARD direction
 
         //Init powers
-        rightMotor.setPower(0); //Set rightMotor to 0 power
-        leftMotor.setPower(0); //Set leftMotor to 0 power
-        backRightMotor.setPower(0); //Set backRightMotor to 0 power
-        backLeftMotor.setPower(0); //Set backLeftMotor to 0 power
         rightIntakeMotor.setPower(0); //Set rightIntakeMotor to 0 power
         leftIntakeMotor.setPower(0); //Set leftIntakeMotor to 0 power
         panLifterMotor.setPower(0); //Set panLifterMotor to 0 power
@@ -142,11 +138,8 @@ public class TeleopV2 extends OpMode {
         leftPanSpin.setDirection(Servo.Direction.REVERSE); //Set leftPanSpin to REVERSE direction
         rightPanSpin.setDirection(Servo.Direction.FORWARD); //Set rightPanSpin to FORWARD direction
 
-        //initial pan positions
         panPosition = 1;
         pastPanPosition = 1;
-
-        //initial counter declaration
         readCounter = false;
         counter = 0;
     }
@@ -159,10 +152,10 @@ public class TeleopV2 extends OpMode {
         //DRIVING
         //DRIVING
 
-
         telemetry.addData("Left X Joy Raw: ", gamepad1.left_stick_x); //The raw value of left stick x
         telemetry.addData("Left Y Joy Raw: ", gamepad1.left_stick_y); //The raw value of left stick y
         telemetry.addData("Right X Joy Raw: ", gamepad1.right_stick_x); //The raw value of right stick x
+
 
         leftStickX1 = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x);
         //Set rightStickX1 to the left stick x value of gamepad 1 times the absolute value of this left stick x value
@@ -178,7 +171,7 @@ public class TeleopV2 extends OpMode {
 
         rotLeftPower = -rightStickY1;
         rotRightPower = -rightStickY1;
-        //rotBackPower = -rightStickX1 * rotRatio;
+        // rotBackPower = -rightStickX1 * rotRatio;
         //rotFrontPower = -rightStickX1 * rotRatio;
 
         testLeftPower = linLeftPower + rotLeftPower;
@@ -323,7 +316,6 @@ public class TeleopV2 extends OpMode {
 
         if(leftBumper && leftTrigger >= .05)
         {
-            panSpinPosition = .5;
         }
         else  if(leftBumper)
         {
@@ -365,7 +357,7 @@ public class TeleopV2 extends OpMode {
             if(touchSensor.isPressed())
             {
                 sensor = true;
-                lastTime = this.getRuntime();
+                lastTime = 0;
             }
             else
             {
@@ -379,7 +371,7 @@ public class TeleopV2 extends OpMode {
                 counter++;
                 readCounter = false;
             }
-            if(this.getRuntime() >= lastTime + 250) {
+            if(System.currentTimeMillis() >= lastTime + 250) {
                 lastTime = System.currentTimeMillis();
                 readCounter = true;
             }

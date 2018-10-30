@@ -1,0 +1,52 @@
+//AUTOMAIN created by Isaac Dienstag on October 21st
+
+//Package eclaration
+package org.firstinspires.ftc.teamcode;
+
+//Import Statements
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
+
+//Declaration for display on the driver station
+@Autonomous(name = "auto test")
+
+public class AutoMain extends LinearOpMode {
+    //Object declarations
+    DriveTrain DT;
+
+    //Variable declarations
+    double timeOne;
+    double timeTwo;
+
+    //Main OpMode method
+    public void runOpMode() {
+
+        //Object initialization
+        DT = new DriveTrain(hardwareMap.dcMotor.get("m2"), hardwareMap.dcMotor.get("m1"), FORWARD, REVERSE);
+
+        waitForStart();
+
+        //Test movements
+        DT.setLeftPower(.5);
+        DT.setRightPower(.5);
+        pause(2);
+        DT.setLeftPower(.5);
+        DT.setRightPower(-.5);
+        pause(2);
+        DT.setLeftPower(0);
+        DT.setRightPower(0);
+
+    } //Ends OpMode method
+    //Universal Methods used in Auto:
+
+    //Pause for time seconds
+    public void pause(double time) {
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+        while (timeTwo - timeOne < time) {
+            timeTwo = this.getRuntime();
+        } 
+    } //Ends method
+} //Ends class

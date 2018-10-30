@@ -1,24 +1,19 @@
-package org.firstinspires.ftc.teamcode;
+    package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.ServoController;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
-import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
-import static com.qualcomm.robotcore.util.Range.clip;
 
 
 @TeleOp(name = "TeleOpCompetitionLit", group = "LAMeets")
-public class TeleopLit extends OpMode {
+
+
+public class RobotRegular extends OpMode {
 
     //Controls and Variables
 
@@ -65,11 +60,10 @@ public class TeleopLit extends OpMode {
     //Grabber controls
     double rightTrigger1;
     boolean rightBumper1;
-    boolean lb;
-    double lt;
-    boolean ltPressed;
     boolean y1;
     boolean a1;
+    boolean x1;
+    boolean b1;
     boolean start;
 
     //Relicc variables
@@ -81,8 +75,8 @@ public class TeleopLit extends OpMode {
     boolean dpadRight1;
     boolean dpadLeft1;
 
-    boolean  x1;
-    boolean b1;
+    double leftTrigger1;
+    boolean leftBumper1;
 
     // Motor configurations in the hardware map
     DcMotor RightMotor;
@@ -134,8 +128,8 @@ public class TeleopLit extends OpMode {
         top.setDirection(Servo.Direction.FORWARD);
         topSuckLeft.setDirection(Servo.Direction.FORWARD);
         topSuckRight.setDirection(Servo.Direction.REVERSE);
-        LeftLift.setDirection(FORWARD);
-        RightLift.setDirection(REVERSE);
+        LeftLift.setDirection(REVERSE);
+        RightLift.setDirection(FORWARD);
 
         top.setPosition(.5);
         topSuckLeft.setPosition(1);
@@ -170,7 +164,7 @@ public class TeleopLit extends OpMode {
 
         rotLeftPower = -rightStickX1;
         rotRightPower = -rightStickX1;
-        // rotBackPower = -rightStickX1 * rotRatio;
+       // rotBackPower = -rightStickX1 * rotRatio;
         //rotFrontPower = -rightStickX1 * rotRatio;
 
         testLeftPower = linLeftPower + rotLeftPower;
@@ -276,26 +270,24 @@ public class TeleopLit extends OpMode {
         //GRABBING
 
 
-        lt = gamepad1.left_trigger;
-        if(lt > .05)
-        {
-            ltPressed = true;
-        }
         y1 = gamepad1.y;
         a1 = gamepad1.a;
-        lb = gamepad1.left_bumper;
+
+        leftTrigger1 = gamepad1.left_trigger;
+        leftBumper1 = gamepad1.left_bumper;
+
         rightTrigger1 = gamepad1.right_trigger;
         rightBumper1= gamepad1.right_bumper;
         start = gamepad1.start;
 
         //Top grabber suck controls
-        if(lb)
+        if(leftBumper1)
         {
             topLeftPosition = .7;
             topRightPosition = .7;
-            telemetry.addLine("left Bumper");
+            telemetry.addLine("Left Bumper");
         }
-        else if(ltPressed)
+        else if(leftTrigger1>.5)
         {
             topLeftPosition = 0.3;
             topRightPosition = 0.3;
@@ -305,7 +297,7 @@ public class TeleopLit extends OpMode {
         {
             topLeftPosition = .7;
             topRightPosition = 0.3;
-            telemetry.addLine("Start pressed");
+            telemetry.addLine("Start");
         }
         else
         {
@@ -349,16 +341,17 @@ public class TeleopLit extends OpMode {
 
         x1 = gamepad1.x;
         b1 = gamepad1.b;
-        dpadUp1=gamepad1.dpad_up;
-        dpadDown1=gamepad1.dpad_down;
+
         dpadLeft1=gamepad1.dpad_left;
         dpadRight1=gamepad1.dpad_right;
+        dpadUp1=gamepad1.dpad_up;
+        dpadDown1=gamepad1.dpad_down;
 
-        if(x1 && !b1)
+        if(b1 && !x1)
         {
             rotatePosition = 0;
         }
-        else if(x1 && b1)
+        else if(!b1 && x1)
         {
             rotatePosition = 1;
         }
@@ -372,11 +365,11 @@ public class TeleopLit extends OpMode {
             openPosition = 1;
         }
 
-        if(dpadUp1 && !dpadDown1)
+        if(dpadDown1 && !dpadUp1)
         {
             extendPower = -1;
         }
-        else if(!dpadUp1 && dpadRight1)
+        else if(!dpadDown1 && dpadUp1)
         {
             extendPower = 1;
         }
@@ -413,7 +406,7 @@ public class TeleopLit extends OpMode {
         FrontMotor.setPower(finFrontPower);
         BackMotor.setPower(finBackPower);
 
-        topGrabberPosition = Range.clip(topGrabberPosition,.22563219,.5);
+        topGrabberPosition = Range.clip(topGrabberPosition,0,.25);
         top.setPosition(topGrabberPosition);
         topSuckLeft.setPosition(topLeftPosition);
         topSuckRight.setPosition(topRightPosition);

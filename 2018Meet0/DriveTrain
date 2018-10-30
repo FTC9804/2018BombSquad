@@ -1,0 +1,53 @@
+//DRIVETRAIN created by Isaac Dienstag on September 8th
+
+//Package statement
+package org.firstinspires.ftc.teamcode;
+
+//Import Statements
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
+//Class declaration
+public class DriveTrain  {
+
+    //Declare private instance motors
+    private DcMotor leftMotor;
+    private DcMotor rightMotor;
+
+    //Constructs a DriveTrain that asks for the names of the two motors, and the directions of the two motors
+    public DriveTrain (DcMotor left, DcMotor right, DcMotorSimple.Direction leftDirection, DcMotorSimple.Direction rightDirection){
+        //Set private instance DcMotors to the inputs given
+        leftMotor = left;
+        rightMotor = right;
+        leftMotor.setDirection(leftDirection);
+        rightMotor.setDirection(rightDirection);
+    } //End con structor
+
+    //Checks if a number is too small to be considered intentional. If input <= deadzone, we ignore it, and output 0.
+    //If input > deadzone, we return input, because the input is likely intentional.
+    public double deadzone(double tolerance, double input){
+        if(input > tolerance || input < -(tolerance))
+            return input;
+        else
+            return 0;
+    } //End double method
+
+    //Sets the power of the left motor to the value of lsy
+    public void setLeftPower(double lsy) {
+        leftMotor.setPower(deadzone(.05, lsy)* Math.abs(deadzone(.05, lsy)));
+    } //End void method
+
+    //Sets the power of the right motor to the value of rsy
+    public void setRightPower(double rsy) {
+        rightMotor.setPower(deadzone(.05, rsy) * Math.abs(deadzone(.05, rsy)));
+    } //End void method
+
+    //Getter statements used in telemetry
+    public double getLeftPower(){
+        return leftMotor.getPower();
+    }
+    public double getRightPower(){
+        return leftMotor.getPower();
+    }
+
+} //End class

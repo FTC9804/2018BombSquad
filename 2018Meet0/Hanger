@@ -1,0 +1,33 @@
+//HANGER created by Isaac Dienstag on October 21st
+
+//Package declaration
+package org.firstinspires.ftc.teamcode;
+
+//Import statements
+import com.qualcomm.robotcore.hardware.DcMotor;
+
+public class Hanger {
+
+    //Variable declarations
+    DcMotor hanger;
+
+    //Constructor
+    public Hanger(DcMotor hangingMotor){
+        hanger = hangingMotor;
+    }
+
+    //Drop if drop is true, hang if hang is true, do nothing if neither or both is true
+    public void hangAndDrop(boolean drop, boolean hang){
+        if(drop && hang)
+            hanger.setPower(0);
+        else if(drop)
+            hanger.setPower(-.5);
+        else if(hang)
+            hanger.setPower(.5);
+        else
+            hanger.setPower(0);
+    }
+
+    //Getters for telemetry
+    public double getHangPower(){ return hanger.getPower();}
+}

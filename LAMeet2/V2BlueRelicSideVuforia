@@ -9,17 +9,17 @@ package org.firstinspires.ftc.teamcode;
 //import statement
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "V2RedRelicSideVuforia", group = "VuforiaAuto")
+@Autonomous(name = "V2BlueRelicSideVuforia", group = "VuforiaAuto")
 //@Disabled
 
-public class V2RedRelicSideVuforia extends FunctionsForAuto {
+public class V2BlueRelicSideVuforia extends FunctionsForAuto {
 
     String vuMarkOutput = "";
 
     public void runOpMode() throws InterruptedException {
 
         //Configure motors, servos and sensors
-        configure("red", "relicSide");
+        configure("blue", "relicSide");
 
         //Wait until play button is pressed
         waitForStart();
