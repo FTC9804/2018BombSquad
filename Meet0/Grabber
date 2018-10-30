@@ -1,22 +1,12 @@
-//GRABBER
+//GRABBER created on September 8th by Isaac Dienstag
 
 //Package statement
 package org.firstinspires.ftc.teamcode;
 
 //Import statements
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.ServoControllerEx;
-import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.robotcore.hardware.PwmControl;
-import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
-import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 //Class declorations
 public class Grabber {
@@ -25,20 +15,18 @@ public class Grabber {
     private DcMotor sweeper;
     private DcMotor extender;
     private Servo sorter;
-    private DigitalChannel retracted;
 
     //Declare private instance variables
     private int currentStatus = 0, prevStatus = 0;
 
     //Constructs a Grabber with two motor names and two motor directions
-    public Grabber(DcMotor newSweeper, DcMotor newExtender, DcMotorSimple.Direction sweeperD, DcMotorSimple.Direction extenderD, Servo sorterServo, DigitalChannel isRetracted) {
+    public Grabber(DcMotor newSweeper, DcMotor newExtender, DcMotorSimple.Direction sweeperD, DcMotorSimple.Direction extenderD, Servo sorterServo) {
         //Sets our private instance motors to the inputs
         sweeper = newSweeper;
         extender = newExtender;
         sweeper.setDirection(sweeperD);
         extender.setDirection(extenderD);
         sorter = sorterServo;
-        retracted = isRetracted;
     } //End constructor
 
     //Checks if a number is too small to be considered intentional. If input <= deadzone, we ignore it, and output 0.
@@ -77,9 +65,9 @@ public class Grabber {
     } //End void method
 
     //Asks for one DigitalChannel, or sensor
-    public void sort () {
+    public void sort (boolean retracted) {
         //Checks if the sensor is activated
-        if(retracted.getState()){
+        if(retracted){
             //If ratracted sensor is activated, meaning we are retracted move sorter into the sorting position
             sorter.setPosition(120);
         }
@@ -136,5 +124,6 @@ public class Grabber {
             prevStatus = currentStatus;
         }
     } //End void method
+    public double getServoPos(){return sorter.getPosition();}
 
 } //End class
