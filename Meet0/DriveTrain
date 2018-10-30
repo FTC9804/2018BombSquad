@@ -1,22 +1,11 @@
-//DRIVETRAIN
+//DRIVETRAIN created by Isaac Dienstag on September 8th
 
 //Package statement
 package org.firstinspires.ftc.teamcode;
 
 //Import Statements
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.ServoControllerEx;
-import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.robotcore.hardware.PwmControl;
-import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
-import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 //Class declaration
 public class DriveTrain  {
@@ -45,7 +34,7 @@ public class DriveTrain  {
 
     //Sets the power of the left motor to the value of lsy
     public void setLeftPower(double lsy) {
-       leftMotor.setPower(deadzone(.05, lsy)* Math.abs(deadzone(.05, lsy)));
+        leftMotor.setPower(deadzone(.05, lsy)* Math.abs(deadzone(.05, lsy)));
     } //End void method
 
     //Sets the power of the right motor to the value of rsy
@@ -62,10 +51,3 @@ public class DriveTrain  {
     }
 
 } //End class
-
-
-
-
-
-
-
