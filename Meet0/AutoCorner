@@ -1,0 +1,132 @@
+//AUTOMAIN created by Isaac Dienstag on October 21st
+
+//Package eclaration
+package org.firstinspires.ftc.teamcode;
+
+//Import Statements
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
+
+//Declaration for display on the driver station
+@Autonomous(name = "CornerAuto")
+
+public class AutoCorner extends TensorFlow {
+    //Object declarations
+    DriveTrain DT;
+    Grabber GB;
+    //Variable declarations
+    double timeOne;
+    double timeTwo;
+    int goldPos;
+
+    //Main OpMode met
+    public void runOpMode() {
+
+        telemetry.addLine("Running crater auto...");
+        telemetry.update();
+
+        //Object initialization
+        DT = new DriveTrain(hardwareMap.dcMotor.get("m2"), hardwareMap.dcMotor.get("m1"), FORWARD, REVERSE);
+        GB = new Grabber(hardwareMap.dcMotor.get("m3"), hardwareMap.dcMotor.get("m4"), FORWARD, REVERSE, hardwareMap.digitalChannel.get("d1"));
+
+        initVuforia();
+
+        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
+            initTfod();
+        } else {
+            telemetry.addData("Sorry!", "This device is not compatible with TFOD");
+            telemetry.update();
+
+        }
+
+        waitForStart();
+
+        goldPos = findPositionTwo();
+
+        pause(3);
+        if(goldPos == -1){
+            DT.setRightPower(.5);
+            pause(.3);
+            DT.stop();
+        }
+        else if(goldPos == 1){
+            DT.setLeftPower(.5);
+            pause(.3);
+            DT.stop();
+        }
+        pause(1);
+        DT.setBothPower(.75);
+        pause(3);
+        DT.stop();
+
+        if(goldPos == 0){
+            DT.setBothPower(-.5);
+            pause(.7);
+            GB.reach(0,.5);
+            pause(.3);
+            GB.reach(1,0);
+            pause(.5);
+            GB.reach(0,0);
+        }
+
+        else if(goldPos == 1){
+            DT.setLeftPower(-.7);
+            pause(.6);
+            DT.stop();
+            pause(.5);
+            DT.setBothPower(.7);
+            pause(2);
+            DT.stop();
+            DT.setBothPower(-.5);
+            pause(.2);
+            DT.stop();
+            GB.reach(0,.5);
+            pause(.6);
+            GB.reach(1,0);
+            pause(.8);
+            GB.reach(0,0);
+            DT.setBothPower(-.5);
+            pause(1);
+            DT.stop();
+        }
+        else {
+            DT.setRightPower(-.7);
+            pause(.6);
+            DT.stop();
+            pause(.5);
+            DT.setBothPower(.7);
+            pause(2);
+            DT.stop();
+            DT.setBothPower(-.5);
+            pause(.2);
+            DT.stop();
+            GB.reach(0,.5);
+            pause(.6);
+            GB.reach(1,0);
+            pause(.8);
+            GB.reach(0,0);
+            DT.setBothPower(-.5);
+            pause(1);
+            DT.stop();
+        }
+
+
+    } //Ends OpMode method
+    //Universal Methods used in Auto:
+
+    //Pause for time seconds
+    public void pause(double time) {
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+        while (timeTwo - timeOne < time) {
+            timeTwo = this.getRuntime();
+        }
+    } //Ends method
+
+
+} //Ends class
