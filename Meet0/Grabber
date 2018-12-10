@@ -6,6 +6,7 @@ package org.firstinspires.ftc.teamcode;
 //Import statements
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 
 //Class declorations
@@ -14,19 +15,19 @@ public class Grabber {
     //Declare instance Motors
     private DcMotor sweeper;
     private DcMotor extender;
-    private Servo sorter;
+    private DigitalChannel isOut;
 
     //Declare private instance variables
     private int currentStatus = 0, prevStatus = 0;
 
     //Constructs a Grabber with two motor names and two motor directions
-    public Grabber(DcMotor newSweeper, DcMotor newExtender, DcMotorSimple.Direction sweeperD, DcMotorSimple.Direction extenderD, Servo sorterServo) {
+    public Grabber(DcMotor newSweeper, DcMotor newExtender, DcMotorSimple.Direction sweeperD, DcMotorSimple.Direction extenderD,  DigitalChannel newIsOut) {
         //Sets our private instance motors to the inputs
         sweeper = newSweeper;
         extender = newExtender;
         sweeper.setDirection(sweeperD);
         extender.setDirection(extenderD);
-        sorter = sorterServo;
+        isOut = newIsOut;
     } //End constructor
 
     //Checks if a number is too small to be considered intentional. If input <= deadzone, we ignore it, and output 0.
@@ -64,66 +65,11 @@ public class Grabber {
         }
     } //End void method
 
-    //Asks for one DigitalChannel, or sensor
-    public void sort (boolean retracted) {
-        //Checks if the sensor is activated
-        if(retracted){
-            //If ratracted sensor is activated, meaning we are retracted move sorter into the sorting position
-            sorter.setPosition(120);
-        }
-        //If retracted sensor is not true, therefore we are not retracted move sorter in position to intake, not sort
-        else {
-            sorter.setPosition(0);
-        }
-    } //End void method
 
     //Asks for two booleans, and uses them to determine the speed of sweeper motor
-    public void intake(boolean lButton, boolean rButton){
-        //If rButton and lButton are both true
-        if(rButton && lButton) {
-            //We do nothing, so prevStatus catches up to currentStatus
-            prevStatus = currentStatus;
-        }
-        //If just rButton is true
-        else if(rButton){
-            //If prevStatus is 1, which means we were previously intaking
-            if(prevStatus == 1) {
-                //Set sweeper to stop intaking
-                sweeper.setPower(0);
-                //Sets current status to 0, which means dormant
-                currentStatus = 0;
-            }
-            //If prevStatus is not 1, which means we were previously dormant or outtaking
-            else {
-                //set sweeper to start intaking
-                sweeper.setPower(.5);
-                //Sets current status to 1, which means we are currently intaking
-                currentStatus = 1;
-            }
-        }
-        //If just lButton is true
-        else if(lButton){
-            //If prevStatus is -1, which means we were previously outtaking
-            if(prevStatus == -1) {
-                //Set sweeper to stop outtaking
-                sweeper.setPower(0);
-                //Sets current status to 0, which means dormant
-                currentStatus = 0;
-            }
-            //If prevStatus is not -1, which means we were previously dormant or outtaking
-            else {
-                //set sweeper to start outtaking
-                sweeper.setPower(-.5);
-                //Sets current status to 1, which means we are currently outtaking
-                currentStatus = -1;
-            }
-        }
-        //If lButton and rButton are both false
-        else {
-            //We do nothing, so prevStatus catches up to currentStatus
-            prevStatus = currentStatus;
-        }
+    public void intake(double pow){
+        sweeper.setPower(deadzone(.05, pow)*Math.abs(pow));
     } //End void method
-    public double getServoPos(){return sorter.getPosition();}
+    public double getExtenderPower(){return extender.getPower();}
 
 } //End class
