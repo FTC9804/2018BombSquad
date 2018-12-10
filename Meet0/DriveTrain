@@ -21,7 +21,8 @@ public class DriveTrain  {
         rightMotor = right;
         leftMotor.setDirection(leftDirection);
         rightMotor.setDirection(rightDirection);
-    } //End con structor
+
+    } //End constructor
 
     //Checks if a number is too small to be considered intentional. If input <= deadzone, we ignore it, and output 0.
     //If input > deadzone, we return input, because the input is likely intentional.
@@ -32,16 +33,25 @@ public class DriveTrain  {
             return 0;
     } //End double method
 
+    public void setZeroPow(){
+        leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
     //Sets the power of the left motor to the value of lsy
     public void setLeftPower(double lsy) {
-        leftMotor.setPower(deadzone(.05, lsy)* Math.abs(deadzone(.05, lsy)));
+        leftMotor.setPower(deadzone(.05, lsy));
     } //End void method
 
     //Sets the power of the right motor to the value of rsy
     public void setRightPower(double rsy) {
-        rightMotor.setPower(deadzone(.05, rsy) * Math.abs(deadzone(.05, rsy)));
+        rightMotor.setPower(deadzone(.05, rsy));
     } //End void method
 
+    public void setBothPower(double pow){
+        this.setRightPower(pow);
+        this.setLeftPower(pow);
+    }
     //Getter statements used in telemetry
     public double getLeftPower(){
         return leftMotor.getPower();
@@ -50,4 +60,8 @@ public class DriveTrain  {
         return leftMotor.getPower();
     }
 
+    public void stop(){
+        rightMotor.setPower(0);
+        leftMotor.setPower(0);
+    }
 } //End class
