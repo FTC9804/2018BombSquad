@@ -1,0 +1,92 @@
+//AUTOMAIN created by Isaac Dienstag on October 21st
+
+//Package eclaration
+package org.firstinspires.ftc.teamcode;
+
+//Import Statements
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
+
+//Declaration for display on the driver station
+@Autonomous(name = "CraterAuto")
+
+public class AutoCrater extends TensorFlow {
+
+    //Object declarations
+    DriveTrain DT;
+    //Variable declarations
+    double timeOne;
+    double timeTwo;
+    int goldPos;
+
+    //Main OpMode method
+    public void runOpMode() {
+
+        //Object initialization
+        telemetry.addLine("Running Corner auto...");
+        telemetry.update();
+
+        DT = new DriveTrain(hardwareMap.dcMotor.get("m2"), hardwareMap.dcMotor.get("m1"), REVERSE, FORWARD);
+
+        initVuforia();
+
+        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
+            initTfod();
+        } else {
+            telemetry.addData("Sorry!", "This device is not compatible with TFOD");
+            telemetry.update();
+
+        }
+
+        waitForStart();
+
+        goldPos = findPosition();
+
+        pause(3);
+        if(goldPos == -1){
+            DT.setRightPower(.6);
+            pause(.3);
+            DT.stop();
+        }
+        else if(goldPos == 1){
+            DT.setLeftPower(.7);
+            pause(.3);
+            DT.stop();
+        }
+        pause(1);
+        DT.setBothPower(.75);
+        pause(3);
+        DT.stop();
+        DT.setBothPower(-.5);
+        pause(.75);
+        DT.stop();
+        //This will turn our robot left if goldPos = 1, or we hit the right block
+        //However if we hit the left block, goldPos would be -1, causing us to turn the opposite direction
+        //Also, if we hit the center block, goldPos would be 0, so we would not turn at all
+        DT.setLeftPower(-.5 * goldPos);
+        DT.setRightPower(.5 * goldPos);
+        pause(1);
+        DT.setBothPower(.75);
+        pause(2.5);
+        DT.stop();
+
+
+
+
+    } //Ends OpMode method
+    //Universal Methods used in Auto:
+
+    //Pause for time seconds
+    public void pause(double time) {
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+        while (timeTwo - timeOne < time) {
+            timeTwo = this.getRuntime();
+        }
+    } //Ends method
+} //Ends class
