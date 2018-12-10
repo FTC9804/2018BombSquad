@@ -11,15 +11,15 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
 //Declaration for display on the driver station
-@TeleOp(name = "TeleOp Test")
+@TeleOp(name = "TeleOp Main2", group  = "main")
 
-public class TeleopMain extends OpMode {
+public class TeleopMain2 extends OpMode {
 
     //Object Declarations
     DriveTrain DT;
     Grabber GB;
     Lifter LT;
-    Hanger HG;
+    //Hanger HG;
 
     //Telemetry variables
     int loopCounter;
@@ -27,10 +27,13 @@ public class TeleopMain extends OpMode {
 
     public void init(){
         //Initialize our objects to the hardwareMap
-        DT = new DriveTrain(hardwareMap.dcMotor.get("m2"), hardwareMap.dcMotor.get("m1"), FORWARD, REVERSE);
-        GB = new Grabber(hardwareMap.dcMotor.get("m3"), hardwareMap.dcMotor.get("m4"), FORWARD, FORWARD, hardwareMap.servo.get("s1"));
-        LT = new Lifter(hardwareMap.dcMotor.get("m5"), FORWARD, hardwareMap.get(DigitalChannel.class, "d2"), hardwareMap.get(DigitalChannel.class, "d3"), hardwareMap.get(DigitalChannel.class, "d4"));
-        HG = new Hanger(hardwareMap.dcMotor.get("m6"));
+        DT = new DriveTrain(hardwareMap.dcMotor.get("m2"), hardwareMap.dcMotor.get("m1"), REVERSE, FORWARD);
+        GB = new Grabber(hardwareMap.dcMotor.get("m3"), hardwareMap.dcMotor.get("m4"), FORWARD, REVERSE, hardwareMap.digitalChannel.get("d1"));
+        LT = new Lifter(hardwareMap.dcMotor.get("m5"), FORWARD, hardwareMap.get(DigitalChannel.class, "d2"), hardwareMap.get(DigitalChannel.class, "d3"), hardwareMap.servo.get("s1"));
+
+        LT.dump(false);
+        DT.setZeroPow();
+        //HG = new Hanger(hardwareMap.dcMotor.get("m6"));
     }
 
     public void start() {
@@ -47,15 +50,14 @@ public class TeleopMain extends OpMode {
         //Set reach control to left and right triggers of the driver
         GB.reach(gamepad1.left_trigger, gamepad1.right_trigger);
         //Set intake controls to the bumpers of the driver
-        GB.intake(gamepad1.left_stick_button, gamepad1.right_stick_button);
-        //Turn on the sort method
-        GB.sort(hardwareMap.get(DigitalChannel.class, "d1").getState());
+        GB.intake(gamepad2.left_stick_y);
 
         //Set lifting and scoring controls to the bumpers of gunner
-        LT.lift(gamepad2.left_bumper, gamepad2.right_bumper);
+        LT.lift(gamepad2.right_trigger, gamepad2.left_trigger);
+        LT.dump(gamepad2.a);
 
         //Set Hanging controls
-        HG.hangAndDrop(gamepad1.a, gamepad1.y);
+        //HG.hangAndDrop(gamepad1.a, gamepad1.y);
 
         //Telemetry for testing
         timeTwo = this.getRuntime();
@@ -64,8 +66,8 @@ public class TeleopMain extends OpMode {
         telemetry.addData("Left Power", DT.getLeftPower());
         telemetry.addData("Right Power", DT.getRightPower());
         telemetry.addData("Lift Power", LT.getLiftPower());
-        telemetry.addData("Hanger Power", HG.getHangPower());
-        telemetry.addData("Sorter Positon", GB.getServoPos());
+        //telemetry.addData("Hanger Power", HG.getHangPower());
+        telemetry.addData("Extender Power: ", GB.getExtenderPower());
         telemetry.update();
     } //Ends loop
 } //Ends class
