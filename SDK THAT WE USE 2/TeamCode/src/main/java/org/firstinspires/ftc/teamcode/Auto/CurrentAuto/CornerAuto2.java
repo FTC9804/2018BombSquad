@@ -50,28 +50,28 @@ public class CornerAuto2 extends TensorFlow {
         //and drive backwards until we hit the wall. We then turn towards counter-clockwise untill our intake faces our depot
         //and drive forwards towards it.
         //We move like this in order to abide by safepaths and ensure we do not hit our alliance partner.
+
         if(rightBlock) {
-            rotate(-18, .35, 7);
-            driveWithEncoders(35, .4, 3);
-            driveWithEncoders(10,-.4,3);
-            rotate(-83, .35, 5);
-            driveWithEncoders(60,.4,5);
-            rotate(-20,.34,5);
-            driveWithEncoders(20,.4,5);
+            rotate(-10, .35, 7, "Turn towards right block");
+            driveWithEncoders(35, .4, 3, "Drive and hit right block");
+            driveWithEncoders(10,-.4,3, "Back up");
+            rotate(-83, .35, 5, "Turn towards wall");
+            driveWithEncoders(60,-.4,5, "Drive towards wall");
+            rotate(-40,.34,5, "Turn towards depot");
+            driveWithEncoders(20,.4,5, "Drive towards depot:");
         }
         //If the gold block was in the left porton of the screen, we assume the block is left, and turn towards it
         else if(leftBlock) {
-            rotate(30, .35, 7);
-            driveWithEncoders(40,.4,3);
-            rotate(-35,.5,3);
-            driveWithEncoders(20,.4,2);
+            rotate(30, .35, 7, "Turn towards left block");
+            driveWithEncoders(40,.4,3, "Drive and hit block");
+            rotate(-35,.5,3, "Turn towards depot");
+            driveWithEncoders(20,.4,2, "Drive towards depot");
         }
         //If the block was not in the very far right or far left, but we still saw it
         //we assume the block is in the center, and do not turn towards either direction,
         //instead we just drive straight forward, hitting the block and lining us up with the depot
         else {
-            driveWithEncoders(45, .4, 3);
-
+            driveWithEncoders(45, .4, 3, "Drive and hit center block");
         }
 
         //Call the method dropMarker(), which extends our intake and runs the intake outwards,
@@ -82,16 +82,17 @@ public class CornerAuto2 extends TensorFlow {
 
         //If the block was on the left, we have to turn towards the crater opposing team's crater
         if(leftBlock)
-            rotate(-27, .4, 3);
+            rotate(-27, .4, 3, "Turn towards wall");
         else if(centerBlock){//If the block is in the center, we back up, turn towards  the opponenets crater, and drive towards it
-            driveWithEncoders(30, -.4, 3);
-            rotate(83, .35, 5);
-            driveWithEncoders(45, .4, 3);
-            rotate(115,.35,3);
+            driveWithEncoders(30, -.4, 3,"Drive backwards");
+            rotate(-83, .35, 5, "Turn towards wall");
+            driveWithEncoders(45, -.4, 3, "Drive towards wall");
         }
 
+        rotate(-50,.35,3, "Turn towards crater");
+
         //Then we drive backwards towards the opposing team's crater
-        driveWithEncoders(75, -.5, 4);
+        driveWithEncoders(75, -.5, 4, "Drive towards crater");
 
     } //Ends runOpMode method
 } //Ends class

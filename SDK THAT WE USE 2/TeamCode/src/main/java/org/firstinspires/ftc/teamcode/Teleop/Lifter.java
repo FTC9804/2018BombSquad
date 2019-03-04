@@ -133,7 +133,7 @@ public class Lifter extends TeleopMain { //This class has to extend TeleopMain i
                 droppingFromTop = false; //Set droppingFromTop to false so we move out of this else if statement
             }
             else if(atBottom.getState()) //If we are not at the bottom
-                liftMotor.setPower(-.4); //Set liftMotor power to -.4
+                liftMotor.setPower(-.5); //Set liftMotor power to -.4
             else { //Else (!atBottom.getState())
                 liftMotor.setPower(0); //Set the liftMotor power to 0
                 afterLift = false; //Set afterLift to false so it won't apply any power when we move out of this if statement
@@ -184,7 +184,7 @@ public class Lifter extends TeleopMain { //This class has to extend TeleopMain i
             liftMotor.setPower(0); //Ignore their values and set the power of liftMotor to 0
         else if (outOfDeadzone(.05, lift) && atTop.getState()) //If lift is a significant value and we are not at the top
             liftMotor.setPower(lift); //Set the power of liftMotor to the value lift
-        else if (outOfDeadzone(.05, drop) && atBottom.getState()) { //If drop is a significant value and we are not at the bottom
+        else if (outOfDeadzone(.05, drop)) { //If drop is a significant value and we are not at the bottom
             liftMotor.setPower(-drop / 2); //Set the power of liftMotor to half the value of drop
             afterLift = false; //Set afterLift to false so that dropping will cancel the afterLift
         }

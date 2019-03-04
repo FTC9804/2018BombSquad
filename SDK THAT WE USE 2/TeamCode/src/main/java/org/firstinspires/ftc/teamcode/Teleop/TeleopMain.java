@@ -79,12 +79,10 @@ public class TeleopMain extends OpMode {
         HG.swap(gamepad2.dpad_left, gamepad2.dpad_right);
 
         //Telemetry for testing
-        telemetry.addLine("Timers: "); //Timer header
-        telemetry.addData("LPS", loopCounter/(timeTwo-timeOne)); //Loops per second value
-        telemetry.addData("Time elapsed: ", Math.round((timeTwo - timeOne)*100)/100.0); //The time elapsed in our teleop
-        telemetry.addData("Left Power: ", DT.getLeftPower()); //The power of the left motor
+        telemetry.addData("LPS:", loopCounter/(timeTwo-timeOne)); //Loops per second value
         telemetry.addLine(); //Gap between time telemetry and motor telemetry
         telemetry.addLine("Motors: "); //Motor header
+        telemetry.addData("Left Power: ", DT.getLeftPower()); //The power of the left motor
         telemetry.addData("Right Power: ", DT.getRightPower()); //The power of the right motor
         telemetry.addData("Extender Power: ", GB.getExtenderPower()); //The power of the extender
         telemetry.addData("Sweeper Power: ", GB.getSweeperPower()); //The power of the sweeper
@@ -101,6 +99,6 @@ public class TeleopMain extends OpMode {
         telemetry.addData("Top State: ", LT.getTopState()); //The current state of the  atTop sensor
         telemetry.addData("Bottom State: ", LT.getBottomState()); //The current state of the atBottom sensoe
         telemetry.update(); //Update every loop
-        
+
     } //Ends loop
 } //Ends class

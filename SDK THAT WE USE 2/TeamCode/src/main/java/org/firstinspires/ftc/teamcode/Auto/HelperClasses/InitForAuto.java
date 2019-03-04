@@ -27,7 +27,7 @@ public abstract class InitForAuto extends LinearOpMode {
     //IMU variables
     BNO055IMU imu; //IMU sensor for detecting the angle of the robot
     Orientation lastAngles = new Orientation(); //Angle state used for updating telemetry
-    double globalAngle, currentAngle; //The angle of the robot at any given moment
+    double globalAngle; //The angle of the robot at any given moment
 
     //Time variables
     double timeOne, timeTwo;
@@ -89,6 +89,8 @@ public abstract class InitForAuto extends LinearOpMode {
         telemetry.addLine(); //Add a space
         goldMineralPos = telemetry.addData("Position: ", "null"); //Show the position of the gold cube
         objectsDetected = telemetry.addData("Objects Detected: ", 0);//Show the number of objects detected
+        telemetry.addLine();
+        telemetry.addLine("Time left on movements:");
         telemetry.update();//Update this information onto the screen
     }
 

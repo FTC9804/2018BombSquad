@@ -65,6 +65,50 @@ public abstract class TensorFlow extends FunctionsForAuto {
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
     }
 
+    //Returns the Recognition of the goldBlock that is value of the lowest gold on screen,
+    //return null if there is no gold found
+    public Recognition getGoldBlock(double waitTime) {
+        if (opModeIsActive()) {
+
+            int goldX = -1;
+            Recognition goldBlock = null;
+
+            /** Activate Tensor Flow Object Detection. */
+            if (tfod != null) {
+                tfod.activate();
+            }
+            timeOne = this.getRuntime();
+            timeTwo = this.getRuntime();
+            while (opModeIsActive() && timeOne - timeTwo < waitTime) {
+                timeOne = this.getRuntime();
+                if (tfod != null) {
+                    // getUpdatedRecognitions() will return null if no new information is available since
+                    // the last time that call was made.
+                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                    pause(.2);
+                    if (updatedRecognitions != null) {
+                        if(updatedRecognitions.size() > 0) {
+                            pause(.2);
+                            objectsDetected.setValue(updatedRecognitions.size());telemetry.update();
+                            double furthestDown = 720;
+                            goldBlock = null;
+                            for(Recognition recognition : updatedRecognitions) {
+                                if (recognition.getLabel().equals(LABEL_GOLD_MINERAL) && recognition.getLeft() < furthestDown) {
+                                    goldBlock = recognition;
+                                    return goldBlock;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return goldBlock;
+        }
+        return null;
+    }
+
+    //OLD METHODS
+
     //Find the position of the gold using if you only see the left two blocks
     public int findPositionTwo() {
         if (opModeIsActive()) {
@@ -160,47 +204,5 @@ public abstract class TensorFlow extends FunctionsForAuto {
             }
         }
         return false;
-    }
-
-    //Returns the Recognition of the goldBlock that is value of the lowest gold on screen,
-    //return null if there is no gold found
-    public Recognition getGoldBlock(double waitTime) {
-        if (opModeIsActive()) {
-
-            int goldX = -1;
-            Recognition goldBlock = null;
-
-            /** Activate Tensor Flow Object Detection. */
-            if (tfod != null) {
-                tfod.activate();
-            }
-            timeOne = this.getRuntime();
-            timeTwo = this.getRuntime();
-            while (opModeIsActive() && timeOne - timeTwo < waitTime) {
-                timeOne = this.getRuntime();
-                if (tfod != null) {
-                    // getUpdatedRecognitions() will return null if no new information is available since
-                    // the last time that call was made.
-                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                    pause(.2);
-                    if (updatedRecognitions != null) {
-                        if(updatedRecognitions.size() > 0) {
-                            pause(.2);
-                            objectsDetected.setValue(updatedRecognitions.size());telemetry.update();
-                            double furthestDown = 720;
-                            goldBlock = null;
-                            for(Recognition recognition : updatedRecognitions) {
-                                if (recognition.getLabel().equals(LABEL_GOLD_MINERAL) && recognition.getLeft() < furthestDown) {
-                                    goldBlock = recognition;
-                                    return goldBlock;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return goldBlock;
-        }
-        return null;
     }
 }
